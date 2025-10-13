@@ -1,11 +1,13 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { login, selectLoginError } from "../slice/authSlice";
+import { login, selectIsAuthenticated, selectLoginError } from "../slice/authSlice";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 
 const LoginForm = () => {
   const dispatch = useAppDispatch();
   const loginError = useAppSelector(selectLoginError);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -21,8 +23,6 @@ const LoginForm = () => {
     }),
     onSubmit: (values) => {
       dispatch(login(values));
-
-      // см в форме регистрации как сделать редирект в случае успешного выполнения запроса
     },
   });
 
@@ -33,6 +33,13 @@ const LoginForm = () => {
         <p className="text-sm text-muted-foreground text-gray-500">
           Enter your email and password to sign in
         </p>
+
+        {isAuthenticated && (
+          <div className="rounded-md bg-green-50 p-3 text-sm text-green-700 border border-green-200">
+            Login successful!
+          </div>
+        )}
+
         {loginError && (
           <div className="rounded-md bg-red-50 p-3 text-sm text-red-700 border border-red-200">
             {loginError}
@@ -42,21 +49,17 @@ const LoginForm = () => {
       <form onSubmit={formik.handleSubmit} className="space-y-4">
         {/* Email Field */}
         <div className="space-y-2">
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
             Email
           </label>
           <input
             id="email"
             type="email"
             {...formik.getFieldProps("email")}
-            className={`w-full px-3 py-2 text-sm border rounded-md shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${
-              formik.touched.email && formik.errors.email
-                ? "border-red-500 focus:ring-red-500"
-                : "border-input"
-            }`}
+            className={`w-full px-3 py-2 text-sm border rounded-md shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${formik.touched.email && formik.errors.email
+              ? "border-red-500 focus:ring-red-500"
+              : "border-input"
+              }`}
             placeholder="you@example.com"
           />
           {formik.touched.email && formik.errors.email && (
@@ -66,21 +69,17 @@ const LoginForm = () => {
 
         {/* Password Field */}
         <div className="space-y-2">
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
             Password
           </label>
           <input
             id="password"
             type="password"
             {...formik.getFieldProps("password")}
-            className={`w-full px-3 py-2 text-sm border rounded-md shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${
-              formik.touched.password && formik.errors.password
-                ? "border-red-500 focus:ring-red-500"
-                : "border-input"
-            }`}
+            className={`w-full px-3 py-2 text-sm border rounded-md shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${formik.touched.password && formik.errors.password
+              ? "border-red-500 focus:ring-red-500"
+              : "border-input"
+              }`}
             placeholder="••••••••"
           />
           {formik.touched.password && formik.errors.password && (
@@ -88,7 +87,6 @@ const LoginForm = () => {
           )}
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           className="w-full inline-flex items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
