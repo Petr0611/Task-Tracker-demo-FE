@@ -26,6 +26,7 @@ const ResetPasswordForm = () => {
         });
         setStatus("success");
       } catch (error) {
+        console.error("Password reset failed:", error);
         setStatus("error");
       }
     },

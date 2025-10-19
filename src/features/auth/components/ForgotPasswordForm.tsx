@@ -11,6 +11,7 @@ const ForgotPasswordForm = () => {
       await axios.post("/api/v1/auth/reset-password-request", { email });
       setStatus("success");
     } catch (error) {
+      console.error("Password reset failed:", error);
       setStatus("error");
     }
   };
