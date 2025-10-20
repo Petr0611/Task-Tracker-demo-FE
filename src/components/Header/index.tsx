@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import { useAppSelector } from "../../app/hooks";
+import { selectIsAuthenticated } from "../../features/auth/slice/authSlice";
 
 export default function Header() {
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
   return (
     <header className="w-full border-b bg-white shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
@@ -29,18 +32,29 @@ export default function Header() {
           >
             Projects
           </Link>
-          <Link
-            to="/register"
-            className="rounded border border-gray-300 px-4 py-1.5 text-sm font-medium text-gray-700 hover:border-gray-500 hover:text-black transition"
-          >
-            Sign up
-          </Link>
-          <Link
-            to="/login"
-            className="rounded bg-black px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-800 transition"
-          >
-            Sign in
-          </Link>
+          {!isAuthenticated ? (
+            <>
+              <Link
+                to="/register"
+                className="rounded border border-gray-300 px-4 py-1.5 text-sm font-medium text-gray-700 hover:border-gray-500 hover:text-black transition"
+              >
+                Sign up
+              </Link>
+              <Link
+                to="/login"
+                className="rounded bg-black px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-800 transition"
+              >
+                Sign in
+              </Link>
+            </>
+          ) : (
+            <Link
+              to="/profile"
+              className="rounded border border-gray-300 px-4 py-1.5 text-sm font-medium text-gray-700 hover:border-gray-500 hover:text-black transition"
+            >
+              Profile
+            </Link>
+          )}
         </nav>
       </div>
     </header>
