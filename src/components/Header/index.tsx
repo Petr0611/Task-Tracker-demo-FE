@@ -32,7 +32,14 @@ export default function Header() {
           >
             Projects
           </Link>
-          {!isAuthenticated ? (
+          {isAuthenticated ? (
+            <Link
+              to="/profile"
+              className="rounded border border-gray-300 px-4 py-1.5 text-sm font-medium text-gray-700 hover:border-gray-500 hover:text-black transition"
+            >
+              Profile
+            </Link>
+          ) : (
             <>
               <Link
                 to="/register"
@@ -47,13 +54,6 @@ export default function Header() {
                 Sign in
               </Link>
             </>
-          ) : (
-            <Link
-              to="/profile"
-              className="rounded border border-gray-300 px-4 py-1.5 text-sm font-medium text-gray-700 hover:border-gray-500 hover:text-black transition"
-            >
-              Profile
-            </Link>
           )}
         </nav>
       </div>
