@@ -54,10 +54,15 @@ export default function CurrentUserDetails(): JSX.Element {
   const handleLogout = async () => {
     try {
       await axiosInstance.post("/logout");
-      setUserData(null);
-      window.location.href = "/login";
+      // toast.success("You have been logged out."); // ← если используешь toast
     } catch (err) {
       console.error("Logout failed:", err);
+      // toast.error("Logout failed."); // ← если используешь toast
+    } finally {
+      localStorage.removeItem("accessToken");
+      sessionStorage.removeItem("accessToken");
+      setUserData(null);
+      window.location.href = "/login";
     }
   };
 
