@@ -1,12 +1,18 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { login, selectIsAuthenticated, selectLoginError } from "../slice/authSlice";
+import {
+  login,
+  selectIsAuthenticated,
+  selectLoginError,
+} from "../slice/authSlice";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
   const dispatch = useAppDispatch();
   const loginError = useAppSelector(selectLoginError);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const navigate = useNavigate();
 
   const formik = useFormik({
     initialValues: {
@@ -49,17 +55,21 @@ const LoginForm = () => {
       <form onSubmit={formik.handleSubmit} className="space-y-4">
         {/* Email Field */}
         <div className="space-y-2">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700"
+          >
             Email
           </label>
           <input
             id="email"
             type="email"
             {...formik.getFieldProps("email")}
-            className={`w-full px-3 py-2 text-sm border rounded-md shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${formik.touched.email && formik.errors.email
-              ? "border-red-500 focus:ring-red-500"
-              : "border-input"
-              }`}
+            className={`w-full px-3 py-2 text-sm border rounded-md shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${
+              formik.touched.email && formik.errors.email
+                ? "border-red-500 focus:ring-red-500"
+                : "border-input"
+            }`}
             placeholder="you@example.com"
           />
           {formik.touched.email && formik.errors.email && (
@@ -69,22 +79,37 @@ const LoginForm = () => {
 
         {/* Password Field */}
         <div className="space-y-2">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700"
+          >
             Password
           </label>
           <input
             id="password"
             type="password"
             {...formik.getFieldProps("password")}
-            className={`w-full px-3 py-2 text-sm border rounded-md shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${formik.touched.password && formik.errors.password
-              ? "border-red-500 focus:ring-red-500"
-              : "border-input"
-              }`}
+            className={`w-full px-3 py-2 text-sm border rounded-md shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${
+              formik.touched.password && formik.errors.password
+                ? "border-red-500 focus:ring-red-500"
+                : "border-input"
+            }`}
             placeholder="••••••••"
           />
           {formik.touched.password && formik.errors.password && (
             <p className="text-sm text-red-500">{formik.errors.password}</p>
           )}
+        </div>
+
+        {/* Forgot Password Field */}
+        <div className="text-right">
+          <button
+            type="button"
+            onClick={() => navigate("/forgot-password")}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            Forgot password
+          </button>
         </div>
 
         <button
