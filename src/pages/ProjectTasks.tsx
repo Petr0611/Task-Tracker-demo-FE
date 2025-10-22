@@ -37,7 +37,6 @@ export default function ProjectTasks() {
   const updateTaskError = useAppSelector(selectUpdateTaskError);
   const deleteTaskError = useAppSelector(selectDeleteTaskError);
 
-  // 👇 форма открывается автоматически, если задач нет
   const [isCreating, setIsCreating] = useState(() => tasks.length === 0);
 
   useEffect(() => {
@@ -52,12 +51,6 @@ export default function ProjectTasks() {
     }
   }, [dispatch, projectId]);
 
-  // ❌ УДАЛИЛИ этот эффект, чтобы форма не закрывалась сразу после открытия
-  // useEffect(() => {
-  //   if (!isLoadingTasks && tasks.length > 0 && isCreating) {
-  //     setIsCreating(false);
-  //   }
-  // }, [isCreating, isLoadingTasks, tasks.length]);
 
   const project = useMemo(
     () => projects.find((item) => item.id === projectId),
@@ -125,7 +118,6 @@ export default function ProjectTasks() {
         </div>
       )}
 
-      {/* ✅ форма теперь открывается корректно */}
       {!isLoadingTasks && isCreating && (
         <TaskForm
           projectId={projectId}
