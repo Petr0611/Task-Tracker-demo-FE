@@ -1,11 +1,12 @@
 import { useEffect, useState, type ChangeEvent, type JSX } from "react";
 import axiosInstance from "../../../lib/axiosInstance";
 import type { UserDetails } from "../types";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function CurrentUserDetails(): JSX.Element {
   const [userData, setUserData] = useState<UserDetails | null>(null);
   const [isEdit, setIsEdit] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -60,7 +61,7 @@ export default function CurrentUserDetails(): JSX.Element {
       localStorage.removeItem("accessToken");
       sessionStorage.removeItem("accessToken");
       setUserData(null);
-      window.location.href = "/login";
+      navigate("");
     }
   };
 
