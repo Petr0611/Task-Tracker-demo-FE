@@ -8,6 +8,7 @@ import Projects from "./pages/Projects";
 import Profile from "./pages/Proile";
 import ForgotPasswordForm from "./features/auth/components/ForgotPasswordForm";
 import ResetPasswordForm from "./features/auth/components/ResetPasswordForm";
+import ProjectTasks from "./pages/ProjectTasks";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPasswordForm />} />
           <Route path="/reset-password" element={<ResetPasswordForm />} />
           <Route path="/projects" element={<Projects />} />
+          <Route path="/projects/:projectId/tasks" element={<ProjectTasks />} />
         </Routes>
       </Layout>
     </div>

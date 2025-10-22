@@ -7,13 +7,14 @@ import {
 } from "../features/projects/slice/projectsSlice";
 import ProjectForm from "../features/projects/components/ProjectForm";
 import ProjectsList from "../features/projects/components/ProjectsList";
+import { useNavigate } from "react-router-dom";
 
 export default function Projects() {
   const dispatch = useAppDispatch();
   const projects = useAppSelector(selectProjects);
   const isLoading = useAppSelector(selectIsLoading);
   const [isCreating, setIsCreating] = useState(false);
-
+  const navigate = useNavigate();
   const projectsCount = projects.length;
   const previousCountRef = useRef(projectsCount);
 
@@ -63,7 +64,12 @@ export default function Projects() {
             Создать новый проект
           </button>
 
-          <ProjectsList projects={projects} />
+          <ProjectsList
+            projects={projects}
+            onProjectClick={(project) =>
+              navigate(`/projects/${project.id}/tasks`)
+            }
+          />
         </>
       )}
     </div>

@@ -1,0 +1,42 @@
+import axiosInstance from "../../../lib/axiosInstance";
+import type { CreateTaskDto, Task, UpdateTaskDto } from "../types";
+
+const TASKS_BASE_PATH = "/tasks";
+
+export const fetchTaskById = async (taskId: string): Promise<Task> => {
+  const res = await axiosInstance.get(`${TASKS_BASE_PATH}/${taskId}`);
+  return res.data;
+};
+
+export const updateTaskById = async (
+  taskId: string,
+  taskDto: UpdateTaskDto
+): Promise<Task> => {
+  const res = await axiosInstance.put(
+    `${TASKS_BASE_PATH}/${taskId}`,
+    taskDto
+  );
+  return res.data;
+};
+
+export const deleteTaskById = async (taskId: string): Promise<void> => {
+  await axiosInstance.delete(`${TASKS_BASE_PATH}/${taskId}`);
+};
+
+export const fetchTasksByProject = async (projectId: string): Promise<Task[]> => {
+  const res = await axiosInstance.get(
+    `${TASKS_BASE_PATH}/project/${projectId}`
+  );
+  return res.data;
+};
+
+export const createTaskForProject = async (
+  projectId: string,
+  taskDto: CreateTaskDto
+): Promise<Task> => {
+  const res = await axiosInstance.post(
+    `${TASKS_BASE_PATH}/project/${projectId}`,
+    taskDto
+  );
+  return res.data;
+};
