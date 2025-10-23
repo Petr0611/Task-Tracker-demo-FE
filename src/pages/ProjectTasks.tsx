@@ -5,21 +5,28 @@ import {
   getAllProjects,
   selectProjects,
 } from "../features/projects/slice/projectsSlice";
-import TaskForm from "../features/tasks/components/TaskForm";
-import TasksList from "../features/tasks/components/TasksList";
+import ColumnForm from "../features/columns/components/ColumnForm";
+import ColumnCard from "../features/columns/components/ColumnCard";
 import {
-  deleteTask,
+  createColumn,
+  getColumnsByProject,
+  selectColumnsByProject,
+  selectColumnsError,
+  selectColumnsIsLoading,
+  selectCreateColumnError,
+  selectIsCreatingColumn,
+} from "../features/columns/slice/columnsSlice";
+import {
+  getTasksByColumn,
   getTasksByProject,
-  selectDeleteTaskError,
-  selectDeletingTaskIds,
-  selectTasksByProject,
+  selectColumnTasksError,
+  selectColumnTasksLoaded,
+  selectColumnTasksLoading,
+  selectTasksByColumn,
   selectTasksError,
   selectTasksIsLoading,
-  selectUpdateTaskError,
-  selectUpdatingTaskIds,
-  updateTask,
 } from "../features/tasks/slice/tasksSlice";
-import type { UpdateTaskDto } from "../features/tasks/types";
+import type { CreateColumnInput } from "../features/columns/types";
 
 export default function ProjectTasks() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -27,17 +34,44 @@ export default function ProjectTasks() {
   const navigate = useNavigate();
 
   const projects = useAppSelector(selectProjects);
-  const tasks = useAppSelector((state) =>
-    projectId ? selectTasksByProject(state, projectId) : []
+  const columns = useAppSelector((state) =>
+    projectId ? selectColumnsByProject(state, projectId) : []
   );
-  const isLoadingTasks = useAppSelector(selectTasksIsLoading);
-  const tasksError = useAppSelector(selectTasksError);
-  const updatingTaskIds = useAppSelector(selectUpdatingTaskIds);
-  const deletingTaskIds = useAppSelector(selectDeletingTaskIds);
-  const updateTaskError = useAppSelector(selectUpdateTaskError);
-  const deleteTaskError = useAppSelector(selectDeleteTaskError);
+  const isLoadingColumns = useAppSelector(selectColumnsIsLoading);
+  const columnsError = useAppSelector(selectColumnsError);
+  const isCreatingColumn = useAppSelector(selectIsCreatingColumn);
+  const createColumnError = useAppSelector(selectCreateColumnError);
+  const isLoadingProjectTasks = useAppSelector(selectTasksIsLoading);
+  const projectTasksError = useAppSelector(selectTasksError);
 
-  const [isCreating, setIsCreating] = useState(() => tasks.length === 0);
+  const columnIds = columns.map((c) => c.id);
+
+  const columnTasksData = useAppSelector((state) => {
+    const result: {
+      tasksByColumn: Record<string, ReturnType<typeof selectTasksByColumn>>;
+      columnTasksLoading: Record<string, boolean>;
+      columnTasksError: Record<string, string | undefined>;
+      columnTasksLoaded: Record<string, boolean>;
+    } = {
+      tasksByColumn: {},
+      columnTasksLoading: {},
+      columnTasksError: {},
+      columnTasksLoaded: {},
+    };
+
+    for (const columnId of columnIds) {
+      result.tasksByColumn[columnId] = selectTasksByColumn(state, columnId);
+      result.columnTasksLoading[columnId] = selectColumnTasksLoading(state, columnId);
+      result.columnTasksError[columnId] = selectColumnTasksError(state, columnId);
+      result.columnTasksLoaded[columnId] = selectColumnTasksLoaded(state, columnId);
+    }
+
+    return result;
+  });
+
+  const [showCreateColumnForm, setShowCreateColumnForm] = useState(() =>
+    columns.length === 0
+  );
 
   useEffect(() => {
     if (projects.length === 0) {
@@ -47,24 +81,38 @@ export default function ProjectTasks() {
 
   useEffect(() => {
     if (projectId) {
+      dispatch(getColumnsByProject(projectId));
       dispatch(getTasksByProject(projectId));
     }
   }, [dispatch, projectId]);
 
+  useEffect(() => {
+    if (!projectId) return;
+
+    for (const column of columns) {
+      if (!columnTasksData.columnTasksLoaded[column.id]) {
+        dispatch(getTasksByColumn({ projectId, columnId: column.id }));
+      }
+    }
+  }, [dispatch, projectId, columns, columnTasksData.columnTasksLoaded]);
 
   const project = useMemo(
     () => projects.find((item) => item.id === projectId),
     [projects, projectId]
   );
 
-  const handleUpdateTask = async (taskId: string, updates: UpdateTaskDto) => {
-    if (!projectId) return;
-    await dispatch(updateTask({ projectId, taskId, updates })).unwrap();
-  };
+  const handleCreateColumn = async (input: CreateColumnInput) => {
+    if (!projectId) {
+      return;
+    }
 
-  const handleDeleteTask = async (taskId: string) => {
-    if (!projectId) return;
-    await dispatch(deleteTask({ projectId, taskId })).unwrap();
+
+    try {
+      await dispatch(createColumn({ projectId, column: input })).unwrap();
+      setShowCreateColumnForm(false);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   if (!projectId) {
@@ -85,8 +133,14 @@ export default function ProjectTasks() {
     );
   }
 
+  const {
+    tasksByColumn,
+    columnTasksLoading,
+    columnTasksError,
+  } = columnTasksData;
+
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-6">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
@@ -106,55 +160,71 @@ export default function ProjectTasks() {
         </div>
       </div>
 
-      {tasksError && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          {tasksError}
+      {(columnsError || projectTasksError) && (
+        <div className="space-y-2">
+          {columnsError && (
+            <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {columnsError}
+            </div>
+          )}
+          {projectTasksError && (
+            <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {projectTasksError}
+            </div>
+          )}
         </div>
       )}
 
-      {isLoadingTasks && (
+      {(isLoadingColumns || isLoadingProjectTasks) && (
         <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
-          Загружаем задачи проекта...
+          Загружаем данные проекта...
         </div>
       )}
 
-      {!isLoadingTasks && isCreating && (
-        <TaskForm
-          projectId={projectId}
-          showCancelButton={tasks.length > 0}
-          onCancel={tasks.length > 0 ? () => setIsCreating(false) : undefined}
-          onCreated={() => setIsCreating(false)}
-        />
-      )}
-
-      {!isLoadingTasks && !isCreating && (
+      <div className="space-y-3">
         <button
           type="button"
-          onClick={() => setIsCreating(true)}
-          className="self-start rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+          onClick={() => setShowCreateColumnForm((prev) => !prev)}
+          className="inline-flex items-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
         >
-          Добавить задачу
+          {showCreateColumnForm ? "Скрыть форму колонки" : "Добавить колонку"}
         </button>
-      )}
 
-      {!isLoadingTasks && tasks.length === 0 && !isCreating && (
+        {showCreateColumnForm && (
+          <ColumnForm
+            submitLabel={isCreatingColumn ? "Создаем..." : "Создать колонку"}
+            onSubmit={handleCreateColumn}
+            onCancel={() => setShowCreateColumnForm(false)}
+            isSubmitting={isCreatingColumn}
+            error={createColumnError}
+            showCancelButton={columns.length > 0}
+            title="Новая колонка"
+            description="Укажите название и порядок отображения колонки"
+            resetOnSubmit
+          />
+        )}
+      </div>
+
+      {!isLoadingColumns && columns.length === 0 && !showCreateColumnForm && (
         <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-sm text-gray-600">
-          В этом проекте еще нет задач. Нажмите «Добавить задачу», чтобы создать
-          первую.
+          В этом проекте еще нет колонок. Создайте первую колонку, чтобы
+          начать добавлять задачи.
         </div>
       )}
 
-      {!isLoadingTasks && tasks.length > 0 && (
-        <TasksList
-          tasks={tasks}
-          onUpdateTask={handleUpdateTask}
-          onDeleteTask={handleDeleteTask}
-          updatingTaskIds={updatingTaskIds}
-          deletingTaskIds={deletingTaskIds}
-          updateTaskError={updateTaskError}
-          deleteTaskError={deleteTaskError}
-        />
-      )}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {columns.map((column) => (
+          <ColumnCard
+            key={column.id}
+            column={column}
+            projectId={projectId}
+            allColumns={columns}
+            tasks={tasksByColumn[column.id] ?? []}
+            tasksLoading={Boolean(columnTasksLoading[column.id])}
+            tasksError={columnTasksError[column.id]}
+          />
+        ))}
+      </div>
     </div>
   );
 }

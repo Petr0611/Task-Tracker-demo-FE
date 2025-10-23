@@ -12,10 +12,7 @@ export const updateTaskById = async (
   taskId: string,
   taskDto: UpdateTaskDto
 ): Promise<Task> => {
-  const res = await axiosInstance.put(
-    `${TASKS_BASE_PATH}/${taskId}`,
-    taskDto
-  );
+  const res = await axiosInstance.put(`${TASKS_BASE_PATH}/${taskId}`, taskDto);
   return res.data;
 };
 
@@ -24,9 +21,12 @@ export const deleteTaskById = async (taskId: string): Promise<void> => {
 };
 
 export const fetchTasksByProject = async (projectId: string): Promise<Task[]> => {
-  const res = await axiosInstance.get(
-    `${TASKS_BASE_PATH}/project/${projectId}`
-  );
+  const res = await axiosInstance.get(`${TASKS_BASE_PATH}/project/${projectId}`);
+  return res.data;
+};
+
+export const fetchTasksByColumn = async (columnId: string): Promise<Task[]> => {
+  const res = await axiosInstance.get(`${TASKS_BASE_PATH}/column/${columnId}`);
   return res.data;
 };
 
