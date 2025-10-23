@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import type { Column } from "../../columns/types";
 import {
   createTask,
   selectCreateTaskError,
@@ -10,12 +12,16 @@ import type { CreateTaskInput } from "../types";
 
 interface TaskFormProps {
   projectId: string;
+  columns: Column[];
+  defaultColumnId?: string;
+  lockColumnSelection?: boolean;
   onCancel?: () => void;
   showCancelButton?: boolean;
   onCreated?: () => void;
 }
 
 const validationSchema = Yup.object({
+  columnId: Yup.string().trim().required("Выберите колонку"),
   title: Yup.string().trim().required("Введите название задачи"),
   description: Yup.string().optional(),
   status: Yup.string().optional(),
@@ -23,7 +29,8 @@ const validationSchema = Yup.object({
   dueDate: Yup.string().optional(),
 });
 
-const createInitialValues = () => ({
+const createInitialValues = (defaultColumnId?: string) => ({
+  columnId: defaultColumnId ?? "",
   title: "",
   description: "",
   status: "",
@@ -33,6 +40,9 @@ const createInitialValues = () => ({
 
 export default function TaskForm({
   projectId,
+  columns,
+  defaultColumnId,
+  lockColumnSelection = false,
   onCancel,
   showCancelButton = false,
   onCreated,
@@ -42,11 +52,12 @@ export default function TaskForm({
   const createError = useAppSelector(selectCreateTaskError);
 
   const formik = useFormik({
-    initialValues: createInitialValues(),
+    initialValues: createInitialValues(defaultColumnId ?? columns[0]?.id),
     validationSchema,
-    enableReinitialize: false,
+    enableReinitialize: true,
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       const sanitizedValues: CreateTaskInput = {
+        columnId: values.columnId.trim(),
         title: values.title.trim(),
         description: values.description.trim()
           ? values.description.trim()
@@ -58,7 +69,7 @@ export default function TaskForm({
 
       try {
         await dispatch(createTask({ projectId, task: sanitizedValues })).unwrap();
-        resetForm();
+        resetForm({ values: createInitialValues(sanitizedValues.columnId) });
         onCreated?.();
       } catch (error) {
         console.error(error);
@@ -68,7 +79,16 @@ export default function TaskForm({
     },
   });
 
+  useEffect(() => {
+    if (!formik.values.columnId && columns.length > 0) {
+      formik.setFieldValue("columnId", columns[0].id, false);
+    }
+  }, [columns, formik]);
+
   const titleHasError = Boolean(formik.touched.title && formik.errors.title);
+  const columnHasError = Boolean(
+    formik.touched.columnId && formik.errors.columnId
+  );
 
   return (
     <div className="space-y-6 rounded-lg border bg-white p-6 shadow-sm">
@@ -85,6 +105,36 @@ export default function TaskForm({
       </div>
 
       <form onSubmit={formik.handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <label
+            htmlFor="columnId"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Колонка
+          </label>
+          <select
+            id="columnId"
+            name="columnId"
+            value={formik.values.columnId}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${columnHasError ? "border-red-500 focus:ring-red-500" : "border-input"}`}
+            disabled={formik.isSubmitting || isCreating || lockColumnSelection}
+          >
+            <option value="" disabled>
+              Выберите колонку
+            </option>
+            {columns.map((column) => (
+              <option key={column.id} value={column.id}>
+                {column.title}
+              </option>
+            ))}
+          </select>
+          {columnHasError && (
+            <p className="text-sm text-red-500">{formik.errors.columnId}</p>
+          )}
+        </div>
+
         <div className="space-y-2">
           <label
             htmlFor="title"

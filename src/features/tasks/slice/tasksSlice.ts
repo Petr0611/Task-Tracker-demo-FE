@@ -15,6 +15,7 @@ const sanitizeOptionalField = (value?: string) => {
 
 const initialState: TasksSliceState = {
   tasksByProject: {},
+  tasksByColumn: {},
   isLoading: false,
   error: undefined,
   isCreating: false,
@@ -23,6 +24,49 @@ const initialState: TasksSliceState = {
   updateTaskError: undefined,
   deletingTaskIds: {},
   deleteTaskError: undefined,
+  columnTasksLoading: {},
+  columnTasksError: {},
+  columnTasksLoaded: {},
+  taskDetailsById: {},
+  taskDetailsLoading: {},
+  taskDetailsError: {},
+};
+
+const ensureColumnTasks = (
+  state: TasksSliceState,
+  columnId: string
+): Task[] => {
+  if (!state.tasksByColumn[columnId]) {
+    state.tasksByColumn[columnId] = [];
+  }
+  return state.tasksByColumn[columnId];
+};
+
+const removeTaskFromColumns = (state: TasksSliceState, taskId: string) => {
+  for (const [columnId, tasks] of Object.entries(state.tasksByColumn)) {
+    const index = tasks.findIndex((task) => task.id === taskId);
+    if (index >= 0) {
+      tasks.splice(index, 1);
+      state.tasksByColumn[columnId] = tasks;
+      break;
+    }
+  }
+};
+
+const replaceTaskInColumns = (
+  state: TasksSliceState,
+  updatedTask: Task
+) => {
+  for (const [columnId, tasks] of Object.entries(state.tasksByColumn)) {
+    const index = tasks.findIndex((task) => task.id === updatedTask.id);
+    if (index >= 0) {
+      tasks[index] = updatedTask;
+      state.tasksByColumn[columnId] = tasks;
+      state.columnTasksLoaded[columnId] = true;
+      state.columnTasksError[columnId] = undefined;
+      break;
+    }
+  }
 };
 
 export const tasksSlice = createAppSlice({
@@ -41,13 +85,76 @@ export const tasksSlice = createAppSlice({
         },
         fulfilled: (state, action) => {
           state.isLoading = false;
-          state.tasksByProject[action.payload.projectId] = action.payload.tasks;
+          state.error = undefined;
+          const { projectId, tasks } = action.payload;
+          state.tasksByProject[projectId] = tasks;
+
+          const tasksByColumn: Record<string, Task[]> = {};
+          tasks.forEach((task) => {
+            if (!tasksByColumn[task.columnId]) {
+              tasksByColumn[task.columnId] = [];
+            }
+            tasksByColumn[task.columnId].push(task);
+            state.taskDetailsById[task.id] = task;
+            state.taskDetailsError[task.id] = undefined;
+          });
+
+          for (const [columnId, columnTasks] of Object.entries(tasksByColumn)) {
+            state.tasksByColumn[columnId] = columnTasks;
+            state.columnTasksLoaded[columnId] = true;
+            state.columnTasksError[columnId] = undefined;
+          }
         },
         rejected: (state, action) => {
           state.isLoading = false;
           state.error = action.error.message;
           const projectId = action.meta.arg;
           state.tasksByProject[projectId] = [];
+        },
+      }
+    ),
+
+    getTasksByColumn: create.asyncThunk(
+      async ({
+        projectId,
+        columnId,
+      }: {
+        projectId: string;
+        columnId: string;
+      }) => {
+        const tasks = await api.fetchTasksByColumn(columnId);
+        return { projectId, columnId, tasks };
+      },
+      {
+        pending: (state, action) => {
+          const columnId = action.meta.arg.columnId;
+          state.columnTasksLoading[columnId] = true;
+          state.columnTasksError[columnId] = undefined;
+        },
+        fulfilled: (state, action) => {
+          const { projectId, columnId, tasks } = action.payload;
+          state.columnTasksLoading[columnId] = false;
+          state.columnTasksError[columnId] = undefined;
+          state.columnTasksLoaded[columnId] = true;
+          state.tasksByColumn[columnId] = tasks;
+
+          const projectTasks = state.tasksByProject[projectId] ?? [];
+          const filtered = projectTasks.filter(
+            (task) => task.columnId !== columnId
+          );
+          state.tasksByProject[projectId] = [...filtered, ...tasks];
+
+          tasks.forEach((task) => {
+            state.taskDetailsById[task.id] = task;
+            state.taskDetailsError[task.id] = undefined;
+          });
+        },
+        rejected: (state, action) => {
+          const columnId = action.meta.arg.columnId;
+          state.columnTasksLoading[columnId] = false;
+          state.columnTasksLoaded[columnId] = true;
+          state.columnTasksError[columnId] = action.error.message;
+          state.tasksByColumn[columnId] = [];
         },
       }
     ),
@@ -60,8 +167,13 @@ export const tasksSlice = createAppSlice({
         projectId: string;
         task: CreateTaskInput;
       }) => {
+        const columnId = task.columnId.trim();
+        if (!columnId) {
+          throw new Error("Не выбрана колонка для задачи");
+        }
+
         const payload: CreateTaskDto = {
-          projectId,
+          columnId,
           title: task.title.trim(),
           description: sanitizeOptionalField(task.description),
           status: sanitizeOptionalField(task.status),
@@ -80,11 +192,19 @@ export const tasksSlice = createAppSlice({
         fulfilled: (state, action) => {
           state.isCreating = false;
           state.createTaskError = undefined;
-          const projectTasks = state.tasksByProject[action.payload.projectId] ?? [];
-          state.tasksByProject[action.payload.projectId] = [
-            ...projectTasks,
-            action.payload,
-          ];
+
+          const newTask = action.payload;
+          const projectTasks = state.tasksByProject[newTask.projectId] ?? [];
+          projectTasks.push(newTask);
+          state.tasksByProject[newTask.projectId] = projectTasks;
+
+          const columnTasks = ensureColumnTasks(state, newTask.columnId);
+          columnTasks.push(newTask);
+          state.tasksByColumn[newTask.columnId] = columnTasks;
+          state.columnTasksLoaded[newTask.columnId] = true;
+          state.columnTasksError[newTask.columnId] = undefined;
+          state.taskDetailsById[newTask.id] = newTask;
+          state.taskDetailsError[newTask.id] = undefined;
         },
         rejected: (state, action) => {
           state.isCreating = false;
@@ -123,35 +243,40 @@ export const tasksSlice = createAppSlice({
           state.updateTaskError = undefined;
         },
         fulfilled: (state, action) => {
-          const taskId = action.payload.id;
+          const updatedTask = action.payload;
+          const taskId = updatedTask.id;
           const previousProjectId = action.meta.arg.projectId;
+
           state.updatingTaskIds[taskId] = false;
           delete state.updatingTaskIds[taskId];
           state.updateTaskError = undefined;
 
-          const previousProjectTasks =
-            state.tasksByProject[previousProjectId];
-          if (previousProjectTasks) {
-            state.tasksByProject[previousProjectId] = previousProjectTasks.filter(
-              (task) => task.id !== taskId
-            );
+          if (previousProjectId !== updatedTask.projectId) {
+            const previousProjectTasks =
+              state.tasksByProject[previousProjectId];
+            if (previousProjectTasks) {
+              state.tasksByProject[previousProjectId] = previousProjectTasks.filter(
+                (task) => task.id !== taskId
+              );
+            }
           }
 
-          const destinationProjectId = action.payload.projectId;
-          const destinationTasks =
-            state.tasksByProject[destinationProjectId] ?? [];
-
-          const existingTaskIndex = destinationTasks.findIndex(
+          const projectTasks = state.tasksByProject[updatedTask.projectId] ?? [];
+          const projectIndex = projectTasks.findIndex(
             (task) => task.id === taskId
           );
 
-          if (existingTaskIndex >= 0) {
-            destinationTasks[existingTaskIndex] = action.payload;
+          if (projectIndex >= 0) {
+            projectTasks[projectIndex] = updatedTask;
           } else {
-            destinationTasks.push(action.payload);
+            projectTasks.push(updatedTask);
           }
+          state.tasksByProject[updatedTask.projectId] = projectTasks;
 
-          state.tasksByProject[destinationProjectId] = destinationTasks;
+          replaceTaskInColumns(state, updatedTask);
+
+          state.taskDetailsById[taskId] = updatedTask;
+          state.taskDetailsError[taskId] = undefined;
         },
         rejected: (state, action) => {
           const taskId = action.meta.arg.taskId;
@@ -191,6 +316,11 @@ export const tasksSlice = createAppSlice({
               (task) => task.id !== taskId
             );
           }
+
+          removeTaskFromColumns(state, taskId);
+          delete state.taskDetailsById[taskId];
+          delete state.taskDetailsLoading[taskId];
+          delete state.taskDetailsError[taskId];
         },
         rejected: (state, action) => {
           const taskId = action.meta.arg.taskId;
@@ -200,10 +330,82 @@ export const tasksSlice = createAppSlice({
         },
       }
     ),
+
+    getTaskById: create.asyncThunk(
+      async (taskId: string) => {
+        const task = await api.fetchTaskById(taskId);
+        return task;
+      },
+      {
+        pending: (state, action) => {
+          const taskId = action.meta.arg;
+          state.taskDetailsLoading[taskId] = true;
+          state.taskDetailsError[taskId] = undefined;
+        },
+        fulfilled: (state, action) => {
+          const task = action.payload;
+          state.taskDetailsLoading[task.id] = false;
+          state.taskDetailsError[task.id] = undefined;
+          state.taskDetailsById[task.id] = task;
+
+          const projectTasks = state.tasksByProject[task.projectId] ?? [];
+          const projectIndex = projectTasks.findIndex(
+            (item) => item.id === task.id
+          );
+          if (projectIndex >= 0) {
+            projectTasks[projectIndex] = task;
+          } else {
+            projectTasks.push(task);
+          }
+          state.tasksByProject[task.projectId] = projectTasks;
+
+          const columnTasks = ensureColumnTasks(state, task.columnId);
+          const columnIndex = columnTasks.findIndex((item) => item.id === task.id);
+          if (columnIndex >= 0) {
+            columnTasks[columnIndex] = task;
+          } else {
+            columnTasks.push(task);
+          }
+          state.tasksByColumn[task.columnId] = columnTasks;
+          state.columnTasksLoaded[task.columnId] = true;
+          state.columnTasksError[task.columnId] = undefined;
+        },
+        rejected: (state, action) => {
+          const taskId = action.meta.arg;
+          state.taskDetailsLoading[taskId] = false;
+          state.taskDetailsError[taskId] = action.error.message;
+        },
+      }
+    ),
+
+    clearTasksForColumn: create.reducer(
+      (state, action: { payload: string }) => {
+        const columnId = action.payload;
+        const tasksToRemove = state.tasksByColumn[columnId] ?? [];
+        delete state.tasksByColumn[columnId];
+        delete state.columnTasksLoading[columnId];
+        delete state.columnTasksError[columnId];
+        delete state.columnTasksLoaded[columnId];
+
+        for (const [projectId, tasks] of Object.entries(state.tasksByProject)) {
+          state.tasksByProject[projectId] = tasks.filter(
+            (task) => task.columnId !== columnId
+          );
+        }
+
+        tasksToRemove.forEach((task) => {
+          delete state.taskDetailsById[task.id];
+          delete state.taskDetailsLoading[task.id];
+          delete state.taskDetailsError[task.id];
+        });
+      }
+    ),
   }),
   selectors: {
     selectTasksByProject: (state, projectId: string): Task[] =>
       state.tasksByProject[projectId] ?? [],
+    selectTasksByColumn: (state, columnId: string): Task[] =>
+      state.tasksByColumn[columnId] ?? [],
     selectIsLoading: (state) => state.isLoading,
     selectError: (state) => state.error,
     selectIsCreating: (state) => state.isCreating,
@@ -212,14 +414,39 @@ export const tasksSlice = createAppSlice({
     selectUpdateTaskError: (state) => state.updateTaskError,
     selectDeletingTaskIds: (state) => state.deletingTaskIds,
     selectDeleteTaskError: (state) => state.deleteTaskError,
+    selectColumnTasksLoading: (state, columnId: string): boolean =>
+      Boolean(state.columnTasksLoading[columnId]),
+    selectColumnTasksError: (
+      state,
+      columnId: string
+    ): string | undefined => state.columnTasksError[columnId],
+    selectColumnTasksLoaded: (state, columnId: string): boolean =>
+      Boolean(state.columnTasksLoaded[columnId]),
+    selectTaskDetailsById: (state, taskId: string): Task | undefined =>
+      state.taskDetailsById[taskId],
+    selectTaskDetailsLoadingById: (state, taskId: string): boolean =>
+      Boolean(state.taskDetailsLoading[taskId]),
+    selectTaskDetailsErrorById: (
+      state,
+      taskId: string
+    ): string | undefined => state.taskDetailsError[taskId],
   },
 });
 
-export const { getTasksByProject, createTask, updateTask, deleteTask } =
-  tasksSlice.actions;
+
+export const {
+  getTasksByProject,
+  getTasksByColumn,
+  createTask,
+  updateTask,
+  deleteTask,
+  getTaskById,
+  clearTasksForColumn,
+} = tasksSlice.actions;
 
 export const {
   selectTasksByProject,
+  selectTasksByColumn,
   selectIsLoading: selectTasksIsLoading,
   selectError: selectTasksError,
   selectIsCreating: selectIsCreatingTask,
@@ -228,4 +455,10 @@ export const {
   selectUpdateTaskError,
   selectDeletingTaskIds,
   selectDeleteTaskError,
+  selectColumnTasksLoading,
+  selectColumnTasksError,
+  selectColumnTasksLoaded,
+  selectTaskDetailsById,
+  selectTaskDetailsLoadingById,
+  selectTaskDetailsErrorById,
 } = tasksSlice.selectors;
