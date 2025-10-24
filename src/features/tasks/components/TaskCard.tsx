@@ -4,7 +4,6 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from "react";
-import type { Column } from "../../columns/types";
 import type { Task, UpdateTaskDto } from "../types";
 import { useAppDispatch} from "../../../app/hooks";
 import {
@@ -13,9 +12,9 @@ import {
 
 interface TaskCardProps {
   task: Task;
-  columns: Column[];
   isUpdating: boolean;
   isDeleting: boolean;
+  isMoving: boolean;
   onUpdateTask: (taskId: string, updates: UpdateTaskDto) => Promise<void>;
   onDeleteTask: (taskId: string) => Promise<void>;
 }
@@ -40,6 +39,7 @@ export default function TaskCard({
   task,
   isUpdating,
   isDeleting,
+  isMoving,
   onUpdateTask,
   onDeleteTask,
 }: TaskCardProps) {
@@ -50,6 +50,8 @@ export default function TaskCard({
     mapTaskToFormState(task)
   );
   const [localError, setLocalError] = useState<string | undefined>();
+
+  const isBusy = isUpdating || isDeleting || isMoving;
 
   useEffect(() => {
     setFormState(mapTaskToFormState(task));
@@ -103,7 +105,7 @@ export default function TaskCard({
   };
 
   const handleDelete = async () => {
-    if (isDeleting) {
+    if (isDeleting || isMoving) {
       return;
     }
 
@@ -133,7 +135,7 @@ export default function TaskCard({
               value={formState.title}
               onChange={handleChange}
               className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
-              disabled={isUpdating}
+              disabled={isBusy}
             />
           </div>
 
@@ -151,7 +153,7 @@ export default function TaskCard({
               value={formState.description}
               onChange={handleChange}
               className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
-              disabled={isUpdating}
+              disabled={isBusy}
             />
           </div>
           {localError && (
@@ -162,7 +164,7 @@ export default function TaskCard({
             <button
               type="submit"
               className="inline-flex w-full items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
-              disabled={isUpdating}
+              disabled={isBusy}
             >
               {isUpdating ? "Сохраняем..." : "Сохранить"}
             </button>
@@ -170,7 +172,7 @@ export default function TaskCard({
               type="button"
               onClick={handleCancelEdit}
               className="inline-flex w-full items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
-              disabled={isUpdating}
+              disabled={isBusy}
             >
               Отменить
             </button>
@@ -198,7 +200,7 @@ export default function TaskCard({
           type="button"
           onClick={() => setIsEditing(true)}
           className="inline-flex w-full items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto"
-          disabled={isUpdating || isDeleting}
+          disabled={isBusy}
         >
           Редактировать
         </button>
@@ -206,7 +208,7 @@ export default function TaskCard({
           type="button"
           onClick={handleDelete}
           className="inline-flex w-full items-center justify-center rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:w-auto"
-          disabled={isDeleting || isUpdating}
+          disabled={isBusy}
         >
           {isDeleting ? "Удаляем..." : "Удалить"}
         </button>

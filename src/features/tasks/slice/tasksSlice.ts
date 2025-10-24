@@ -2,6 +2,7 @@ import { createAppSlice } from "../../../app/createAppSlice";
 import type {
   CreateTaskDto,
   CreateTaskInput,
+  MoveTaskDto,
   Task,
   TasksSliceState,
   UpdateTaskDto,
@@ -24,6 +25,8 @@ const initialState: TasksSliceState = {
   updateTaskError: undefined,
   deletingTaskIds: {},
   deleteTaskError: undefined,
+  movingTaskIds: {},
+  moveTaskError: undefined,
   columnTasksLoading: {},
   columnTasksError: {},
   columnTasksLoaded: {},
@@ -400,6 +403,108 @@ export const tasksSlice = createAppSlice({
         });
       }
     ),
+
+    moveTask: create.asyncThunk(
+      async ({
+        taskId,
+        sourceColumnId: _sourceColumnId,
+        destinationColumnId,
+        orderIndex,
+      }: {
+        taskId: string;
+        sourceColumnId: string;
+        destinationColumnId: string;
+        orderIndex: number;
+      }) => {
+        const payload: MoveTaskDto = {
+          columnId: destinationColumnId,
+          orderIndex,
+        };
+
+        const movedTask = await api.moveTaskById(taskId, payload);
+        return movedTask;
+      },
+      {
+        pending: (state, action) => {
+          const taskId = action.meta.arg.taskId;
+          state.movingTaskIds[taskId] = true;
+          state.moveTaskError = undefined;
+        },
+        fulfilled: (state, action) => {
+          const movedTask = action.payload;
+          const { taskId, sourceColumnId, destinationColumnId, orderIndex } =
+            action.meta.arg;
+
+          state.movingTaskIds[taskId] = false;
+          delete state.movingTaskIds[taskId];
+          state.moveTaskError = undefined;
+
+          if (sourceColumnId === destinationColumnId) {
+            const columnTasks = state.tasksByColumn[sourceColumnId] ?? [];
+            const withoutTask = columnTasks.filter((task) => task.id !== taskId);
+            const targetIndex = Math.max(
+              0,
+              Math.min(orderIndex, withoutTask.length)
+            );
+            withoutTask.splice(targetIndex, 0, movedTask);
+            withoutTask.forEach((task, index) => {
+              task.orderIndex = index;
+            });
+            state.tasksByColumn[sourceColumnId] = withoutTask;
+            state.columnTasksLoaded[sourceColumnId] = true;
+            state.columnTasksError[sourceColumnId] = undefined;
+          } else {
+            const sourceTasks = state.tasksByColumn[sourceColumnId] ?? [];
+            const sourceWithoutTask = sourceTasks.filter(
+              (task) => task.id !== taskId
+            );
+            sourceWithoutTask.forEach((task, index) => {
+              task.orderIndex = index;
+            });
+            state.tasksByColumn[sourceColumnId] = sourceWithoutTask;
+            state.columnTasksLoaded[sourceColumnId] = true;
+            state.columnTasksError[sourceColumnId] = undefined;
+
+            const destinationTasks = state.tasksByColumn[destinationColumnId] ?? [];
+            const destWithoutTask = destinationTasks.filter(
+              (task) => task.id !== taskId
+            );
+            const targetIndex = Math.max(
+              0,
+              Math.min(orderIndex, destWithoutTask.length)
+            );
+            destWithoutTask.splice(targetIndex, 0, movedTask);
+            destWithoutTask.forEach((task, index) => {
+              task.orderIndex = index;
+            });
+            state.tasksByColumn[destinationColumnId] = destWithoutTask;
+            state.columnTasksLoaded[destinationColumnId] = true;
+            state.columnTasksError[destinationColumnId] = undefined;
+          }
+
+          state.taskDetailsById[taskId] = movedTask;
+          state.taskDetailsError[taskId] = undefined;
+
+          const projectTasks = state.tasksByProject[movedTask.projectId] ?? [];
+          const projectIndex = projectTasks.findIndex(
+            (task) => task.id === taskId
+          );
+
+          if (projectIndex >= 0) {
+            projectTasks[projectIndex] = movedTask;
+          } else {
+            projectTasks.push(movedTask);
+          }
+          state.tasksByProject[movedTask.projectId] = projectTasks;
+        },
+        rejected: (state, action) => {
+          const taskId = action.meta.arg.taskId;
+          state.movingTaskIds[taskId] = false;
+          delete state.movingTaskIds[taskId];
+          state.moveTaskError = action.error.message;
+        },
+      }
+    ),
   }),
   selectors: {
     selectTasksByProject: (state, projectId: string): Task[] =>
@@ -414,6 +519,8 @@ export const tasksSlice = createAppSlice({
     selectUpdateTaskError: (state) => state.updateTaskError,
     selectDeletingTaskIds: (state) => state.deletingTaskIds,
     selectDeleteTaskError: (state) => state.deleteTaskError,
+    selectMovingTaskIds: (state) => state.movingTaskIds,
+    selectMoveTaskError: (state) => state.moveTaskError,
     selectColumnTasksLoading: (state, columnId: string): boolean =>
       Boolean(state.columnTasksLoading[columnId]),
     selectColumnTasksError: (
@@ -440,6 +547,7 @@ export const {
   createTask,
   updateTask,
   deleteTask,
+  moveTask,
   getTaskById,
   clearTasksForColumn,
 } = tasksSlice.actions;
@@ -455,6 +563,8 @@ export const {
   selectUpdateTaskError,
   selectDeletingTaskIds,
   selectDeleteTaskError,
+  selectMovingTaskIds,
+  selectMoveTaskError,
   selectColumnTasksLoading,
   selectColumnTasksError,
   selectColumnTasksLoaded,

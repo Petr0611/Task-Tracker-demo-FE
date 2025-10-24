@@ -12,6 +12,11 @@ export interface Task {
   updatedAt?: string;
 }
 
+export interface MoveTaskDto {
+  columnId: string;
+  orderIndex: number;
+}
+
 export interface CreateTaskDto {
   columnId: string;
   title: string;
@@ -49,6 +54,8 @@ export interface TasksSliceState {
   updateTaskError?: string;
   deletingTaskIds: Record<string, boolean>;
   deleteTaskError?: string;
+  movingTaskIds: Record<string, boolean>;
+  moveTaskError?: string;
   columnTasksLoading: Record<string, boolean>;
   columnTasksError: Record<string, string | undefined>;
   columnTasksLoaded: Record<string, boolean>;

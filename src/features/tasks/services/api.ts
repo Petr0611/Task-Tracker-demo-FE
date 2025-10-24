@@ -1,5 +1,5 @@
 import axiosInstance from "../../../lib/axiosInstance";
-import type { CreateTaskDto, Task, UpdateTaskDto } from "../types";
+import type { CreateTaskDto, MoveTaskDto, Task, UpdateTaskDto } from "../types";
 
 const TASKS_BASE_PATH = "/tasks";
 
@@ -37,6 +37,17 @@ export const createTaskForProject = async (
   const res = await axiosInstance.post(
     `${TASKS_BASE_PATH}/project/${projectId}`,
     taskDto
+  );
+  return res.data;
+};
+
+export const moveTaskById = async (
+  taskId: string,
+  payload: MoveTaskDto
+): Promise<Task> => {
+  const res = await axiosInstance.patch(
+    `${TASKS_BASE_PATH}/${taskId}/move`,
+    payload
   );
   return res.data;
 };
