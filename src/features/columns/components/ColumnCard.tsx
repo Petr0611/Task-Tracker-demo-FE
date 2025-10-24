@@ -1,13 +1,23 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+    Fragment,
+    type DragEvent,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
+import clsx from "clsx";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import {
     clearTasksForColumn,
     createTask,
     deleteTask,
+    moveTask,
     selectCreateTaskError,
     selectDeleteTaskError,
     selectDeletingTaskIds,
     selectIsCreatingTask,
+    selectMoveTaskError,
+    selectMovingTaskIds,
     selectUpdateTaskError,
     selectUpdatingTaskIds,
     updateTask,
@@ -65,6 +75,8 @@ export default function ColumnCard({
     const deleteTaskError = useAppSelector(selectDeleteTaskError);
     const updatingTaskIds = useAppSelector(selectUpdatingTaskIds);
     const deletingTaskIds = useAppSelector(selectDeletingTaskIds);
+    const movingTaskIds = useAppSelector(selectMovingTaskIds);
+    const moveTaskError = useAppSelector(selectMoveTaskError);
 
     const updatingColumnIds = useAppSelector(selectUpdatingColumnIds);
     const updateColumnError = useAppSelector(selectUpdateColumnError);
@@ -82,6 +94,7 @@ export default function ColumnCard({
 
     const isUpdatingColumn = Boolean(updatingColumnIds[column.id]);
     const isDeletingColumn = Boolean(deletingColumnIds[column.id]);
+    const [activeDropZone, setActiveDropZone] = useState<number | null>(null);
 
     useEffect(() => {
         if (isEditingColumn) {
@@ -141,6 +154,102 @@ export default function ColumnCard({
         }
     };
 
+    const handleDragStart = (event: DragEvent<HTMLDivElement>, taskId: string) => {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData(
+            "application/json",
+            JSON.stringify({ taskId, sourceColumnId: column.id })
+        );
+        event.dataTransfer.setData("text/plain", taskId);
+    };
+
+    const handleDragOverZone = (event: DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+    };
+
+    const handleDragEnterZone = (index: number) => {
+        setActiveDropZone(index);
+    };
+
+    const handleDragLeaveZone = (index: number) => {
+        setActiveDropZone((prev) => (prev === index ? null : prev));
+    };
+
+    const handleDragEnd = () => {
+        setActiveDropZone(null);
+    };
+
+    const handleDropOnZone = async (
+        event: DragEvent<HTMLDivElement>,
+        targetIndex: number
+    ) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setActiveDropZone(null);
+
+        const dataTransfer = event.dataTransfer;
+        const rawData = dataTransfer.getData("application/json");
+
+        if (!rawData) {
+            return;
+        }
+
+        try {
+            const { taskId, sourceColumnId } = JSON.parse(rawData) as {
+                taskId?: string;
+                sourceColumnId?: string;
+            };
+
+            if (!taskId || !sourceColumnId) {
+                return;
+            }
+
+            if (
+                movingTaskIds[taskId] ||
+                updatingTaskIds[taskId] ||
+                deletingTaskIds[taskId]
+            ) {
+                return;
+            }
+
+            let desiredIndex = Math.max(
+                0,
+                Math.min(targetIndex, sortedTasks.length)
+            );
+
+            if (sourceColumnId === column.id) {
+                const currentIndex = sortedTasks.findIndex(
+                    (taskItem) => taskItem.id === taskId
+                );
+
+                if (currentIndex === -1) {
+                    return;
+                }
+
+                if (desiredIndex > currentIndex) {
+                    desiredIndex -= 1;
+                }
+
+                if (desiredIndex === currentIndex) {
+                    return;
+                }
+            }
+
+            await dispatch(
+                moveTask({
+                    taskId,
+                    sourceColumnId,
+                    destinationColumnId: column.id,
+                    orderIndex: desiredIndex,
+                })
+            ).unwrap();
+            dataTransfer.clearData();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     const handleSubmitColumn = async ({
         title,
         orderIndex,
@@ -180,6 +289,29 @@ export default function ColumnCard({
             console.error(error);
         }
     };
+
+    const DropZone = ({
+        index,
+        isInitial = false,
+    }: {
+        index: number;
+        isInitial?: boolean;
+    }) => (
+        <div
+            onDragOver={handleDragOverZone}
+            onDragEnter={() => handleDragEnterZone(index)}
+            onDragLeave={() => handleDragLeaveZone(index)}
+            onDrop={(event) => handleDropOnZone(event, index)}
+            className={clsx(
+                "my-1 rounded-md transition-all duration-200",
+                activeDropZone === index
+                    ? "h-10 opacity-100 border-2 border-dashed border-black/40 bg-black/5"
+                    : isInitial
+                      ? "h-10 border-2 border-dashed border-gray-200/70 opacity-60"
+                      : "h-2 opacity-0"
+            )}
+        />
+    );
 
     return (
         <section className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -278,12 +410,18 @@ export default function ColumnCard({
             )}
 
             {!tasksLoading && tasks.length === 0 && !showTaskForm && (
-                <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
+                <div
+                    className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600"
+                    onDragOver={handleDragOverZone}
+                    onDragEnter={() => handleDragEnterZone(0)}
+                    onDragLeave={() => handleDragLeaveZone(0)}
+                    onDrop={(event) => handleDropOnZone(event, 0)}
+                >
                     В колонке пока нет задач. Нажмите «Добавить задачу», чтобы создать первую.
                 </div>
             )}
 
-            {(updateTaskError || deleteTaskError) && (
+            {(updateTaskError || deleteTaskError || moveTaskError) && (
                 <div className="space-y-2">
                     {updateTaskError && (
                         <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
@@ -295,21 +433,51 @@ export default function ColumnCard({
                             {deleteTaskError}
                         </div>
                     )}
+                    {moveTaskError && (
+                        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                            {moveTaskError}
+                        </div>
+                    )}
                 </div>
             )}
 
-            <div className="flex flex-col gap-3">
-                {sortedTasks.map((taskItem) => (
-                    <TaskCard
-                        key={taskItem.id}
-                        task={taskItem}
-                        columns={allColumns}
-                        isUpdating={Boolean(updatingTaskIds[taskItem.id])}
-                        isDeleting={Boolean(deletingTaskIds[taskItem.id])}
-                        onUpdateTask={handleUpdateTask}
-                        onDeleteTask={handleDeleteTask}
-                    />
-                ))}
+            <div className="flex flex-col">
+                <DropZone index={0} isInitial={sortedTasks.length === 0} />
+                {sortedTasks.map((taskItem, index) => {
+                    const isUpdatingTask = Boolean(updatingTaskIds[taskItem.id]);
+                    const isDeletingTask = Boolean(deletingTaskIds[taskItem.id]);
+                    const isMovingTask = Boolean(movingTaskIds[taskItem.id]);
+                    const isTaskBusy =
+                        isUpdatingTask || isDeletingTask || isMovingTask;
+
+                    return (
+                        <Fragment key={taskItem.id}>
+                            <div
+                                className={clsx(
+                                    "mb-3",
+                                    isTaskBusy
+                                        ? "cursor-not-allowed opacity-60"
+                                        : "cursor-move"
+                                )}
+                                draggable={!isTaskBusy}
+                                onDragStart={(event) =>
+                                    handleDragStart(event, taskItem.id)
+                                }
+                                onDragEnd={handleDragEnd}
+                            >
+                                <TaskCard
+                                    task={taskItem}
+                                    isUpdating={isUpdatingTask}
+                                    isDeleting={isDeletingTask}
+                                    isMoving={isMovingTask}
+                                    onUpdateTask={handleUpdateTask}
+                                    onDeleteTask={handleDeleteTask}
+                                />
+                            </div>
+                            <DropZone index={index + 1} />
+                        </Fragment>
+                    );
+                })}
             </div>
         </section>
     );
