@@ -407,7 +407,6 @@ export const tasksSlice = createAppSlice({
     moveTask: create.asyncThunk(
       async ({
         taskId,
-        sourceColumnId: _sourceColumnId,
         destinationColumnId,
         orderIndex,
       }: {
