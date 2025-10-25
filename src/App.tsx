@@ -9,6 +9,8 @@ import Profile from "./pages/Proile";
 import ForgotPasswordForm from "./features/auth/components/ForgotPasswordForm";
 import ResetPasswordForm from "./features/auth/components/ResetPasswordForm";
 import ProjectTasks from "./pages/ProjectTasks";
+import ConfirmInvitePage from "./pages/ConfirmInvitePage";
+import InviteFormPage from "./features/projects/components/InviteFormPage";
 
 function App() {
   return (
@@ -25,6 +27,12 @@ function App() {
           <Route path="/reset-password" element={<ResetPasswordForm />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:projectId/tasks" element={<ProjectTasks />} />
+          <Route
+            path="/projects/:projectId/invitations"
+            element={<InviteFormPage />}
+          />
+          <Route path="/confirm-invite" element={<ConfirmInvitePage />} />
+          <Route path="/projects/:projectId" element={<Projects />} />
         </Routes>
       </Layout>
     </div>

@@ -1,4 +1,5 @@
 import type { Project } from "../types";
+import InviteButton from "../components/Invitation"; // добавь импорт
 
 interface ProjectsListProps {
   projects: Project[];
@@ -16,17 +17,31 @@ export default function ProjectsList({
   return (
     <section className="space-y-4">
       <h2 className="text-xl font-semibold">Ваши проекты</h2>
+
       <div className="flex flex-col gap-3">
         {projects.map((project) => (
-          <button
+          <div
             key={project.id}
-            type="button"
-            onClick={() => onProjectClick?.(project)}
-            className="flex flex-col rounded-lg border border-gray-200 bg-white p-4 text-left shadow-sm transition hover:border-gray-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+            className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 shadow-sm hover:border-gray-300 hover:shadow-md transition"
           >
-            <span className="text-base font-medium text-gray-900">{project.title}</span>
-            <span className="mt-1 text-sm text-gray-500">{project.description}</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => onProjectClick?.(project)}
+              className="flex-1 text-left focus:outline-none"
+            >
+              <span className="text-base font-medium text-gray-900">
+                {project.title}
+              </span>
+              <span className="mt-1 block text-sm text-gray-500">
+                {project.description}
+              </span>
+            </button>
+
+            {/* вот здесь добавляем кнопку приглашения */}
+            <div className="ml-4 flex-shrink-0">
+              <InviteButton projectId={project.id} />
+            </div>
+          </div>
         ))}
       </div>
     </section>

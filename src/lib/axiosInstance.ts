@@ -13,6 +13,14 @@ const axiosInstance: AxiosInstance = axios.create({
   },
 });
 
+axiosInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // interface FailedRequest {
 //   resolve: (value?: unknown) => void;
 //   reject: (error: unknown) => void;
