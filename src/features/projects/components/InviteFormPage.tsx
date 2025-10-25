@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 function InviteFormPage() {
   const { projectId } = useParams();
@@ -24,8 +24,9 @@ function InviteFormPage() {
       setSuccess(true);
       setEmail("");
       setRole("MEMBER");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Ошибка при приглашении");
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ message: string }>;
+      setError(axiosError.response?.data?.message || "Ошибка при приглашении");
     } finally {
       setLoading(false);
     }

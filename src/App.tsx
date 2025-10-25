@@ -11,7 +11,6 @@ import ResetPasswordForm from "./features/auth/components/ResetPasswordForm";
 import ProjectTasks from "./pages/ProjectTasks";
 import ConfirmInvitePage from "./pages/ConfirmInvitePage";
 import InviteFormPage from "./features/projects/components/InviteFormPage";
-import ProjectsList from "./features/projects/components/ProjectsList";
 
 function App() {
   return (

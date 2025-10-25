@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import axiosInstance from "../lib/axiosInstance";
+import { AxiosError } from "axios";
 
 const ConfirmInvitePage = () => {
   const [searchParams] = useSearchParams();
@@ -33,9 +34,10 @@ const ConfirmInvitePage = () => {
         setStatus("success");
 
         setTimeout(() => navigate(`/projects/${projectId}`), 10000);
-      } catch (error: any) {
+      } catch (err: unknown) {
         const fallback = "Ссылка недействительна или уже использована";
-        const backendMessage = error?.response?.data?.message;
+        const axiosErr = err as AxiosError<{ message?: string }>;
+        const backendMessage = axiosErr.response?.data?.message;
         setMessage(backendMessage || fallback);
         setStatus("error");
       }
