@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getUserRole } from "../../../lib/api/projectApi";
 import ProjectActions from "./ProjectActions";
 import AccessDenied from "./AccessDenied";
+import { AxiosError } from "axios";
 
 type Role = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 
@@ -14,8 +15,13 @@ export default function RoleUIBlock({ projectId }: { projectId: string }) {
       try {
         const userRole = await getUserRole(projectId);
         setRole(userRole);
-      } catch (err: any) {
-        if (err.response?.status === 403) setError(true);
+      } catch (err) {
+        if (err instanceof AxiosError && err.response?.status === 403) {
+          setError(true);
+        } else {
+          console.error("Unexpected error while fetching user role:", err);
+          setError(true);
+        }
       }
     };
     fetchRole();
