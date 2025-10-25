@@ -21,13 +21,9 @@ const ConfirmInvitePage = () => {
 
     const confirmInvite = async () => {
       try {
-        const response = await axiosInstance.post(
-          "/api/v1/invitations/accept",
-          null,
-          {
-            params: { inviteToken },
-          }
-        );
+        const response = await axiosInstance.post("invitations/accept", null, {
+          params: { inviteToken },
+        });
 
         const projectId = response.data.projectId;
         const projectTitle = response.data.projectTitle;
@@ -36,7 +32,7 @@ const ConfirmInvitePage = () => {
         setMessage(`Вы добавлены в проект "${projectTitle}" как ${role}`);
         setStatus("success");
 
-        setTimeout(() => navigate(`/projects/${projectId}`), 3000);
+        setTimeout(() => navigate(`/projects/${projectId}`), 10000);
       } catch (error: any) {
         const fallback = "Ссылка недействительна или уже использована";
         const backendMessage = error?.response?.data?.message;
