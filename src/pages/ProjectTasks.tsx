@@ -27,6 +27,7 @@ import {
   selectTasksIsLoading,
 } from "../features/tasks/slice/tasksSlice";
 import type { CreateColumnInput } from "../features/columns/types";
+import RoleUIBlock from "../features/projects/components/RoleUIBlock";
 
 export default function ProjectTasks() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -61,16 +62,25 @@ export default function ProjectTasks() {
 
     for (const columnId of columnIds) {
       result.tasksByColumn[columnId] = selectTasksByColumn(state, columnId);
-      result.columnTasksLoading[columnId] = selectColumnTasksLoading(state, columnId);
-      result.columnTasksError[columnId] = selectColumnTasksError(state, columnId);
-      result.columnTasksLoaded[columnId] = selectColumnTasksLoaded(state, columnId);
+      result.columnTasksLoading[columnId] = selectColumnTasksLoading(
+        state,
+        columnId
+      );
+      result.columnTasksError[columnId] = selectColumnTasksError(
+        state,
+        columnId
+      );
+      result.columnTasksLoaded[columnId] = selectColumnTasksLoaded(
+        state,
+        columnId
+      );
     }
 
     return result;
   });
 
-  const [showCreateColumnForm, setShowCreateColumnForm] = useState(() =>
-    columns.length === 0
+  const [showCreateColumnForm, setShowCreateColumnForm] = useState(
+    () => columns.length === 0
   );
 
   useEffect(() => {
@@ -106,7 +116,6 @@ export default function ProjectTasks() {
       return;
     }
 
-
     try {
       await dispatch(createColumn({ projectId, column: input })).unwrap();
       setShowCreateColumnForm(false);
@@ -133,11 +142,8 @@ export default function ProjectTasks() {
     );
   }
 
-  const {
-    tasksByColumn,
-    columnTasksLoading,
-    columnTasksError,
-  } = columnTasksData;
+  const { tasksByColumn, columnTasksLoading, columnTasksError } =
+    columnTasksData;
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
@@ -159,6 +165,8 @@ export default function ProjectTasks() {
           </p>
         </div>
       </div>
+
+      {projectId && <RoleUIBlock projectId={projectId} />}
 
       {(columnsError || projectTasksError) && (
         <div className="space-y-2">
@@ -207,8 +215,8 @@ export default function ProjectTasks() {
 
       {!isLoadingColumns && columns.length === 0 && !showCreateColumnForm && (
         <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-sm text-gray-600">
-          В этом проекте еще нет колонок. Создайте первую колонку, чтобы
-          начать добавлять задачи.
+          В этом проекте еще нет колонок. Создайте первую колонку, чтобы начать
+          добавлять задачи.
         </div>
       )}
 
