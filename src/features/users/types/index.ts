@@ -3,6 +3,6 @@ export interface UserDetails {
   email: string;
   position?: string;
   department?: string;
-  avatarUrl?: string;
+  avatarUrl?: string | null;
   bio?: string;
 }
