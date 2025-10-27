@@ -20,7 +20,7 @@ const InviteButton: React.FC<InviteButtonProps> = ({ projectId }) => {
     <div className="flex flex-col items-end">
       <button
         onClick={handleInvite}
-        className="px-3 py-1.5 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition"
       >
         Пригласить
       </button>

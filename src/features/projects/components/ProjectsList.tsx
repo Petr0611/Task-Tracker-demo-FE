@@ -1,5 +1,4 @@
 import type { Project } from "../types";
-import InviteButton from "../components/Invitation";
 
 interface ProjectsListProps {
   projects: Project[];
@@ -71,9 +70,9 @@ export default function ProjectsList({
                 )}
               </button>
 
-              <div className="ml-4 flex-shrink-0">
+              {/* <div className="ml-4 flex-shrink-0">
                 <InviteButton projectId={project.id} />
-              </div>
+              </div> */}
             </div>
           );
         })}
