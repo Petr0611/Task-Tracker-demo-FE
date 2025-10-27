@@ -2,6 +2,8 @@ import { createAppSlice } from "../../../app/createAppSlice";
 import type { CreateProjectDto, ProjectsSliceState } from "../types";
 import * as api from "../services/api";
 import { isAxiosError, type AxiosError } from "axios";
+import type { RootState } from "../../../app/store";
+import { createSelector } from "@reduxjs/toolkit/react";
 
 const initialState: ProjectsSliceState = {
   projects: [],
@@ -17,8 +19,6 @@ export const projectsSlice = createAppSlice({
         return api
           .fetchProjects()
           .catch((err: AxiosError<{ message: string }>) => {
-            // раскрываем ошибку от аксиоса и получаем сообщение
-            // бросаем новую ошибку, которая поподет в rejected case
             throw new Error(err.response?.data?.message);
           });
       },
@@ -47,11 +47,9 @@ export const projectsSlice = createAppSlice({
             );
           }
         });
-        // The value we return becomes the `fulfilled` action payload
       },
       {
         pending: (state) => {
-          // TODO add spinner here
           state.createProjectErrorMessage = "";
         },
         fulfilled: (state, action) => {
@@ -64,21 +62,20 @@ export const projectsSlice = createAppSlice({
       }
     ),
   }),
-  // You can define your selectors here. These selectors receive the slice
-  // state as their first argument.
   selectors: {
     selectProjects: (state) => state.projects,
     selectIsLoading: (state) => state.isLoading,
     selectCreateProjectErrorMessage: (state) => state.createProjectErrorMessage,
   },
 });
-
-// // Action creators are generated for each case reducer function.
 export const { createProject, getAllProjects } = projectsSlice.actions;
-
-// Selectors returned by `slice.selectors` take the root state as their first argument.
 export const {
   selectProjects,
   selectIsLoading,
   selectCreateProjectErrorMessage,
 } = projectsSlice.selectors;
+
+export const selectMemoizedProjects = createSelector(
+  (state: RootState) => selectProjects(state),
+  (projects) => projects
+);
