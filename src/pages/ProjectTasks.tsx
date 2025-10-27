@@ -25,9 +25,12 @@ import {
   selectTasksByColumn,
   selectTasksError,
   selectTasksIsLoading,
+  selectTaskDetailsById,
 } from "../features/tasks/slice/tasksSlice";
 import type { CreateColumnInput } from "../features/columns/types";
 import RoleUIBlock from "../features/projects/components/RoleUIBlock";
+import type { Task } from "../features/tasks/types";
+import TaskCommentsModal from "../features/tasks/components/TaskCommentsModal";
 
 export default function ProjectTasks() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -82,6 +85,17 @@ export default function ProjectTasks() {
   const [showCreateColumnForm, setShowCreateColumnForm] = useState(
     () => columns.length === 0
   );
+  const [activeTaskForComments, setActiveTaskForComments] =
+    useState<Task | null>(null);
+
+  const activeTaskFromStore = useAppSelector((state) => {
+    if (!activeTaskForComments) {
+      return undefined;
+    }
+    return selectTaskDetailsById(state, activeTaskForComments.id);
+  });
+
+  const taskForComments = activeTaskFromStore ?? activeTaskForComments ?? undefined;
 
   useEffect(() => {
     if (projects.length === 0) {
@@ -230,9 +244,17 @@ export default function ProjectTasks() {
             tasks={tasksByColumn[column.id] ?? []}
             tasksLoading={Boolean(columnTasksLoading[column.id])}
             tasksError={columnTasksError[column.id]}
+            onOpenTaskComments={(task) => setActiveTaskForComments(task)}
           />
         ))}
       </div>
+      {taskForComments && (
+        <TaskCommentsModal
+          task={taskForComments}
+          isOpen={Boolean(taskForComments)}
+          onClose={() => setActiveTaskForComments(null)}
+        />
+      )}
     </div>
   );
 }
