@@ -1,5 +1,3 @@
-import React from "react";
-
 type Role = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 
 export default function ProjectActions({ role }: { role: Role }) {
