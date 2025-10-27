@@ -35,6 +35,8 @@ const mapTaskToFormState = (task: Task): TaskFormState => ({
   dueDate: task.dueDate ? task.dueDate.slice(0, 10) : "",
 });
 
+const TASK_STATUSES = ["NEW", "IN_PROGRESS", "DONE", "BLOCKED"] as const;
+
 export default function TaskCard({
   task,
   isUpdating,
@@ -63,7 +65,11 @@ export default function TaskCard({
     }
   }, [dispatch, showDetails, task.id]);
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    event: ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value } = event.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
   };
@@ -156,6 +162,29 @@ export default function TaskCard({
               disabled={isBusy}
             />
           </div>
+          <div className="space-y-2">
+            <label
+              htmlFor={`status-${task.id}`}
+              className="block text-sm font-medium text-gray-700"
+            >
+              Статус
+            </label>
+            <select
+              id={`status-${task.id}`}
+              name="status"
+              value={formState.status}
+              onChange={handleChange}
+              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
+              disabled={isBusy}
+            >
+              <option value="">Не выбран</option>
+              {TASK_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </div>
           {localError && (
             <p className="text-sm text-red-500">{localError}</p>
           )}
@@ -191,6 +220,10 @@ export default function TaskCard({
             <p className="text-sm text-gray-500">
               {task.description || "Нет описания"}
             </p>
+            <div className="text-sm text-gray-700">
+              <span className="font-medium">Статус: </span>
+              <span>{task.status ?? "Не указан"}</span>
+            </div>
           </div>
         </div>
       </div>
