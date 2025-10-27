@@ -18,6 +18,7 @@ interface TaskCardProps {
   isMoving: boolean;
   onUpdateTask: (taskId: string, updates: UpdateTaskDto) => Promise<void>;
   onDeleteTask: (taskId: string) => Promise<void>;
+  onOpenComments: () => void;
 }
 
 interface TaskFormState {
@@ -45,6 +46,7 @@ export default function TaskCard({
   isMoving,
   onUpdateTask,
   onDeleteTask,
+  onOpenComments,
 }: TaskCardProps) {
   const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
@@ -253,6 +255,14 @@ export default function TaskCard({
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={onOpenComments}
+          className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 sm:w-auto"
+          disabled={isBusy}
+        >
+          Комментарии
+        </button>
         <button
           type="button"
           onClick={() => setIsEditing(true)}
