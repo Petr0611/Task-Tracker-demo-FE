@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getUserRole } from "../../../lib/api/projectApi";
 import ProjectActions from "./ProjectActions";
 import AccessDenied from "./AccessDenied";

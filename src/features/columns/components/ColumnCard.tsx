@@ -47,6 +47,7 @@ interface ColumnCardProps {
     tasks: Task[];
     tasksLoading: boolean;
     tasksError?: string;
+    onOpenTaskComments: (task: Task) => void;
 }
 
 export default function ColumnCard({
@@ -56,6 +57,7 @@ export default function ColumnCard({
     tasks,
     tasksLoading,
     tasksError,
+    onOpenTaskComments,
 }: ColumnCardProps) {
     const dispatch = useAppDispatch();
     const [showTaskForm, setShowTaskForm] = useState(false);
@@ -472,6 +474,9 @@ export default function ColumnCard({
                                     isMoving={isMovingTask}
                                     onUpdateTask={handleUpdateTask}
                                     onDeleteTask={handleDeleteTask}
+                                    onOpenComments={() =>
+                                        onOpenTaskComments(taskItem)
+                                    }
                                 />
                             </div>
                             <DropZone index={index + 1} />

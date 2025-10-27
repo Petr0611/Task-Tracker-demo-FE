@@ -9,6 +9,7 @@ import { useAppDispatch} from "../../../app/hooks";
 import {
   getTaskById,
 } from "../slice/tasksSlice";
+import { formatDueDate, normalizeDueDate, toDueDateInputValue } from "../utils/formatDueDate";
 
 interface TaskCardProps {
   task: Task;
@@ -17,6 +18,7 @@ interface TaskCardProps {
   isMoving: boolean;
   onUpdateTask: (taskId: string, updates: UpdateTaskDto) => Promise<void>;
   onDeleteTask: (taskId: string) => Promise<void>;
+  onOpenComments: () => void;
 }
 
 interface TaskFormState {
@@ -32,8 +34,10 @@ const mapTaskToFormState = (task: Task): TaskFormState => ({
   description: task.description ?? "",
   status: task.status ?? "",
   priority: task.priority ?? "",
-  dueDate: task.dueDate ? task.dueDate.slice(0, 10) : "",
+  dueDate: toDueDateInputValue(task.dueDate),
 });
+
+const TASK_STATUSES = ["NEW", "IN_PROGRESS", "DONE", "BLOCKED"] as const;
 
 export default function TaskCard({
   task,
@@ -42,6 +46,7 @@ export default function TaskCard({
   isMoving,
   onUpdateTask,
   onDeleteTask,
+  onOpenComments,
 }: TaskCardProps) {
   const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
@@ -63,7 +68,11 @@ export default function TaskCard({
     }
   }, [dispatch, showDetails, task.id]);
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    event: ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value } = event.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
   };
@@ -86,7 +95,7 @@ export default function TaskCard({
       priority: formState.priority.trim()
         ? formState.priority.trim()
         : undefined,
-      dueDate: formState.dueDate.trim() ? formState.dueDate.trim() : undefined,
+      dueDate: normalizeDueDate(formState.dueDate),
     };
 
     try {
@@ -156,6 +165,46 @@ export default function TaskCard({
               disabled={isBusy}
             />
           </div>
+          <div className="space-y-2">
+            <label
+              htmlFor={`dueDate-${task.id}`}
+              className="block text-sm font-medium text-gray-700"
+            >
+              Срок выполнения
+            </label>
+            <input
+              id={`dueDate-${task.id}`}
+              name="dueDate"
+              type="datetime-local"
+              value={formState.dueDate}
+              onChange={handleChange}
+              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
+              disabled={isBusy}
+            />
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor={`status-${task.id}`}
+              className="block text-sm font-medium text-gray-700"
+            >
+              Статус
+            </label>
+            <select
+              id={`status-${task.id}`}
+              name="status"
+              value={formState.status}
+              onChange={handleChange}
+              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
+              disabled={isBusy}
+            >
+              <option value="">Не выбран</option>
+              {TASK_STATUSES.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </div>
           {localError && (
             <p className="text-sm text-red-500">{localError}</p>
           )}
@@ -191,11 +240,29 @@ export default function TaskCard({
             <p className="text-sm text-gray-500">
               {task.description || "Нет описания"}
             </p>
+            {task.dueDate && (
+              <p className="text-sm text-gray-600">
+                <span className="font-medium text-gray-700">Срок:</span>{" "}
+                {formatDueDate(task.dueDate)}
+              </p>
+            )}
+            <div className="text-sm text-gray-700">
+              <span className="font-medium">Статус: </span>
+              <span>{task.status ?? "Не указан"}</span>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={onOpenComments}
+          className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 sm:w-auto"
+          disabled={isBusy}
+        >
+          Комментарии
+        </button>
         <button
           type="button"
           onClick={() => setIsEditing(true)}

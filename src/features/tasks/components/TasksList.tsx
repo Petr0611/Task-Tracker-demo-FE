@@ -5,6 +5,7 @@ import {
   useState,
 } from "react";
 import type { Task, UpdateTaskDto } from "../types";
+import { formatDueDate, normalizeDueDate, toDueDateInputValue } from "../utils/formatDueDate";
 
 interface TasksListProps {
   tasks: Task[];
@@ -29,7 +30,7 @@ const mapTaskToFormState = (task: Task): TaskFormState => ({
   description: task.description ?? "",
   status: task.status ?? "",
   priority: task.priority ?? "",
-  dueDate: task.dueDate ? task.dueDate.slice(0, 10) : "",
+  dueDate: toDueDateInputValue(task.dueDate),
 });
 
 interface TaskListItemProps {
@@ -79,7 +80,7 @@ function TaskListItem({
       priority: formState.priority.trim()
         ? formState.priority.trim()
         : undefined,
-      dueDate: formState.dueDate.trim() ? formState.dueDate.trim() : undefined,
+      dueDate: normalizeDueDate(formState.dueDate),
     };
 
     try {
@@ -147,7 +148,23 @@ function TaskListItem({
               disabled={isUpdating}
             />
           </div>
-
+          <div className="space-y-2">
+            <label
+              htmlFor={`dueDate-${task.id}`}
+              className="block text-sm font-medium text-gray-700"
+            >
+              Срок выполнения
+            </label>
+            <input
+              id={`dueDate-${task.id}`}
+              name="dueDate"
+              type="datetime-local"
+              value={formState.dueDate}
+              onChange={handleChange}
+              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
+              disabled={isUpdating}
+            />
+          </div>
           {localError && (
             <p className="text-sm text-red-500">{localError}</p>
           )}
@@ -182,6 +199,12 @@ function TaskListItem({
           <p className="text-sm text-gray-500">
             {task.description || "Нет описания"}
           </p>
+          {task.dueDate && (
+            <p className="text-sm text-gray-600">
+              <span className="font-medium text-gray-700">Срок:</span>{" "}
+              {formatDueDate(task.dueDate)}
+            </p>
+          )}
         </div>
       </div>
 

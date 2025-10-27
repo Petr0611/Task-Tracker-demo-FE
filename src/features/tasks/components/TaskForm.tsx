@@ -9,6 +9,7 @@ import {
   selectIsCreatingTask,
 } from "../slice/tasksSlice";
 import type { CreateTaskInput } from "../types";
+import { normalizeDueDate } from "../utils/formatDueDate";
 
 interface TaskFormProps {
   projectId: string;
@@ -64,7 +65,7 @@ export default function TaskForm({
           : undefined,
         status: values.status.trim() ? values.status.trim() : undefined,
         priority: values.priority.trim() ? values.priority.trim() : undefined,
-        dueDate: values.dueDate.trim() ? values.dueDate.trim() : undefined,
+        dueDate: normalizeDueDate(values.dueDate),
       };
 
       try {
@@ -88,6 +89,9 @@ export default function TaskForm({
   const titleHasError = Boolean(formik.touched.title && formik.errors.title);
   const columnHasError = Boolean(
     formik.touched.columnId && formik.errors.columnId
+  );
+  const dueDateHasError = Boolean(
+    formik.touched.dueDate && formik.errors.dueDate
   );
 
   return (
@@ -171,7 +175,24 @@ export default function TaskForm({
             disabled={formik.isSubmitting || isCreating}
           />
         </div>
-
+        <div className="space-y-2">
+          <label
+            htmlFor="dueDate"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Срок выполнения
+          </label>
+          <input
+            id="dueDate"
+            type="datetime-local"
+            {...formik.getFieldProps("dueDate")}
+            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${dueDateHasError ? "border-red-500 focus:ring-red-500" : "border-input"}`}
+            disabled={formik.isSubmitting || isCreating}
+          />
+          {dueDateHasError && (
+            <p className="text-sm text-red-500">{formik.errors.dueDate}</p>
+          )}
+        </div>
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="submit"

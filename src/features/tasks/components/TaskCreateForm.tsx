@@ -3,6 +3,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import type { Column } from "../../columns/types";
 import type { CreateTaskInput } from "../types";
+import { normalizeDueDate } from "../utils/formatDueDate";
 
 interface TaskCreateFormProps {
     columns: Column[];
@@ -31,7 +32,7 @@ const sanitizeValues = (values: CreateTaskInput): CreateTaskInput => ({
         : undefined,
     status: values.status?.trim() ? values.status.trim() : undefined,
     priority: values.priority?.trim() ? values.priority.trim() : undefined,
-    dueDate: values.dueDate?.trim() ? values.dueDate.trim() : undefined,
+    dueDate: normalizeDueDate(values.dueDate),
 });
 
 export default function TaskCreateForm({
@@ -91,6 +92,9 @@ export default function TaskCreateForm({
     }, [availableColumnId, formik]);
 
     const titleHasError = Boolean(formik.touched.title && formik.errors.title);
+    const dueDateHasError = Boolean(
+        formik.touched.dueDate && formik.errors.dueDate
+    );
 
     return (
         <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
@@ -142,7 +146,24 @@ export default function TaskCreateForm({
                         disabled={formik.isSubmitting || isSubmitting}
                     />
                 </div>
-
+                <div className="space-y-2">
+                    <label
+                        htmlFor="task-due-date"
+                        className="block text-sm font-medium text-gray-700"
+                    >
+                        Срок выполнения
+                    </label>
+                    <input
+                        id="task-due-date"
+                        type="datetime-local"
+                        {...formik.getFieldProps("dueDate")}
+                        className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${dueDateHasError ? "border-red-500 focus:ring-red-500" : "border-input"}`}
+                        disabled={formik.isSubmitting || isSubmitting}
+                    />
+                    {dueDateHasError && (
+                        <p className="text-sm text-red-500">{formik.errors.dueDate}</p>
+                    )}
+                </div>
                 <div className="flex flex-wrap items-center gap-3">
                     <button
                         type="submit"

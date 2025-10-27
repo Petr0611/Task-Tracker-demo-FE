@@ -12,6 +12,24 @@ export interface Task {
   updatedAt?: string;
 }
 
+export interface TaskComment {
+  id: string;
+  taskId: string;
+  authorId?: string;
+  authorName?: string;
+  text: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface CreateTaskCommentDto {
+  text: string;
+}
+
+export interface UpdateTaskCommentDto {
+  text: string;
+}
+
 export interface MoveTaskDto {
   columnId: string;
   orderIndex: number;
@@ -62,4 +80,20 @@ export interface TasksSliceState {
   taskDetailsById: Record<string, Task | undefined>;
   taskDetailsLoading: Record<string, boolean>;
   taskDetailsError: Record<string, string | undefined>;
+}
+
+export interface TaskCommentsSliceState {
+  commentsByTask: Record<string, TaskComment[]>;
+  commentsLoading: Record<string, boolean>;
+  commentsLoaded: Record<string, boolean>;
+  commentsError: Record<string, string | undefined>;
+  commentDetailsById: Record<string, TaskComment | undefined>;
+  commentDetailsLoading: Record<string, boolean>;
+  commentDetailsError: Record<string, string | undefined>;
+  creatingCommentByTask: Record<string, boolean>;
+  createCommentErrorByTask: Record<string, string | undefined>;
+  updatingCommentIds: Record<string, boolean>;
+  updateCommentErrorById: Record<string, string | undefined>;
+  deletingCommentIds: Record<string, boolean>;
+  deleteCommentErrorById: Record<string, string | undefined>;
 }
