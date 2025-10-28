@@ -5,11 +5,10 @@ import {
   type FormEvent,
 } from "react";
 import type { Task, UpdateTaskDto } from "../types";
-import { useAppDispatch} from "../../../app/hooks";
-import {
-  getTaskById,
-} from "../slice/tasksSlice";
-import { formatDueDate, normalizeDueDate, toDueDateInputValue } from "../utils/formatDueDate";
+import { useAppDispatch } from "../../../app/hooks";
+import { getTaskById } from "../slice/tasksSlice";
+import { normalizeDueDate, toDueDateInputValue } from "../utils/formatDueDate";
+import { DeadlineTimer } from "./DeadlineTimer";
 
 interface TaskCardProps {
   task: Task;
@@ -240,12 +239,7 @@ export default function TaskCard({
             <p className="text-sm text-gray-500">
               {task.description || "Нет описания"}
             </p>
-            {task.dueDate && (
-              <p className="text-sm text-gray-600">
-                <span className="font-medium text-gray-700">Срок:</span>{" "}
-                {formatDueDate(task.dueDate)}
-              </p>
-            )}
+            {task.dueDate && <DeadlineTimer dueDate={task.dueDate} />}
             <div className="text-sm text-gray-700">
               <span className="font-medium">Статус: </span>
               <span>{task.status ?? "Не указан"}</span>
