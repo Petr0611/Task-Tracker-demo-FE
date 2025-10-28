@@ -1,13 +1,13 @@
 import axiosInstance from "../../../lib/axiosInstance";
 import type { CreateProjectDto } from "../types";
 
-// we already added  prefix /api in axios config
-
 const PROJECTS_BASE_PATH = "/projects";
 const MY_PROJECTS_BASE_PATH = "/projects/my";
 
 export const fetchProjects = async () => {
   const res = await axiosInstance.get(MY_PROJECTS_BASE_PATH);
+  console.log("API response:", res.data);
+
   return res.data;
 };
 

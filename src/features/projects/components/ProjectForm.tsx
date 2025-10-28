@@ -3,9 +3,9 @@ import * as Yup from "yup";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import {
   createProject,
+  getAllProjects,
   selectCreateProjectErrorMessage,
 } from "../slice/projectsSlice";
-
 
 interface ProjectFormProps {
   onCancel?: () => void;
@@ -17,20 +17,29 @@ const validationSchema = Yup.object({
   description: Yup.string().required("Description is required"),
 });
 
-const ProjectForm = ({ onCancel, showCancelButton = false }: ProjectFormProps) => {
+const ProjectForm = ({
+  onCancel,
+  showCancelButton = false,
+}: ProjectFormProps) => {
   const dispatch = useAppDispatch();
   const projectError = useAppSelector(selectCreateProjectErrorMessage);
 
-  const formik = useFormik({
+  const formik = useFormik<{ title: string; description: string }>({
     initialValues: {
       title: "",
       description: "",
     },
-    
+
     validationSchema,
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       try {
-        await dispatch(createProject(values)).unwrap();
+        const payload = {
+          title: values.title.trim(),
+          description: values.description.trim(),
+          invitations: [],
+        };
+        await dispatch(createProject(payload)).unwrap();
+        await dispatch(getAllProjects());
         resetForm();
       } catch (error) {
         console.error(error);
@@ -42,7 +51,7 @@ const ProjectForm = ({ onCancel, showCancelButton = false }: ProjectFormProps) =
 
   const titleHasError = Boolean(formik.touched.title && formik.errors.title);
   const descriptionHasError = Boolean(
-    formik.touched.description && formik.errors.description,
+    formik.touched.description && formik.errors.description
   );
 
   return (
@@ -71,7 +80,11 @@ const ProjectForm = ({ onCancel, showCancelButton = false }: ProjectFormProps) =
             id="title"
             type="text"
             {...formik.getFieldProps("title")}
-            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${titleHasError ? "border-red-500 focus:ring-red-500" : "border-input"}`}
+            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${
+              titleHasError
+                ? "border-red-500 focus:ring-red-500"
+                : "border-input"
+            }`}
             placeholder="New Website Development"
             disabled={formik.isSubmitting}
           />
@@ -90,7 +103,11 @@ const ProjectForm = ({ onCancel, showCancelButton = false }: ProjectFormProps) =
           <textarea
             id="description"
             {...formik.getFieldProps("description")}
-            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${descriptionHasError ? "border-red-500 focus:ring-red-500" : "border-input"}`}
+            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${
+              descriptionHasError
+                ? "border-red-500 focus:ring-red-500"
+                : "border-input"
+            }`}
             placeholder="A Project to develop a new company website"
             rows={4}
             disabled={formik.isSubmitting}

@@ -1,6 +1,16 @@
+import InviteButton from "../components/Invitation";
+
 type Role = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 
-export default function ProjectActions({ role }: { role: Role }) {
+interface ProjectActionsProps {
+  role: Role;
+  projectId: string;
+}
+
+export default function ProjectActions({
+  role,
+  projectId,
+}: ProjectActionsProps) {
   const isOwner = role === "OWNER";
   const isAdmin = role === "ADMIN";
   const isMember = role === "MEMBER";
@@ -21,9 +31,8 @@ export default function ProjectActions({ role }: { role: Role }) {
 
       {canManage && (
         <div className="flex flex-wrap gap-3">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition">
-            Пригласить участника
-          </button>
+          <InviteButton projectId={projectId} />
+
           <button className="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-800 focus:ring-2 focus:ring-gray-500 focus:ring-offset-1 transition">
             Редактировать проект
           </button>
