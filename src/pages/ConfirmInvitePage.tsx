@@ -33,7 +33,7 @@ const ConfirmInvitePage = () => {
         setMessage(`Вы добавлены в проект "${projectTitle}" как ${role}`);
         setStatus("success");
 
-        setTimeout(() => navigate(`/projects/${projectId}`), 10000);
+        setTimeout(() => navigate(`/projects/${projectId}`), 3000);
       } catch (err: unknown) {
         const fallback = "Ссылка недействительна или уже использована";
         const axiosErr = err as AxiosError<{ message?: string }>;

@@ -35,5 +35,5 @@ export default function RoleUIBlock({ projectId }: { projectId: string }) {
       </p>
     );
 
-  return <ProjectActions role={role} />;
+  return <ProjectActions role={role} projectId={projectId} />;
 }

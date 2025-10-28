@@ -1,10 +1,5 @@
 import { useNavigate } from "react-router-dom";
 
-// InviteButton.tsx
-interface InviteButtonProps {
-  projectId: string;
-}
-
 interface InviteButtonProps {
   projectId: string;
 }
