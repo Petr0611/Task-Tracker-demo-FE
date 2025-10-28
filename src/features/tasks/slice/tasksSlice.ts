@@ -3,6 +3,7 @@ import type {
   CreateTaskDto,
   CreateTaskInput,
   MoveTaskDto,
+  ProjectTasksFilters,
   Task,
   TasksSliceState,
   UpdateTaskDto,
@@ -72,13 +73,54 @@ const replaceTaskInColumns = (
   }
 };
 
+const syncProjectColumnsWithTasks = (
+  state: TasksSliceState,
+  projectId: string,
+  tasks: Task[]
+) => {
+  const tasksByColumn: Record<string, Task[]> = {};
+
+  tasks.forEach((task) => {
+    if (!tasksByColumn[task.columnId]) {
+      tasksByColumn[task.columnId] = [];
+    }
+    tasksByColumn[task.columnId].push(task);
+  });
+
+  const columnIdsWithTasks = new Set(Object.keys(tasksByColumn));
+
+  for (const [columnId, columnTasks] of Object.entries(state.tasksByColumn)) {
+    const hasProjectTasks = columnTasks.some(
+      (task) => task.projectId === projectId
+    );
+
+    if (hasProjectTasks && !columnIdsWithTasks.has(columnId)) {
+      state.tasksByColumn[columnId] = [];
+      state.columnTasksLoaded[columnId] = true;
+      state.columnTasksError[columnId] = undefined;
+    }
+  }
+
+  for (const [columnId, columnTasks] of Object.entries(tasksByColumn)) {
+    state.tasksByColumn[columnId] = columnTasks;
+    state.columnTasksLoaded[columnId] = true;
+    state.columnTasksError[columnId] = undefined;
+  }
+};
+
 export const tasksSlice = createAppSlice({
   name: "tasks",
   initialState,
   reducers: (create) => ({
     getTasksByProject: create.asyncThunk(
-      async (projectId: string) => {
-        const tasks = await api.fetchTasksByProject(projectId);
+      async ({
+        projectId,
+        filters,
+      }: {
+        projectId: string;
+        filters?: ProjectTasksFilters;
+      }) => {
+        const tasks = await api.fetchTasksByProject({ projectId, filters });
         return { projectId, tasks };
       },
       {
@@ -92,27 +134,19 @@ export const tasksSlice = createAppSlice({
           const { projectId, tasks } = action.payload;
           state.tasksByProject[projectId] = tasks;
 
-          const tasksByColumn: Record<string, Task[]> = {};
+          syncProjectColumnsWithTasks(state, projectId, tasks);
+
           tasks.forEach((task) => {
-            if (!tasksByColumn[task.columnId]) {
-              tasksByColumn[task.columnId] = [];
-            }
-            tasksByColumn[task.columnId].push(task);
             state.taskDetailsById[task.id] = task;
             state.taskDetailsError[task.id] = undefined;
           });
-
-          for (const [columnId, columnTasks] of Object.entries(tasksByColumn)) {
-            state.tasksByColumn[columnId] = columnTasks;
-            state.columnTasksLoaded[columnId] = true;
-            state.columnTasksError[columnId] = undefined;
-          }
         },
         rejected: (state, action) => {
           state.isLoading = false;
           state.error = action.error.message;
-          const projectId = action.meta.arg;
+          const projectId = action.meta.arg.projectId;
           state.tasksByProject[projectId] = [];
+          syncProjectColumnsWithTasks(state, projectId, []);
         },
       }
     ),

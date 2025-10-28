@@ -1,5 +1,11 @@
 import axiosInstance from "../../../lib/axiosInstance";
-import type { CreateTaskDto, MoveTaskDto, Task, UpdateTaskDto } from "../types";
+import type {
+  CreateTaskDto,
+  MoveTaskDto,
+  ProjectTasksFilters,
+  Task,
+  UpdateTaskDto,
+} from "../types";
 
 const TASKS_BASE_PATH = "/tasks";
 
@@ -20,8 +26,22 @@ export const deleteTaskById = async (taskId: string): Promise<void> => {
   await axiosInstance.delete(`${TASKS_BASE_PATH}/${taskId}`);
 };
 
-export const fetchTasksByProject = async (projectId: string): Promise<Task[]> => {
-  const res = await axiosInstance.get(`${TASKS_BASE_PATH}/project/${projectId}`);
+export const fetchTasksByProject = async ({
+  projectId,
+  filters,
+}: {
+  projectId: string;
+  filters?: ProjectTasksFilters;
+}): Promise<Task[]> => {
+  const params = Object.fromEntries(
+    Object.entries(filters ?? {}).filter(
+      ([, value]) => value !== undefined && value !== ""
+    )
+  );
+
+  const res = await axiosInstance.get(`${TASKS_BASE_PATH}/project/${projectId}`, {
+    params,
+  });
   return res.data;
 };
 

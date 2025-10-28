@@ -7,6 +7,8 @@ export interface Task {
   status?: string;
   priority?: string;
   dueDate?: string;
+  executorId?: string;
+  executorName?: string;
   orderIndex?: number;
   createdAt?: string;
   updatedAt?: string;
@@ -59,6 +61,13 @@ export interface CreateTaskInput {
   status?: string;
   priority?: string;
   dueDate?: string;
+}
+
+export interface ProjectTasksFilters {
+  status?: string;
+  executorId?: string;
+  dueBefore?: string;
+  sortBy?: string;
 }
 
 export interface TasksSliceState {

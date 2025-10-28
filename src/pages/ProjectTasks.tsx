@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import {
@@ -31,6 +31,23 @@ import type { CreateColumnInput } from "../features/columns/types";
 import RoleUIBlock from "../features/projects/components/RoleUIBlock";
 import type { Task } from "../features/tasks/types";
 import TaskCommentsModal from "../features/tasks/components/TaskCommentsModal";
+import { normalizeDueDate } from "../features/tasks/utils/formatDueDate";
+
+const TASK_STATUS_OPTIONS = [
+  { value: "", label: "Все" },
+  { value: "NEW", label: "Новая" },
+  { value: "IN_PROGRESS", label: "В работе" },
+  { value: "DONE", label: "Завершена" },
+  { value: "BLOCKED", label: "Заблокирована" },
+];
+
+const SORT_OPTIONS = [
+  { value: "", label: "Без сортировки" },
+  { value: "dueDate", label: "По дедлайну" },
+  { value: "createdAt", label: "По дате создания" },
+  { value: "priority", label: "По приоритету" },
+  { value: "status", label: "По статусу" },
+];
 
 export default function ProjectTasks() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -88,6 +105,37 @@ export default function ProjectTasks() {
   const [activeTaskForComments, setActiveTaskForComments] =
     useState<Task | null>(null);
 
+  const [taskFilters, setTaskFilters] = useState({
+    status: "",
+    executorId: "",
+    dueBefore: "",
+    sortBy: "",
+  });
+
+  const sanitizedFilters = useMemo(() => {
+    const dueBefore = taskFilters.dueBefore
+      ? normalizeDueDate(taskFilters.dueBefore)
+      : undefined;
+
+    const executorId = taskFilters.executorId.trim()
+      ? taskFilters.executorId.trim()
+      : undefined;
+
+    return {
+      status: taskFilters.status || undefined,
+      executorId,
+      dueBefore,
+      sortBy: taskFilters.sortBy || undefined,
+    };
+  }, [taskFilters]);
+
+  const hasActiveFilters = Boolean(
+    sanitizedFilters.status ||
+    sanitizedFilters.executorId ||
+    sanitizedFilters.dueBefore ||
+    sanitizedFilters.sortBy
+  );
+
   const activeTaskFromStore = useAppSelector((state) => {
     if (!activeTaskForComments) {
       return undefined;
@@ -106,19 +154,37 @@ export default function ProjectTasks() {
   useEffect(() => {
     if (projectId) {
       dispatch(getColumnsByProject(projectId));
-      dispatch(getTasksByProject(projectId));
     }
   }, [dispatch, projectId]);
 
   useEffect(() => {
-    if (!projectId) return;
+    if (!projectId) {
+      return;
+    }
+
+    void dispatch(
+      getTasksByProject({
+        projectId,
+        filters: sanitizedFilters,
+      })
+    );
+  }, [dispatch, projectId, sanitizedFilters]);
+
+  useEffect(() => {
+    if (!projectId || hasActiveFilters) return;
 
     for (const column of columns) {
       if (!columnTasksData.columnTasksLoaded[column.id]) {
         dispatch(getTasksByColumn({ projectId, columnId: column.id }));
       }
     }
-  }, [dispatch, projectId, columns, columnTasksData.columnTasksLoaded]);
+  }, [
+    dispatch,
+    projectId,
+    columns,
+    columnTasksData.columnTasksLoaded,
+    hasActiveFilters,
+  ]);
 
   const project = useMemo(
     () => projects.find((item) => item.id === projectId),
@@ -136,6 +202,17 @@ export default function ProjectTasks() {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleTaskFiltersChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = event.target;
+    setTaskFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleResetTaskFilters = () => {
+    setTaskFilters({ status: "", executorId: "", dueBefore: "", sortBy: "" });
   };
 
   if (!projectId) {
@@ -202,6 +279,108 @@ export default function ProjectTasks() {
           Загружаем данные проекта...
         </div>
       )}
+
+      <form
+        className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+        onSubmit={(event) => event.preventDefault()}
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-2">
+            <label
+              htmlFor="status"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Статус
+            </label>
+            <select
+              id="status"
+              name="status"
+              value={taskFilters.status}
+              onChange={handleTaskFiltersChange}
+              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1"
+            >
+              {TASK_STATUS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="executorId"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Исполнитель
+            </label>
+            <input
+              id="executorId"
+              name="executorId"
+              type="text"
+              value={taskFilters.executorId}
+              onChange={handleTaskFiltersChange}
+              placeholder="ID исполнителя"
+              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="dueBefore"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Дедлайн до
+            </label>
+            <input
+              id="dueBefore"
+              name="dueBefore"
+              type="datetime-local"
+              value={taskFilters.dueBefore}
+              onChange={handleTaskFiltersChange}
+              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor="sortBy"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Сортировка
+            </label>
+            <select
+              id="sortBy"
+              name="sortBy"
+              value={taskFilters.sortBy}
+              onChange={handleTaskFiltersChange}
+              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1"
+            >
+              {SORT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap justify-end gap-3">
+          <span className="self-center text-sm text-gray-500">
+            {hasActiveFilters
+              ? "Применены фильтры к списку задач"
+              : "Показаны все задачи проекта"}
+          </span>
+          <button
+            type="button"
+            onClick={handleResetTaskFilters}
+            disabled={!hasActiveFilters}
+            className="inline-flex items-center rounded-md border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 disabled:cursor-not-allowed disabled:text-gray-400"
+          >
+            Сбросить фильтры
+          </button>
+        </div>
+      </form>
 
       <div className="space-y-3">
         <button
