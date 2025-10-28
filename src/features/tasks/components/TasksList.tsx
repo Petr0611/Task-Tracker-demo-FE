@@ -5,7 +5,8 @@ import {
   useState,
 } from "react";
 import type { Task, UpdateTaskDto } from "../types";
-import { formatDueDate, normalizeDueDate, toDueDateInputValue } from "../utils/formatDueDate";
+import { normalizeDueDate, toDueDateInputValue } from "../utils/formatDueDate";
+import { DeadlineTimer } from "./DeadlineTimer";
 
 interface TasksListProps {
   tasks: Task[];
@@ -199,12 +200,7 @@ function TaskListItem({
           <p className="text-sm text-gray-500">
             {task.description || "Нет описания"}
           </p>
-          {task.dueDate && (
-            <p className="text-sm text-gray-600">
-              <span className="font-medium text-gray-700">Срок:</span>{" "}
-              {formatDueDate(task.dueDate)}
-            </p>
-          )}
+          {task.dueDate && <DeadlineTimer dueDate={task.dueDate} />}
         </div>
       </div>
 
