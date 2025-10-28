@@ -49,6 +49,9 @@ export default function CurrentUserDetails(): JSX.Element {
       });
       setUserData(res.data);
       setIsEdit(false);
+      window.dispatchEvent(
+        new CustomEvent("avatarUpdated", { detail: res.data.avatarUrl })
+      );
     } catch (err) {
       console.error("Save failed:", err);
     }
@@ -56,7 +59,7 @@ export default function CurrentUserDetails(): JSX.Element {
 
   const handleLogout = async () => {
     try {
-      await axiosInstance.post("/logout", null, { withCredentials: true });
+      await axiosInstance.post("auth/logout");
       setUserData(null);
       window.location.href = "/login";
     } catch (err) {
