@@ -1,20 +1,20 @@
 import { useRef, useState } from "react";
 import type { UserDetails } from "../types";
-import avatar1 from "../../../assets/avatars/avatar01.png";
-import avatar2 from "../../../assets/avatars/avatar02.png";
-import avatar3 from "../../../assets/avatars/avatar03.png";
-import avatar4 from "../../../assets/avatars/avatar04.png";
-import avatar5 from "../../../assets/avatars/avatar05.png";
-import avatar6 from "../../../assets/avatars/avatar06.png";
-import avatar7 from "../../../assets/avatars/avatar07.png";
-import avatar8 from "../../../assets/avatars/avatar08.png";
-import avatar9 from "../../../assets/avatars/avatar09.png";
-import avatar10 from "../../../assets/avatars/avatar10.png";
-import avatar11 from "../../../assets/avatars/avatar11.png";
-import avatar12 from "../../../assets/avatars/avatar12.png";
-import avatar13 from "../../../assets/avatars/avatar13.png";
-import uploadIcon from "../../../assets/avatars/upload_icon.png";
-import resetIcon from "../../../assets/avatars/reset_icon.png";
+import avatar1 from "../../../assets/avatars/avatar01.webp";
+import avatar2 from "../../../assets/avatars/avatar02.webp";
+import avatar3 from "../../../assets/avatars/avatar03.webp";
+import avatar4 from "../../../assets/avatars/avatar04.webp";
+import avatar5 from "../../../assets/avatars/avatar05.webp";
+import avatar6 from "../../../assets/avatars/avatar06.webp";
+import avatar7 from "../../../assets/avatars/avatar07.webp";
+import avatar8 from "../../../assets/avatars/avatar08.webp";
+import avatar9 from "../../../assets/avatars/avatar09.webp";
+import avatar10 from "../../../assets/avatars/avatar10.webp";
+import avatar11 from "../../../assets/avatars/avatar11.webp";
+import avatar12 from "../../../assets/avatars/avatar12.webp";
+import avatar13 from "../../../assets/avatars/avatar13.webp";
+import uploadIcon from "../../../assets/ui/upload_icon.webp";
+import resetIcon from "../../../assets/ui/reset_icon.webp";
 import axiosInstance from "../../../lib/axiosInstance";
 
 interface AvatarSelectorProps {
@@ -109,10 +109,10 @@ export default function AvatarSelector({
           <img
             src={displayAvatar}
             alt="User avatar"
-            className="w-32 h-32 m-10 rounded-full object-cover border-2 border-gray-200 hover:opacity-90 transition"
+            className="w-32 h-32 m-10 rounded-full object-cover border-2 border-gray-200 transition-transform duration-200 hover:scale-115"
           />
         ) : (
-          <div className="w-32 h-32 m-10 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-semibold text-gray-700 border-2 border-gray-200">
+          <div className="w-32 h-32 m-10 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-semibold text-gray-700 border-2 border-gray-200 transition-transform duration-200 hover:scale-115">
             {userData.displayName
               ? userData.displayName
                   .toUpperCase()
@@ -133,7 +133,7 @@ export default function AvatarSelector({
                 key={src}
                 src={src}
                 alt="avatar option"
-                className="w-16 h-16 rounded-full object-cover border-2 border-transparent hover:border-blue-500 cursor-pointer"
+                className="w-16 h-16 rounded-full object-cover border-5 border-[#c2c2c2] hover:border-blue-500 cursor-pointer"
                 onClick={() => handleLocalSelect(src)}
               />
             ))}
@@ -141,19 +141,19 @@ export default function AvatarSelector({
             {/* Upload Button */}
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-blue-400 transition"
+              className="w-16 h-16 rounded-full border-5 border-dashed border-[#c2c2c2] flex items-center justify-center cursor-pointer hover:border-blue-400 transition"
               title="Upload"
             >
-              <img src={uploadIcon} alt="upload icon" className="w-8 h-8" />
+              <img src={uploadIcon} alt="upload icon" className="w-15 h-15" />
             </div>
 
             {/* Reset Button */}
             <div
               onClick={handleReset}
-              className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-blue-400 transition"
+              className="w-16 h-16 rounded-full border-5 border-dashed border-[#c2c2c2] flex items-center justify-center cursor-pointer hover:border-blue-400 transition"
               title="Reset"
             >
-              <img src={resetIcon} alt="reset icon" className="w-8 h-8" />
+              <img src={resetIcon} alt="reset icon" className="w-15 h-15" />
             </div>
           </div>
 
