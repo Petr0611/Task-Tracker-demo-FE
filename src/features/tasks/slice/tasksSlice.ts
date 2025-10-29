@@ -1,5 +1,7 @@
 import { createAppSlice } from "../../../app/createAppSlice";
 import type {
+  BulkMoveTasksDto,
+  BulkUpdateTaskStatusDto,
   CreateTaskDto,
   CreateTaskInput,
   MoveTaskDto,
@@ -28,6 +30,10 @@ const initialState: TasksSliceState = {
   deleteTaskError: undefined,
   movingTaskIds: {},
   moveTaskError: undefined,
+  isBulkUpdatingStatus: false,
+  bulkUpdateStatusError: undefined,
+  isBulkMovingTasks: false,
+  bulkMoveTasksError: undefined,
   columnTasksLoading: {},
   columnTasksError: {},
   columnTasksLoaded: {},
@@ -52,25 +58,49 @@ const removeTaskFromColumns = (state: TasksSliceState, taskId: string) => {
     if (index >= 0) {
       tasks.splice(index, 1);
       state.tasksByColumn[columnId] = tasks;
-      break;
     }
   }
 };
 
-const replaceTaskInColumns = (
-  state: TasksSliceState,
-  updatedTask: Task
-) => {
-  for (const [columnId, tasks] of Object.entries(state.tasksByColumn)) {
-    const index = tasks.findIndex((task) => task.id === updatedTask.id);
-    if (index >= 0) {
-      tasks[index] = updatedTask;
-      state.tasksByColumn[columnId] = tasks;
-      state.columnTasksLoaded[columnId] = true;
-      state.columnTasksError[columnId] = undefined;
-      break;
-    }
+const upsertTaskForProject = (state: TasksSliceState, task: Task) => {
+  const projectTasks = state.tasksByProject[task.projectId] ?? [];
+  const projectIndex = projectTasks.findIndex((item) => item.id === task.id);
+
+  if (projectIndex >= 0) {
+    projectTasks[projectIndex] = task;
+  } else {
+    projectTasks.push(task);
   }
+
+  state.tasksByProject[task.projectId] = projectTasks;
+};
+
+const insertTaskIntoColumn = (state: TasksSliceState, task: Task) => {
+  const columnTasks = ensureColumnTasks(state, task.columnId);
+  const existingIndex = columnTasks.findIndex((item) => item.id === task.id);
+
+  if (existingIndex >= 0) {
+    columnTasks[existingIndex] = task;
+  } else {
+    columnTasks.push(task);
+  }
+
+  columnTasks.sort(
+    (first, second) => (first.orderIndex ?? 0) - (second.orderIndex ?? 0)
+  );
+
+  state.tasksByColumn[task.columnId] = columnTasks;
+  state.columnTasksLoaded[task.columnId] = true;
+  state.columnTasksError[task.columnId] = undefined;
+};
+
+const applyUpdatedTask = (state: TasksSliceState, task: Task) => {
+  removeTaskFromColumns(state, task.id);
+  insertTaskIntoColumn(state, task);
+  upsertTaskForProject(state, task);
+  state.taskDetailsById[task.id] = task;
+  state.taskDetailsLoading[task.id] = false;
+  state.taskDetailsError[task.id] = undefined;
 };
 
 const syncProjectColumnsWithTasks = (
@@ -298,22 +328,7 @@ export const tasksSlice = createAppSlice({
             }
           }
 
-          const projectTasks = state.tasksByProject[updatedTask.projectId] ?? [];
-          const projectIndex = projectTasks.findIndex(
-            (task) => task.id === taskId
-          );
-
-          if (projectIndex >= 0) {
-            projectTasks[projectIndex] = updatedTask;
-          } else {
-            projectTasks.push(updatedTask);
-          }
-          state.tasksByProject[updatedTask.projectId] = projectTasks;
-
-          replaceTaskInColumns(state, updatedTask);
-
-          state.taskDetailsById[taskId] = updatedTask;
-          state.taskDetailsError[taskId] = undefined;
+          applyUpdatedTask(state, updatedTask);
         },
         rejected: (state, action) => {
           const taskId = action.meta.arg.taskId;
@@ -364,6 +379,96 @@ export const tasksSlice = createAppSlice({
           state.deletingTaskIds[taskId] = false;
           delete state.deletingTaskIds[taskId];
           state.deleteTaskError = action.error.message;
+        },
+      }
+    ),
+
+    bulkUpdateTaskStatus: create.asyncThunk(
+      async ({ taskIds, status }: BulkUpdateTaskStatusDto) => {
+        const sanitizedStatus = status.trim();
+        const uniqueTaskIds = Array.from(new Set(taskIds.filter(Boolean)));
+
+        if (uniqueTaskIds.length === 0) {
+          throw new Error("Выберите хотя бы одну задачу");
+        }
+
+        if (!sanitizedStatus) {
+          throw new Error("Укажите статус для обновления");
+        }
+
+        const payload: BulkUpdateTaskStatusDto = {
+          taskIds: uniqueTaskIds,
+          status: sanitizedStatus,
+        };
+
+        const updatedTasks = await api.bulkUpdateTaskStatus(payload);
+        return Array.isArray(updatedTasks) ? updatedTasks : [];
+      },
+      {
+        pending: (state) => {
+          state.isBulkUpdatingStatus = true;
+          state.bulkUpdateStatusError = undefined;
+        },
+        fulfilled: (state, action) => {
+          state.isBulkUpdatingStatus = false;
+          state.bulkUpdateStatusError = undefined;
+
+          for (const updatedTask of action.payload) {
+            applyUpdatedTask(state, updatedTask);
+          }
+        },
+        rejected: (state, action) => {
+          state.isBulkUpdatingStatus = false;
+          state.bulkUpdateStatusError = action.error.message;
+        },
+      }
+    ),
+
+    bulkMoveTasks: create.asyncThunk(
+      async ({
+        taskIds,
+        targetColumnId,
+        startOrderIndex,
+      }: BulkMoveTasksDto) => {
+        const sanitizedColumnId = targetColumnId.trim();
+        const uniqueTaskIds = Array.from(new Set(taskIds.filter(Boolean)));
+        const normalizedStartOrderIndex = Number.isFinite(startOrderIndex)
+          ? Math.max(0, Math.floor(startOrderIndex))
+          : 0;
+
+        if (uniqueTaskIds.length === 0) {
+          throw new Error("Выберите хотя бы одну задачу");
+        }
+
+        if (!sanitizedColumnId) {
+          throw new Error("Выберите колонку для перемещения");
+        }
+
+        const payload: BulkMoveTasksDto = {
+          taskIds: uniqueTaskIds,
+          targetColumnId: sanitizedColumnId,
+          startOrderIndex: normalizedStartOrderIndex,
+        };
+
+        const movedTasks = await api.bulkMoveTasks(payload);
+        return Array.isArray(movedTasks) ? movedTasks : [];
+      },
+      {
+        pending: (state) => {
+          state.isBulkMovingTasks = true;
+          state.bulkMoveTasksError = undefined;
+        },
+        fulfilled: (state, action) => {
+          state.isBulkMovingTasks = false;
+          state.bulkMoveTasksError = undefined;
+
+          for (const updatedTask of action.payload) {
+            applyUpdatedTask(state, updatedTask);
+          }
+        },
+        rejected: (state, action) => {
+          state.isBulkMovingTasks = false;
+          state.bulkMoveTasksError = action.error.message;
         },
       }
     ),
@@ -554,6 +659,10 @@ export const tasksSlice = createAppSlice({
     selectDeleteTaskError: (state) => state.deleteTaskError,
     selectMovingTaskIds: (state) => state.movingTaskIds,
     selectMoveTaskError: (state) => state.moveTaskError,
+    selectIsBulkUpdatingStatus: (state) => state.isBulkUpdatingStatus,
+    selectBulkUpdateStatusError: (state) => state.bulkUpdateStatusError,
+    selectIsBulkMovingTasks: (state) => state.isBulkMovingTasks,
+    selectBulkMoveTasksError: (state) => state.bulkMoveTasksError,
     selectColumnTasksLoading: (state, columnId: string): boolean =>
       Boolean(state.columnTasksLoading[columnId]),
     selectColumnTasksError: (
@@ -580,6 +689,8 @@ export const {
   createTask,
   updateTask,
   deleteTask,
+  bulkUpdateTaskStatus,
+  bulkMoveTasks,
   moveTask,
   getTaskById,
   clearTasksForColumn,
@@ -598,6 +709,10 @@ export const {
   selectDeleteTaskError,
   selectMovingTaskIds,
   selectMoveTaskError,
+  selectIsBulkUpdatingStatus,
+  selectBulkUpdateStatusError,
+  selectIsBulkMovingTasks,
+  selectBulkMoveTasksError,
   selectColumnTasksLoading,
   selectColumnTasksError,
   selectColumnTasksLoaded,
