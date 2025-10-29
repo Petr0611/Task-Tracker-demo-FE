@@ -1,7 +1,15 @@
 import axiosInstance from "../../../lib/axiosInstance";
-import type { Column, CreateColumnDto, UpdateColumnDto } from "../types";
+import type {
+    ApplyColumnTemplateDto,
+    Column,
+    ColumnTemplate,
+    CreateColumnDto,
+    CreateColumnTemplateDto,
+    UpdateColumnDto,
+} from "../types";
 
 const COLUMNS_BASE_PATH = "/columns";
+const COLUMN_TEMPLATES_BASE_PATH = "/task-columns/templates";
 
 export const fetchColumnById = async (columnId: string): Promise<Column> => {
     const res = await axiosInstance.get(`${COLUMNS_BASE_PATH}/${columnId}`);
@@ -39,6 +47,35 @@ export const createColumnForProject = async (
     const res = await axiosInstance.post(
         `/projects/${projectId}/columns`,
         columnDto
+    );
+    return res.data;
+};
+
+
+
+export const fetchColumnTemplates = async (): Promise<ColumnTemplate[]> => {
+    const res = await axiosInstance.get(COLUMN_TEMPLATES_BASE_PATH);
+    return res.data;
+};
+
+export const createColumnTemplateFromProject = async (
+    projectId: string,
+    payload: CreateColumnTemplateDto
+): Promise<ColumnTemplate> => {
+    const res = await axiosInstance.post(
+        `${COLUMN_TEMPLATES_BASE_PATH}/project/${projectId}`,
+        payload
+    );
+    return res.data;
+};
+
+export const applyColumnTemplateToProject = async (
+    templateId: string,
+    payload: ApplyColumnTemplateDto
+): Promise<Column[]> => {
+    const res = await axiosInstance.post(
+        `${COLUMN_TEMPLATES_BASE_PATH}/${templateId}/apply`,
+        payload
     );
     return res.data;
 };

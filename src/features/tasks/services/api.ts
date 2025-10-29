@@ -1,5 +1,7 @@
 import axiosInstance from "../../../lib/axiosInstance";
 import type {
+  BulkMoveTasksDto,
+  BulkUpdateTaskStatusDto,
   CreateTaskDto,
   MoveTaskDto,
   ProjectTasksFilters,
@@ -67,6 +69,26 @@ export const moveTaskById = async (
 ): Promise<Task> => {
   const res = await axiosInstance.patch(
     `${TASKS_BASE_PATH}/${taskId}/move`,
+    payload
+  );
+  return res.data;
+};
+
+export const bulkUpdateTaskStatus = async (
+  payload: BulkUpdateTaskStatusDto
+): Promise<Task[]> => {
+  const res = await axiosInstance.patch(
+    `${TASKS_BASE_PATH}/bulk/status`,
+    payload
+  );
+  return res.data;
+};
+
+export const bulkMoveTasks = async (
+  payload: BulkMoveTasksDto
+): Promise<Task[]> => {
+  const res = await axiosInstance.patch(
+    `${TASKS_BASE_PATH}/bulk/move`,
     payload
   );
   return res.data;

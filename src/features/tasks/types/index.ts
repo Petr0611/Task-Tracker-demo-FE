@@ -37,6 +37,17 @@ export interface MoveTaskDto {
   orderIndex: number;
 }
 
+export interface BulkUpdateTaskStatusDto {
+  taskIds: string[];
+  status: string;
+}
+
+export interface BulkMoveTasksDto {
+  taskIds: string[];
+  targetColumnId: string;
+  startOrderIndex: number;
+}
+
 export interface CreateTaskDto {
   columnId: string;
   title: string;
@@ -83,6 +94,10 @@ export interface TasksSliceState {
   deleteTaskError?: string;
   movingTaskIds: Record<string, boolean>;
   moveTaskError?: string;
+  isBulkUpdatingStatus: boolean;
+  bulkUpdateStatusError?: string;
+  isBulkMovingTasks: boolean;
+  bulkMoveTasksError?: string;
   columnTasksLoading: Record<string, boolean>;
   columnTasksError: Record<string, string | undefined>;
   columnTasksLoaded: Record<string, boolean>;

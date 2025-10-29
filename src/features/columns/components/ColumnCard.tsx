@@ -48,6 +48,9 @@ interface ColumnCardProps {
     tasksLoading: boolean;
     tasksError?: string;
     onOpenTaskComments: (task: Task) => void;
+    selectedTaskIds: string[];
+    onToggleTaskSelection: (taskId: string) => void;
+    selectionDisabled?: boolean;
 }
 
 export default function ColumnCard({
@@ -58,6 +61,9 @@ export default function ColumnCard({
     tasksLoading,
     tasksError,
     onOpenTaskComments,
+    selectedTaskIds,
+    onToggleTaskSelection,
+    selectionDisabled = false,
 }: ColumnCardProps) {
     const dispatch = useAppDispatch();
     const [showTaskForm, setShowTaskForm] = useState(false);
@@ -69,6 +75,10 @@ export default function ColumnCard({
                 (a, b) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0)
             ),
         [tasks]
+    );
+    const selectedTaskIdsSet = useMemo(
+        () => new Set(selectedTaskIds),
+        [selectedTaskIds]
     );
 
     const isCreatingTask = useAppSelector(selectIsCreatingTask);
@@ -108,8 +118,9 @@ export default function ColumnCard({
         () => ({
             title: columnDetails?.title ?? column.title,
             orderIndex: columnDetails?.orderIndex ?? column.orderIndex,
+            baseColumn: columnDetails?.baseColumn ?? column.baseColumn,
         }),
-        [columnDetails, column.orderIndex, column.title]
+        [columnDetails, column.baseColumn, column.orderIndex, column.title]
     );
 
     const handleCreateTaskSubmit = async ({
@@ -255,16 +266,18 @@ export default function ColumnCard({
     const handleSubmitColumn = async ({
         title,
         orderIndex,
+        baseColumn,
     }: {
         title: string;
         orderIndex?: number;
+        baseColumn?: boolean;
     }) => {
         try {
             await dispatch(
                 updateColumn({
                     projectId,
                     columnId: column.id,
-                    updates: { title, orderIndex },
+                    updates: { title, orderIndex, baseColumn },
                 })
             ).unwrap();
             setIsEditingColumn(false);
@@ -383,6 +396,7 @@ export default function ColumnCard({
                         isSubmitting={isUpdatingColumn}
                         error={updateColumnError}
                         showCancelButton
+                        projectId={projectId}
                     />
                 </div>
             )}
@@ -476,6 +490,15 @@ export default function ColumnCard({
                                     onDeleteTask={handleDeleteTask}
                                     onOpenComments={() =>
                                         onOpenTaskComments(taskItem)
+                                    }
+                                    isSelected={selectedTaskIdsSet.has(
+                                        taskItem.id
+                                    )}
+                                    onToggleSelection={() =>
+                                        onToggleTaskSelection(taskItem.id)
+                                    }
+                                    selectionDisabled={
+                                        isTaskBusy || selectionDisabled
                                     }
                                 />
                             </div>
