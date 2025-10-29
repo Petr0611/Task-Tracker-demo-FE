@@ -5,6 +5,7 @@ export interface Column {
     projectId: string;
     title: string;
     orderIndex: number;
+    baseColumn: boolean;
     tasks: Task[];
     createdAt?: string;
     updatedAt?: string;
@@ -13,16 +14,19 @@ export interface Column {
 export interface CreateColumnDto {
     title: string;
     orderIndex?: number;
+    baseColumn?: boolean;
 }
 
 export interface UpdateColumnDto {
     title?: string;
     orderIndex?: number;
+    baseColumn?: boolean;
 }
 
 export interface CreateColumnInput {
     title: string;
     orderIndex?: number;
+    baseColumn?: boolean;
 }
 
 export interface ColumnsSliceState {

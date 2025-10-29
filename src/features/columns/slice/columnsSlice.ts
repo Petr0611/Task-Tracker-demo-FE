@@ -7,6 +7,7 @@ import type {
     UpdateColumnDto,
 } from "../types";
 import * as api from "../services/api";
+import { isAxiosError } from "axios";
 
 const sanitizeOrderIndex = (value?: number): number | undefined => {
     if (value === undefined || value === null) {
@@ -24,6 +25,7 @@ const sanitizeOrderIndex = (value?: number): number | undefined => {
 const normalizeColumn = (column: Column): Column => ({
     ...column,
     orderIndex: Number.isFinite(column.orderIndex) ? column.orderIndex : 0,
+    baseColumn: Boolean(column.baseColumn),
     tasks: Array.isArray(column.tasks) ? column.tasks : [],
 });
 
@@ -45,6 +47,7 @@ const initialState: ColumnsSliceState = {
 const mapToDto = (input: CreateColumnInput): CreateColumnDto => ({
     title: input.title.trim(),
     orderIndex: sanitizeOrderIndex(input.orderIndex),
+    baseColumn: input.baseColumn,
 });
 
 export const columnsSlice = createAppSlice({
@@ -133,6 +136,7 @@ export const columnsSlice = createAppSlice({
                     ...updates,
                     title: updates.title?.trim(),
                     orderIndex: sanitizeOrderIndex(updates.orderIndex),
+                    baseColumn: updates.baseColumn,
                 };
 
                 const updatedColumn = await api.updateColumnById(
@@ -180,15 +184,51 @@ export const columnsSlice = createAppSlice({
         ),
 
         deleteColumn: create.asyncThunk(
-            async ({
-                projectId,
-                columnId,
-            }: {
-                projectId: string;
-                columnId: string;
-            }) => {
-                await api.deleteColumnById(columnId);
-                return { projectId, columnId };
+            async (
+                {
+                    projectId,
+                    columnId,
+                }: {
+                    projectId: string;
+                    columnId: string;
+                },
+                { rejectWithValue }
+            ) => {
+                try {
+                    await api.deleteColumnById(columnId);
+                    return { projectId, columnId };
+                } catch (error) {
+                    if (isAxiosError(error)) {
+                        const status = error.response?.status;
+                        const responseData = error.response?.data as
+                            | { message?: unknown }
+                            | string
+                            | undefined;
+                        const responseMessage =
+                            typeof responseData === "string"
+                                ? responseData
+                                : typeof responseData?.message === "string"
+                                  ? responseData.message
+                                  : undefined;
+
+                        if (status === 400) {
+                            return rejectWithValue(
+                                responseMessage ??
+                                    "Вы не можете удалить базовую колонку"
+                            );
+                        }
+
+                        if (responseMessage) {
+                            return rejectWithValue(responseMessage);
+                        }
+                    }
+
+                    return rejectWithValue(
+                        error instanceof Error
+                            ? error.message
+                            : "Не удалось удалить колонку"
+                    );
+                }
             },
             {
                 pending: (state, action) => {
@@ -217,7 +257,14 @@ export const columnsSlice = createAppSlice({
                     const columnId = action.meta.arg.columnId;
                     state.deletingColumnIds[columnId] = false;
                     delete state.deletingColumnIds[columnId];
-                    state.deleteColumnError = action.error.message;
+                    const payloadMessage =
+                        typeof action.payload === "string"
+                            ? action.payload
+                            : undefined;
+                    state.deleteColumnError =
+                        payloadMessage ??
+                        action.error.message ??
+                        "Не удалось удалить колонку";
                 },
             }
         ),
