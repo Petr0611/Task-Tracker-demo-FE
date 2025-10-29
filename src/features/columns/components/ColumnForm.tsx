@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import type { CreateColumnInput } from "../types";
+import { getUserRole } from "../../../lib/api/projectApi";
 
 interface ColumnFormProps {
     initialValues?: CreateColumnInput;
@@ -13,11 +15,13 @@ interface ColumnFormProps {
     description?: string;
     showCancelButton?: boolean;
     resetOnSubmit?: boolean;
+    projectId: string;
 }
 
 interface ColumnFormValues {
     title: string;
     orderIndex: string;
+    baseColumn: boolean;
 }
 
 const validationSchema = Yup.object({
@@ -26,6 +30,7 @@ const validationSchema = Yup.object({
         .trim()
         .matches(/^[0-9]*$/, "Порядок должен быть целым числом")
         .optional(),
+    baseColumn: Yup.boolean().optional(),
 });
 
 const mapInitialValues = (
@@ -36,6 +41,7 @@ const mapInitialValues = (
         typeof initialValues?.orderIndex === "number"
             ? String(initialValues.orderIndex)
             : "",
+    baseColumn: Boolean(initialValues?.baseColumn),
 });
 
 const sanitizeValues = (values: ColumnFormValues): CreateColumnInput => {
@@ -49,6 +55,7 @@ const sanitizeValues = (values: ColumnFormValues): CreateColumnInput => {
             parsedOrderIndex === undefined || Number.isNaN(parsedOrderIndex)
                 ? undefined
                 : Math.max(0, parsedOrderIndex),
+            baseColumn: values.baseColumn,
     };
 };
 
@@ -63,7 +70,40 @@ export default function ColumnForm({
     description,
     showCancelButton = false,
     resetOnSubmit = false,
+    projectId,
 }: ColumnFormProps) {
+    const [isProjectOwner, setIsProjectOwner] = useState(false);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        if (!projectId || !initialValues) {
+            setIsProjectOwner(false);
+            return () => {
+                isMounted = false;
+            };
+        }
+
+        const fetchRole = async () => {
+            try {
+                const role = await getUserRole(projectId);
+                if (isMounted) {
+                    setIsProjectOwner(role === "OWNER");
+                }
+            } catch (error) {
+                console.error(error);
+                if (isMounted) {
+                    setIsProjectOwner(false);
+                }
+            }
+        };
+
+        void fetchRole();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [projectId, initialValues]);
     const formik = useFormik<ColumnFormValues>({
         initialValues: mapInitialValues(initialValues),
         validationSchema,
@@ -87,6 +127,9 @@ export default function ColumnForm({
     const titleHasError = Boolean(formik.touched.title && formik.errors.title);
     const orderIndexHasError = Boolean(
         formik.touched.orderIndex && formik.errors.orderIndex
+    );
+    const shouldShowBaseColumnToggle = Boolean(
+        initialValues && isProjectOwner
     );
 
     return (
@@ -147,6 +190,34 @@ export default function ColumnForm({
                         <p className="text-sm text-red-500">{formik.errors.orderIndex}</p>
                     )}
                 </div>
+
+                {shouldShowBaseColumnToggle && (
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                            <input
+                                id="column-base"
+                                type="checkbox"
+                                name="baseColumn"
+                                checked={formik.values.baseColumn}
+                                onChange={(event) =>
+                                    formik.setFieldValue(
+                                        "baseColumn",
+                                        event.currentTarget.checked,
+                                        true
+                                    )
+                                }
+                                className="h-4 w-4 rounded border-gray-300 text-black focus:ring-2 focus:ring-black"
+                                disabled={formik.isSubmitting || isSubmitting}
+                            />
+                            <label
+                                htmlFor="column-base"
+                                className="text-sm font-medium text-gray-700"
+                            >
+                                Базовая колонка
+                            </label>
+                        </div>
+                    </div>
+                )}
 
                 <div className="flex flex-wrap items-center gap-3">
                     <button

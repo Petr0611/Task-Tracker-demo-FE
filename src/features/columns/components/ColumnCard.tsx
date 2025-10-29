@@ -108,8 +108,9 @@ export default function ColumnCard({
         () => ({
             title: columnDetails?.title ?? column.title,
             orderIndex: columnDetails?.orderIndex ?? column.orderIndex,
+            baseColumn: columnDetails?.baseColumn ?? column.baseColumn,
         }),
-        [columnDetails, column.orderIndex, column.title]
+        [columnDetails, column.baseColumn, column.orderIndex, column.title]
     );
 
     const handleCreateTaskSubmit = async ({
@@ -255,16 +256,18 @@ export default function ColumnCard({
     const handleSubmitColumn = async ({
         title,
         orderIndex,
+        baseColumn,
     }: {
         title: string;
         orderIndex?: number;
+        baseColumn?: boolean;
     }) => {
         try {
             await dispatch(
                 updateColumn({
                     projectId,
                     columnId: column.id,
-                    updates: { title, orderIndex },
+                    updates: { title, orderIndex, baseColumn },
                 })
             ).unwrap();
             setIsEditingColumn(false);
@@ -383,6 +386,7 @@ export default function ColumnCard({
                         isSubmitting={isUpdatingColumn}
                         error={updateColumnError}
                         showCancelButton
+                        projectId={projectId}
                     />
                 </div>
             )}

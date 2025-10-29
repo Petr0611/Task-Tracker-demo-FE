@@ -402,6 +402,7 @@ export default function ProjectTasks() {
             title="Новая колонка"
             description="Укажите название и порядок отображения колонки"
             resetOnSubmit
+            projectId={projectId}
           />
         )}
       </div>
