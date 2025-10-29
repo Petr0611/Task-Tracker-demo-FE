@@ -1,4 +1,5 @@
 import InviteButton from "../components/Invitation";
+import DeleteProjectButton from "./DeleteButton";
 
 type Role = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 
@@ -23,11 +24,7 @@ export default function ProjectActions({
         Управление проектом
       </h2>
 
-      {isOwner && (
-        <button className="w-full sm:w-auto bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition">
-          Удалить проект
-        </button>
-      )}
+      {isOwner && <DeleteProjectButton projectId={projectId} />}
 
       {canManage && (
         <div className="flex flex-wrap gap-3">
