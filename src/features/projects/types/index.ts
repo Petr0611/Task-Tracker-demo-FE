@@ -1,7 +1,7 @@
 export interface ProjectMember {
   id: string;
   name: string;
-  collaboratorStatus: "PENDING" | "ACTIVE";
+  avatarUrl?: string;
   role: "OWNER" | "MEMBER" | "VIEWER" | "ADMIN";
 }
 
@@ -17,6 +17,7 @@ export interface Project {
   id: string;
   title: string;
   description: string;
+  avatarUrl?: string;
   members: ProjectMember[];
   invitations: ProjectInvitation[];
 }
