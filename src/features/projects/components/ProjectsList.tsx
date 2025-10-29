@@ -49,22 +49,22 @@ export default function ProjectsList({
     </svg>
   );
 
-  // Иконка для отдельного участника (User)
-  const UserIcon = (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="w-3 h-3 mr-1 text-gray-500"
-    >
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
-  );
+  // // Иконка для отдельного участника (User)
+  // const UserIcon = (
+  //   <svg
+  //     xmlns="http://www.w3.org/2000/svg"
+  //     viewBox="0 0 24 24"
+  //     fill="none"
+  //     stroke="currentColor"
+  //     strokeWidth="2"
+  //     strokeLinecap="round"
+  //     strokeLinejoin="round"
+  //     className="w-3 h-3 mr-1 text-gray-500"
+  //   >
+  //     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+  //     <circle cx="12" cy="7" r="4" />
+  //   </svg>
+  // );
 
   return (
     <section className="space-y-6 p-4 md:p-6 bg-gray-50 rounded-xl shadow-inner">
