@@ -76,12 +76,7 @@ export default function ProjectsList({
 
       <div className="flex flex-col gap-4">
         {projects.map((project) => {
-          // Логирование убрано для более чистого продакшн-кода
-          // console.log("Project members:", project.members);
-          // console.log("Project invitations:", project.invitations);
-
           return (
-            // Улучшенная карточка проекта
             <div
               key={project.id}
               className="bg-white rounded-xl shadow-lg border border-gray-100 hover:border-indigo-400 hover:shadow-xl transition duration-300 ease-in-out group relative"
@@ -89,7 +84,6 @@ export default function ProjectsList({
               <button
                 type="button"
                 onClick={() => onProjectClick?.(project)}
-                // Используем отрицательный margin и padding, чтобы сделать всю карточку кликабельной
                 className="block w-full text-left p-5 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-opacity-50 rounded-xl transition duration-150"
               >
                 <div className="flex flex-col gap-2">
@@ -116,7 +110,6 @@ export default function ProjectsList({
 
                       <div className="flex flex-wrap gap-2">
                         {project.members.map((member) => (
-                          // Улучшенный бейдж участника
                           <span
                             key={member.id}
                             className="inline-flex items-center rounded-full bg-gray-100 text-xs font-medium text-gray-700 px-3 py-1 shadow-sm border border-gray-200"
