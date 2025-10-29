@@ -1,5 +1,6 @@
 import InviteButton from "../components/Invitation";
 import DeleteProjectButton from "./DeleteButton";
+import EditProjectButton from "./EditProjectButton";
 
 type Role = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 
@@ -29,10 +30,7 @@ export default function ProjectActions({
       {canManage && (
         <div className="flex flex-wrap gap-3">
           <InviteButton projectId={projectId} />
-
-          <button className="bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-800 focus:ring-2 focus:ring-gray-500 focus:ring-offset-1 transition">
-            Редактировать проект
-          </button>
+          <EditProjectButton projectId={projectId} />
         </div>
       )}
 
