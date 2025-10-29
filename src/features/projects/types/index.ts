@@ -1,9 +1,7 @@
 export interface ProjectMember {
   id: string;
   name: string;
-  // **ДОБАВЛЕНО:** Поле для URL аватара, чтобы отображать его в карточке
   avatarUrl?: string;
-  // collaboratorStatus: "ACTIVE" | "PENDING";
   role: "OWNER" | "MEMBER" | "VIEWER" | "ADMIN";
 }
 
