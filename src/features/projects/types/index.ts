@@ -8,6 +8,7 @@ export interface ProjectMember {
 export interface ProjectInvitation {
   projectId: string;
   projectTitle: string;
+  email: string;
   collaboratorStatus: "PENDING" | "ACTIVE";
   role: "OWNER" | "MEMBER" | "VIEWER" | "ADMIN";
 }
@@ -17,7 +18,7 @@ export interface Project {
   title: string;
   description: string;
   members: ProjectMember[];
-  invitations: ProjectMember[];
+  invitations: ProjectInvitation[];
 }
 
 export type CreateProjectDto = Omit<Project, "id" | "members">;

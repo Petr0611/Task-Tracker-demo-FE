@@ -60,10 +60,10 @@ export default function ProjectsList({
                   <div className="mt-2 flex flex-wrap gap-2 text-sm text-blue-600">
                     {project.invitations.map((inv, index) => (
                       <span
-                        key={project.id + index}
+                        key={`${project.id}-inv-${index}`}
                         className="inline-flex items-center gap-1 rounded bg-blue-100 px-2 py-1"
                       >
-                        {inv.role} — {inv.collaboratorStatus}
+                        {inv.email} — {inv.role} — {inv.collaboratorStatus}
                       </span>
                     ))}
                   </div>
