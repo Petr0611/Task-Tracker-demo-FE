@@ -18,7 +18,7 @@ function EditProjectPage() {
         const response = await axios.get(`/api/v1/projects/${projectId}`);
         setTitle(response.data.title || "");
         setDescription(response.data.description || "");
-      } catch (e) {
+      } catch {
         setError("Не удалось загрузить данные проекта");
       }
     };
