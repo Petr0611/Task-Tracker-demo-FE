@@ -1,19 +1,13 @@
 import type { Project } from "../types";
-// Иконки lucide-react заменены на инлайновые SVG для устранения внешней зависимости.
-
 interface ProjectsListProps {
   projects: Project[];
   onProjectClick?: (project: Project) => void;
 }
-
 export default function ProjectsList({
-  // Исправление: Установка значения по умолчанию [] для предотвращения ошибки 'Cannot read properties of undefined (reading 'length')'
   projects = [],
   onProjectClick,
 }: ProjectsListProps) {
   if (projects.length === 0) return null;
-
-  // Иконка для группы участников (Users)
   const UsersIcon = (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -31,8 +25,6 @@ export default function ProjectsList({
       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
     </svg>
   );
-
-  // Иконка для почты/приглашений (Mail)
   const MailIcon = (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -48,23 +40,6 @@ export default function ProjectsList({
       <path d="m22 7-8.97 5.7a1.83 1.83 0 0 1-2.06 0L2 7" />
     </svg>
   );
-
-  // // Иконка для отдельного участника (User)
-  // const UserIcon = (
-  //   <svg
-  //     xmlns="http://www.w3.org/2000/svg"
-  //     viewBox="0 0 24 24"
-  //     fill="none"
-  //     stroke="currentColor"
-  //     strokeWidth="2"
-  //     strokeLinecap="round"
-  //     strokeLinejoin="round"
-  //     className="w-3 h-3 mr-1 text-gray-500"
-  //   >
-  //     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-  //     <circle cx="12" cy="7" r="4" />
-  //   </svg>
-  // );
 
   return (
     <section className="space-y-6 p-4 md:p-6 bg-gray-50 rounded-xl shadow-inner">
@@ -147,7 +122,6 @@ export default function ProjectsList({
 
                       <div className="flex flex-wrap gap-2">
                         {project.invitations.map((inv, index) => (
-                          // Улучшенный бейдж приглашения
                           <span
                             key={`${project.id}-inv-${index}`}
                             className="inline-flex items-center rounded-full bg-orange-50 text-xs font-medium text-orange-800 px-3 py-1 shadow-sm border border-orange-200"
