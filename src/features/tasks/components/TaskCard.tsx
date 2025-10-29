@@ -4,6 +4,7 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from "react";
+import clsx from "clsx";
 import type { Task, UpdateTaskDto } from "../types";
 import { useAppDispatch } from "../../../app/hooks";
 import { getTaskById } from "../slice/tasksSlice";
@@ -18,6 +19,9 @@ interface TaskCardProps {
   onUpdateTask: (taskId: string, updates: UpdateTaskDto) => Promise<void>;
   onDeleteTask: (taskId: string) => Promise<void>;
   onOpenComments: () => void;
+  isSelected: boolean;
+  onToggleSelection: () => void;
+  selectionDisabled?: boolean;
 }
 
 interface TaskFormState {
@@ -46,6 +50,9 @@ export default function TaskCard({
   onUpdateTask,
   onDeleteTask,
   onOpenComments,
+  isSelected,
+  onToggleSelection,
+  selectionDisabled = false,
 }: TaskCardProps) {
   const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
@@ -56,6 +63,7 @@ export default function TaskCard({
   const [localError, setLocalError] = useState<string | undefined>();
 
   const isBusy = isUpdating || isDeleting || isMoving;
+  const selectionIsDisabled = selectionDisabled || isBusy;
 
   useEffect(() => {
     setFormState(mapTaskToFormState(task));
@@ -74,6 +82,13 @@ export default function TaskCard({
   ) => {
     const { name, value } = event.target;
     setFormState((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleToggleSelection = () => {
+    if (selectionIsDisabled) {
+      return;
+    }
+    onToggleSelection();
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -124,10 +139,34 @@ export default function TaskCard({
     }
   };
 
+  const selectionControl = (
+    <input
+      type="checkbox"
+      className="mt-1 h-4 w-4 cursor-pointer rounded border-gray-300 text-black focus:ring-black disabled:cursor-not-allowed"
+      checked={isSelected}
+      onChange={handleToggleSelection}
+      disabled={selectionIsDisabled}
+      aria-label="Выбрать задачу для массовых действий"
+    />
+  );
+
 
   if (isEditing) {
     return (
-      <article className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+      <article
+        className={clsx(
+          "rounded-lg border border-gray-200 bg-white p-4 shadow-sm",
+          isSelected && "border-black ring-2 ring-black/40"
+        )}
+      >
+        <div className="mb-4 flex items-center gap-2 text-sm text-gray-600">
+          {selectionControl}
+          <span>
+            {isSelected
+              ? "Задача включена в массовые действия"
+              : "Отметьте, чтобы добавить к массовым действиям"}
+          </span>
+        </div>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label
@@ -231,18 +270,26 @@ export default function TaskCard({
   }
 
   return (
-    <article className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+    <article
+      className={clsx(
+        "rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-colors",
+        isSelected && "border-black ring-2 ring-black/40"
+      )}
+    >
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
-            <p className="text-sm text-gray-500">
-              {task.description || "Нет описания"}
-            </p>
-            {task.dueDate && <DeadlineTimer dueDate={task.dueDate} />}
-            <div className="text-sm text-gray-700">
-              <span className="font-medium">Статус: </span>
-              <span>{task.status ?? "Не указан"}</span>
+          <div className="flex items-start gap-3">
+            {selectionControl}
+            <div className="space-y-1">
+              <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
+              <p className="text-sm text-gray-500">
+                {task.description || "Нет описания"}
+              </p>
+              {task.dueDate && <DeadlineTimer dueDate={task.dueDate} />}
+              <div className="text-sm text-gray-700">
+                <span className="font-medium">Статус: </span>
+                <span>{task.status ?? "Не указан"}</span>
+              </div>
             </div>
           </div>
         </div>

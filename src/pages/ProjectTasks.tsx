@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+} from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import {
@@ -7,6 +13,7 @@ import {
 } from "../features/projects/slice/projectsSlice";
 import ColumnForm from "../features/columns/components/ColumnForm";
 import ColumnCard from "../features/columns/components/ColumnCard";
+import ColumnTemplatesManager from "../features/columns/components/ColumnTemplatesManager";
 import {
   createColumn,
   getColumnsByProject,
@@ -19,6 +26,8 @@ import {
 import {
   getTasksByColumn,
   getTasksByProject,
+  bulkMoveTasks,
+  bulkUpdateTaskStatus,
   selectColumnTasksError,
   selectColumnTasksLoaded,
   selectColumnTasksLoading,
@@ -26,6 +35,10 @@ import {
   selectTasksError,
   selectTasksIsLoading,
   selectTaskDetailsById,
+  selectIsBulkUpdatingStatus,
+  selectBulkUpdateStatusError,
+  selectIsBulkMovingTasks,
+  selectBulkMoveTasksError,
 } from "../features/tasks/slice/tasksSlice";
 import type { CreateColumnInput } from "../features/columns/types";
 import RoleUIBlock from "../features/projects/components/RoleUIBlock";
@@ -40,6 +53,11 @@ const TASK_STATUS_OPTIONS = [
   { value: "DONE", label: "Завершена" },
   { value: "BLOCKED", label: "Заблокирована" },
 ];
+
+const BULK_STATUS_OPTIONS = TASK_STATUS_OPTIONS.filter(
+  (option) => option.value
+);
+
 
 const SORT_OPTIONS = [
   { value: "", label: "Без сортировки" },
@@ -64,6 +82,10 @@ export default function ProjectTasks() {
   const createColumnError = useAppSelector(selectCreateColumnError);
   const isLoadingProjectTasks = useAppSelector(selectTasksIsLoading);
   const projectTasksError = useAppSelector(selectTasksError);
+  const isBulkUpdatingStatus = useAppSelector(selectIsBulkUpdatingStatus);
+  const bulkUpdateStatusError = useAppSelector(selectBulkUpdateStatusError);
+  const isBulkMovingTasks = useAppSelector(selectIsBulkMovingTasks);
+  const bulkMoveTasksError = useAppSelector(selectBulkMoveTasksError);
 
   const columnIds = columns.map((c) => c.id);
 
@@ -112,6 +134,16 @@ export default function ProjectTasks() {
     sortBy: "",
   });
 
+  const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
+  const [bulkStatus, setBulkStatus] = useState("");
+  const [bulkMoveColumnId, setBulkMoveColumnId] = useState("");
+  const [bulkStatusLocalError, setBulkStatusLocalError] = useState<
+    string | undefined
+  >(undefined);
+  const [bulkMoveLocalError, setBulkMoveLocalError] = useState<
+    string | undefined
+  >(undefined);
+
   const sanitizedFilters = useMemo(() => {
     const dueBefore = taskFilters.dueBefore
       ? normalizeDueDate(taskFilters.dueBefore)
@@ -136,6 +168,10 @@ export default function ProjectTasks() {
     sanitizedFilters.sortBy
   );
 
+ 
+  const hasSelectedTasks = selectedTaskIds.length > 0;
+  const isAnyBulkActionLoading = isBulkUpdatingStatus || isBulkMovingTasks;
+
   const activeTaskFromStore = useAppSelector((state) => {
     if (!activeTaskForComments) {
       return undefined;
@@ -144,6 +180,26 @@ export default function ProjectTasks() {
   });
 
   const taskForComments = activeTaskFromStore ?? activeTaskForComments ?? undefined;
+
+  const toggleTaskSelection = useCallback(
+    (taskId: string) => {
+      if (isAnyBulkActionLoading) {
+        return;
+      }
+
+      setSelectedTaskIds((prev) =>
+        prev.includes(taskId)
+          ? prev.filter((id) => id !== taskId)
+          : [...prev, taskId]
+      );
+    },
+    [isAnyBulkActionLoading]
+  );
+
+  const clearTaskSelection = useCallback(() => {
+    setSelectedTaskIds([]);
+  }, []);
+
 
   useEffect(() => {
     if (projects.length === 0) {
@@ -186,6 +242,19 @@ export default function ProjectTasks() {
     hasActiveFilters,
   ]);
 
+   useEffect(() => {
+    setSelectedTaskIds([]);
+  }, [projectId, sanitizedFilters]);
+
+  useEffect(() => {
+    setBulkStatusLocalError(undefined);
+  }, [bulkStatus, selectedTaskIds.length]);
+
+  useEffect(() => {
+    setBulkMoveLocalError(undefined);
+  }, [bulkMoveColumnId, selectedTaskIds.length]);
+
+
   const project = useMemo(
     () => projects.find((item) => item.id === projectId),
     [projects, projectId]
@@ -214,6 +283,116 @@ export default function ProjectTasks() {
   const handleResetTaskFilters = () => {
     setTaskFilters({ status: "", executorId: "", dueBefore: "", sortBy: "" });
   };
+
+  const handleBulkStatusApply = async () => {
+    if (!projectId) {
+      return;
+    }
+
+    if (selectedTaskIds.length === 0) {
+      setBulkStatusLocalError("Выберите задачи для обновления статуса");
+      return;
+    }
+
+    const trimmedStatus = bulkStatus.trim();
+
+    if (!trimmedStatus) {
+      setBulkStatusLocalError("Выберите новый статус");
+      return;
+    }
+
+    setBulkStatusLocalError(undefined);
+
+    try {
+      await dispatch(
+        bulkUpdateTaskStatus({
+          taskIds: selectedTaskIds,
+          status: trimmedStatus,
+        })
+      ).unwrap();
+
+      clearTaskSelection();
+      setBulkStatus("");
+
+      await dispatch(
+        getTasksByProject({ projectId, filters: sanitizedFilters })
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleBulkMoveApply = async () => {
+    if (!projectId) {
+      return;
+    }
+
+    if (selectedTaskIds.length === 0) {
+      setBulkMoveLocalError("Выберите задачи для перемещения");
+      return;
+    }
+
+    const trimmedColumnId = bulkMoveColumnId.trim();
+
+    if (!trimmedColumnId) {
+      setBulkMoveLocalError("Выберите колонку назначения");
+      return;
+    }
+
+    setBulkMoveLocalError(undefined);
+
+    const targetColumnTasks =
+      columnTasksData.tasksByColumn[trimmedColumnId] ?? [];
+    const remainingTasks = targetColumnTasks.filter(
+      (task) => !selectedTaskIds.includes(task.id)
+    );
+
+    const highestOrderIndex = remainingTasks.reduce((max, task) => {
+      const orderIndex =
+        typeof task.orderIndex === "number" && Number.isFinite(task.orderIndex)
+          ? task.orderIndex
+          : undefined;
+
+      return orderIndex !== undefined ? Math.max(max, orderIndex) : max;
+    }, -1);
+
+    const startOrderIndex =
+      highestOrderIndex >= 0 ? highestOrderIndex + 1 : remainingTasks.length;
+
+    try {
+      await dispatch(
+        bulkMoveTasks({
+          taskIds: selectedTaskIds,
+          targetColumnId: trimmedColumnId,
+          startOrderIndex,
+        })
+      ).unwrap();
+
+      clearTaskSelection();
+      setBulkMoveColumnId("");
+
+      await dispatch(
+        getTasksByProject({ projectId, filters: sanitizedFilters })
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleTemplateApplied = useCallback(() => {
+    if (!projectId) {
+      return;
+    }
+
+    clearTaskSelection();
+    dispatch(getColumnsByProject(projectId));
+    void dispatch(
+      getTasksByProject({
+        projectId,
+        filters: sanitizedFilters,
+      })
+    );
+  }, [clearTaskSelection, dispatch, projectId, sanitizedFilters]);
 
   if (!projectId) {
     return (
@@ -382,6 +561,106 @@ export default function ProjectTasks() {
         </div>
       </form>
 
+      {hasSelectedTasks && (
+        <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-amber-900">
+                Выбрано задач: {selectedTaskIds.length}
+              </h2>
+              <p className="text-xs text-amber-700">
+                Выберите действие, которое нужно применить к выбранным задачам.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={clearTaskSelection}
+              className="inline-flex items-center rounded-md border border-amber-300 px-3 py-2 text-xs font-medium text-amber-900 transition-colors hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+              disabled={isAnyBulkActionLoading}
+            >
+              Очистить выбор
+            </button>
+          </div>
+
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-amber-900">
+                Изменить статус
+              </label>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <select
+                  value={bulkStatus}
+                  onChange={(event) => setBulkStatus(event.target.value)}
+                  className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1 sm:w-auto"
+                  disabled={isBulkUpdatingStatus}
+                >
+                  <option value="">Выберите статус</option>
+                  {BULK_STATUS_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={handleBulkStatusApply}
+                  className="inline-flex items-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                  disabled={isBulkUpdatingStatus}
+                >
+                  {isBulkUpdatingStatus ? "Обновляем..." : "Применить"}
+                </button>
+              </div>
+              {(bulkStatusLocalError || bulkUpdateStatusError) && (
+                <p className="text-xs text-red-600">
+                  {bulkStatusLocalError || bulkUpdateStatusError}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-amber-900">
+                Переместить в колонку
+              </label>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <select
+                  value={bulkMoveColumnId}
+                  onChange={(event) => setBulkMoveColumnId(event.target.value)}
+                  className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1 sm:w-auto"
+                  disabled={isBulkMovingTasks}
+                >
+                  <option value="">Выберите колонку</option>
+                  {columns.map((column) => (
+                    <option key={column.id} value={column.id}>
+                      {column.title}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={handleBulkMoveApply}
+                  className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+                  disabled={isBulkMovingTasks}
+                >
+                  {isBulkMovingTasks ? "Перемещаем..." : "Переместить"}
+                </button>
+              </div>
+              {(bulkMoveLocalError || bulkMoveTasksError) && (
+                <p className="text-xs text-red-600">
+                  {bulkMoveLocalError || bulkMoveTasksError}
+                </p>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {projectId && (
+        <ColumnTemplatesManager
+          projectId={projectId}
+          onTemplateApplied={handleTemplateApplied}
+        />
+      )}
+
       <div className="space-y-3">
         <button
           type="button"
@@ -425,6 +704,9 @@ export default function ProjectTasks() {
             tasksLoading={Boolean(columnTasksLoading[column.id])}
             tasksError={columnTasksError[column.id]}
             onOpenTaskComments={(task) => setActiveTaskForComments(task)}
+            selectedTaskIds={selectedTaskIds}
+            onToggleTaskSelection={toggleTaskSelection}
+            selectionDisabled={isAnyBulkActionLoading}
           />
         ))}
       </div>

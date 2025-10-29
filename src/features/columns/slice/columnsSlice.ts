@@ -1,9 +1,12 @@
 import { createAppSlice } from "../../../app/createAppSlice";
 import type {
+    ApplyColumnTemplateDto,
     Column,
+    ColumnTemplate,
     ColumnsSliceState,
     CreateColumnDto,
     CreateColumnInput,
+    CreateColumnTemplateDto,
     UpdateColumnDto,
 } from "../types";
 import * as api from "../services/api";
@@ -29,6 +32,13 @@ const normalizeColumn = (column: Column): Column => ({
     tasks: Array.isArray(column.tasks) ? column.tasks : [],
 });
 
+const normalizeTemplate = (template: ColumnTemplate): ColumnTemplate => ({
+    ...template,
+    columns: Array.isArray(template.columns)
+        ? [...template.columns].sort((a, b) => a.orderIndex - b.orderIndex)
+        : [],
+});
+
 const initialState: ColumnsSliceState = {
     columnsByProject: {},
     isLoading: false,
@@ -42,12 +52,28 @@ const initialState: ColumnsSliceState = {
     columnDetailsById: {},
     columnDetailsLoading: {},
     columnDetailsError: {},
+    columnTemplates: [],
+    columnTemplatesLoading: false,
+    columnTemplatesError: undefined,
+    isCreatingColumnTemplate: false,
+    createColumnTemplateError: undefined,
+    applyingColumnTemplateIds: {},
+    applyColumnTemplateError: undefined,
 };
 
 const mapToDto = (input: CreateColumnInput): CreateColumnDto => ({
     title: input.title.trim(),
     orderIndex: sanitizeOrderIndex(input.orderIndex),
     baseColumn: input.baseColumn,
+});
+
+const sanitizeTemplateDto = (
+    input: CreateColumnTemplateDto
+): CreateColumnTemplateDto => ({
+    name: input.name.trim(),
+    description: input.description?.trim()
+        ? input.description.trim()
+        : undefined,
 });
 
 export const columnsSlice = createAppSlice({
@@ -269,6 +295,134 @@ export const columnsSlice = createAppSlice({
             }
         ),
 
+        getColumnTemplates: create.asyncThunk(
+            async () => {
+                const templates = await api.fetchColumnTemplates();
+                return templates;
+            },
+            {
+                pending: (state) => {
+                    state.columnTemplatesLoading = true;
+                    state.columnTemplatesError = undefined;
+                },
+                fulfilled: (state, action) => {
+                    state.columnTemplatesLoading = false;
+                    state.columnTemplatesError = undefined;
+                    const normalizedTemplates = action.payload.map(normalizeTemplate);
+                    state.columnTemplates = normalizedTemplates;
+                },
+                rejected: (state, action) => {
+                    state.columnTemplatesLoading = false;
+                    state.columnTemplatesError = action.error.message;
+                },
+            }
+        ),
+
+        createColumnTemplate: create.asyncThunk(
+            async ({
+                projectId,
+                template,
+            }: {
+                projectId: string;
+                template: CreateColumnTemplateDto;
+            }) => {
+                const sanitizedTemplate = sanitizeTemplateDto(template);
+
+                if (!sanitizedTemplate.name) {
+                    throw new Error("Укажите название шаблона");
+                }
+
+                const createdTemplate =
+                    await api.createColumnTemplateFromProject(
+                        projectId,
+                        sanitizedTemplate
+                    );
+                return createdTemplate;
+            },
+            {
+                pending: (state) => {
+                    state.isCreatingColumnTemplate = true;
+                    state.createColumnTemplateError = undefined;
+                },
+                fulfilled: (state, action) => {
+                    state.isCreatingColumnTemplate = false;
+                    state.createColumnTemplateError = undefined;
+                    const newTemplate = normalizeTemplate(action.payload);
+                    state.columnTemplates = [
+                        newTemplate,
+                        ...state.columnTemplates.filter(
+                            (template) => template.id !== newTemplate.id
+                        ),
+                    ];
+                },
+                rejected: (state, action) => {
+                    state.isCreatingColumnTemplate = false;
+                    state.createColumnTemplateError = action.error.message;
+                },
+            }
+        ),
+
+        applyColumnTemplate: create.asyncThunk(
+            async ({
+                templateId,
+                projectId,
+            }: {
+                templateId: string;
+                projectId: string;
+            }) => {
+                const payload: ApplyColumnTemplateDto = { projectId };
+                const columns = await api.applyColumnTemplateToProject(
+                    templateId,
+                    payload
+                );
+                return { projectId, columns };
+            },
+            {
+                pending: (state, action) => {
+                    const templateId = action.meta.arg.templateId;
+                    state.applyingColumnTemplateIds[templateId] = true;
+                    state.applyColumnTemplateError = undefined;
+                },
+                fulfilled: (state, action) => {
+                    const templateId = action.meta.arg.templateId;
+                    state.applyingColumnTemplateIds[templateId] = false;
+                    delete state.applyingColumnTemplateIds[templateId];
+                    state.applyColumnTemplateError = undefined;
+
+                    const { projectId, columns } = action.payload;
+                    const normalizedColumns = Array.isArray(columns)
+                        ? columns.map(normalizeColumn)
+                        : [];
+                    const previousColumns = state.columnsByProject[projectId] ?? [];
+                    const normalizedIds = new Set(
+                        normalizedColumns.map((column) => column.id)
+                    );
+
+                    previousColumns.forEach((column) => {
+                        if (!normalizedIds.has(column.id)) {
+                            delete state.columnDetailsById[column.id];
+                            delete state.columnDetailsLoading[column.id];
+                            delete state.columnDetailsError[column.id];
+                        }
+                    });
+
+                    state.columnsByProject[projectId] = normalizedColumns;
+
+                    normalizedColumns.forEach((column) => {
+                        state.columnDetailsById[column.id] = column;
+                        state.columnDetailsLoading[column.id] = false;
+                        state.columnDetailsError[column.id] = undefined;
+                    });
+                },
+                rejected: (state, action) => {
+                    const templateId = action.meta.arg.templateId;
+                    state.applyingColumnTemplateIds[templateId] = false;
+                    delete state.applyingColumnTemplateIds[templateId];
+                    state.applyColumnTemplateError = action.error.message;
+                },
+            }
+        ),
+
         getColumnById: create.asyncThunk(
             async (columnId: string) => {
                 const column = await api.fetchColumnById(columnId);
@@ -328,6 +482,17 @@ export const columnsSlice = createAppSlice({
             state,
             columnId: string
         ): string | undefined => state.columnDetailsError[columnId],
+        selectColumnTemplates: (state): ColumnTemplate[] => state.columnTemplates,
+        selectColumnTemplatesLoading: (state) => state.columnTemplatesLoading,
+        selectColumnTemplatesError: (state) => state.columnTemplatesError,
+        selectIsCreatingColumnTemplate: (state) =>
+            state.isCreatingColumnTemplate,
+        selectCreateColumnTemplateError: (state) =>
+            state.createColumnTemplateError,
+        selectApplyingColumnTemplateIds: (state) =>
+            state.applyingColumnTemplateIds,
+        selectApplyColumnTemplateError: (state) =>
+            state.applyColumnTemplateError,
     },
 });
 
@@ -336,6 +501,9 @@ export const {
     createColumn,
     updateColumn,
     deleteColumn,
+    getColumnTemplates,
+    createColumnTemplate,
+    applyColumnTemplate,
     getColumnById,
 } = columnsSlice.actions;
 
@@ -352,4 +520,11 @@ export const {
     selectColumnDetailsById,
     selectColumnDetailsLoadingById,
     selectColumnDetailsErrorById,
+selectColumnTemplates,
+    selectColumnTemplatesLoading,
+    selectColumnTemplatesError,
+    selectIsCreatingColumnTemplate,
+    selectCreateColumnTemplateError,
+    selectApplyingColumnTemplateIds,
+    selectApplyColumnTemplateError,
 } = columnsSlice.selectors;
