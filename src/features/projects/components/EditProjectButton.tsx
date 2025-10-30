@@ -18,7 +18,7 @@ export default function EditProjectButton({
       onClick={handleEdit}
       className="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-md transition"
     >
-      Редактировать проект
+      Edit project
     </button>
   );
 }
