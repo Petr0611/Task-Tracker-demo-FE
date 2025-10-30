@@ -8,7 +8,7 @@ import {
   type SVGProps,
 } from "react";
 import clsx from "clsx";
-import type { Task, TaskAttachment, UpdateTaskDto } from "../types";
+import type { Task, UpdateTaskDto } from "../types";
 import { useAppDispatch } from "../../../app/hooks";
 import { getTaskById } from "../slice/tasksSlice";
 import { normalizeDueDate, toDueDateInputValue } from "../utils/formatDueDate";
