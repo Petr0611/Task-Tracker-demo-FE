@@ -1,15 +1,23 @@
 import {
   useEffect,
+  useMemo,
   useState,
+  useRef,
   type ChangeEvent,
   type FormEvent,
+  type SVGProps,
 } from "react";
 import clsx from "clsx";
-import type { Task, UpdateTaskDto } from "../types";
+import type { Task, TaskAttachment, UpdateTaskDto } from "../types";
 import { useAppDispatch } from "../../../app/hooks";
 import { getTaskById } from "../slice/tasksSlice";
 import { normalizeDueDate, toDueDateInputValue } from "../utils/formatDueDate";
 import { DeadlineTimer } from "./DeadlineTimer";
+import TaskAttachmentPreviewModal from "./TaskAttachmentPreviewModal";
+import {
+  getAttachmentDisplayName,
+  getAttachmentUrl,
+} from "../utils/attachments";
 
 interface TaskCardProps {
   task: Task;
@@ -18,6 +26,8 @@ interface TaskCardProps {
   isMoving: boolean;
   onUpdateTask: (taskId: string, updates: UpdateTaskDto) => Promise<void>;
   onDeleteTask: (taskId: string) => Promise<void>;
+  onUploadAttachment: (taskId: string, file: File) => Promise<void>;
+  onDeleteAttachment: (taskId: string, attachmentId: string) => Promise<void>;
   onOpenComments: () => void;
   isSelected: boolean;
   onToggleSelection: () => void;
@@ -49,6 +59,8 @@ export default function TaskCard({
   isMoving,
   onUpdateTask,
   onDeleteTask,
+  onUploadAttachment,
+  onDeleteAttachment,
   onOpenComments,
   isSelected,
   onToggleSelection,
@@ -61,13 +73,135 @@ export default function TaskCard({
     mapTaskToFormState(task)
   );
   const [localError, setLocalError] = useState<string | undefined>();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [previewAttachmentId, setPreviewAttachmentId] = useState<string | null>(
+    null
+  );
+
+  const attachments = useMemo(
+    () => task.attachments ?? [],
+    [task.attachments]
+  );
+  const hasAttachments = attachments.length > 0;
+  const previewAttachment = attachments.find(
+    (attachmentItem) => attachmentItem.id === previewAttachmentId
+  );
+
+  const attachmentFileInput = (
+    <input
+      ref={fileInputRef}
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+          return;
+        }
+
+        try {
+          await onUploadAttachment(task.id, file);
+        } catch (uploadError) {
+          console.error(uploadError);
+        } finally {
+          event.target.value = "";
+        }
+      }}
+    />
+  );
 
   const isBusy = isUpdating || isDeleting || isMoving;
   const selectionIsDisabled = selectionDisabled || isBusy;
+const handleAttachmentUploadClick = () => {
+    if (isBusy) {
+      return;
+    }
+
+    fileInputRef.current?.click();
+  };
+
+  const handleRemoveAttachment = async (attachmentId: string) => {
+    if (isBusy) {
+      return;
+    }
+
+    try {
+      await onDeleteAttachment(task.id, attachmentId);
+    } catch (removeError) {
+      console.error(removeError);
+    }
+  };
+
+  const handleOpenAttachmentPreview = (attachmentId: string) => {
+    setPreviewAttachmentId(attachmentId);
+  };
+
+  const handleCloseAttachmentPreview = () => {
+    setPreviewAttachmentId(null);
+  };
+
+  const attachmentsGallery = hasAttachments ? (
+    <ul className="flex flex-wrap gap-3">
+      {attachments.map((attachment) => {
+        const attachmentUrl = getAttachmentUrl(attachment);
+        const attachmentName = getAttachmentDisplayName(attachment);
+
+        return (
+          <li
+            key={attachment.id}
+            className="group relative h-20 w-20 overflow-hidden rounded-md border border-gray-200 bg-gray-50"
+          >
+            <button
+              type="button"
+              onClick={() => handleOpenAttachmentPreview(attachment.id)}
+              className="h-full w-full"
+              aria-label={`Открыть вложение ${attachmentName}`}
+            >
+              {attachmentUrl ? (
+                <img
+                  src={attachmentUrl}
+                  alt={attachmentName}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center px-2 text-center text-xs text-gray-500">
+                  {attachmentName}
+                </div>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleRemoveAttachment(attachment.id)}
+              className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white opacity-0 transition-opacity hover:bg-black focus-visible:opacity-100 focus:outline-none focus:ring-2 focus:ring-black group-hover:opacity-100"
+              disabled={isBusy}
+            >
+              <span className="sr-only">Удалить вложение</span>
+              <XMarkIcon className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  ) : null;
 
   useEffect(() => {
     setFormState(mapTaskToFormState(task));
   }, [task]);
+
+  useEffect(() => {
+    if (!previewAttachmentId) {
+      return;
+    }
+
+    const stillExists = attachments.some(
+      (attachmentItem) => attachmentItem.id === previewAttachmentId
+    );
+
+    if (!stillExists) {
+      setPreviewAttachmentId(null);
+    }
+  }, [attachments, previewAttachmentId]);
 
   useEffect(() => {
     if (showDetails) {
@@ -159,6 +293,7 @@ export default function TaskCard({
           isSelected && "border-black ring-2 ring-black/40"
         )}
       >
+        {attachmentFileInput}
         <div className="mb-4 flex items-center gap-2 text-sm text-gray-600">
           {selectionControl}
           <span>
@@ -243,6 +378,23 @@ export default function TaskCard({
               ))}
             </select>
           </div>
+           <div className="space-y-2">
+            <span className="block text-sm font-medium text-gray-700">
+              Вложения
+            </span>
+            {attachmentsGallery ?? (
+              <p className="text-sm text-gray-500">Вложений нет</p>
+            )}
+            <button
+              type="button"
+              onClick={handleAttachmentUploadClick}
+              className="inline-flex items-center gap-2 rounded-md border border-dashed border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+              disabled={isBusy}
+            >
+              <PaperClipIcon className="h-4 w-4" aria-hidden="true" />
+              Прикрепить файл
+            </button>
+          </div>
           {localError && (
             <p className="text-sm text-red-500">{localError}</p>
           )}
@@ -276,6 +428,7 @@ export default function TaskCard({
         isSelected && "border-black ring-2 ring-black/40"
       )}
     >
+      {attachmentFileInput}
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
@@ -295,7 +448,23 @@ export default function TaskCard({
         </div>
       </div>
 
+      {hasAttachments && (
+        <div className="mt-4 space-y-2">
+          <h4 className="text-sm font-medium text-gray-700">Вложения</h4>
+          {attachmentsGallery}
+        </div>
+      )}
+
       <div className="mt-4 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={handleAttachmentUploadClick}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto"
+          disabled={isBusy}
+        >
+          <PaperClipIcon className="h-4 w-4" aria-hidden="true" />
+          Прикрепить
+        </button>
         <button
           type="button"
           onClick={onOpenComments}
@@ -321,6 +490,44 @@ export default function TaskCard({
           {isDeleting ? "Удаляем..." : "Удалить"}
         </button>
       </div>
+      {previewAttachment && (
+        <TaskAttachmentPreviewModal
+          attachment={previewAttachment}
+          isOpen={Boolean(previewAttachment)}
+          onClose={handleCloseAttachmentPreview}
+        />
+      )}
     </article>
+  );
+}
+function PaperClipIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      {...props}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M21 11.5L12.5 20a5 5 0 01-7.07-7.07l9-9a3.5 3.5 0 014.95 4.95l-9 9a2 2 0 01-2.83-2.83l8.5-8.5"
+      />
+    </svg>
+  );
+}
+
+function XMarkIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      {...props}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
+    </svg>
   );
 }

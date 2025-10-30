@@ -92,4 +92,32 @@ export const bulkMoveTasks = async (
     payload
   );
   return res.data;
+
+};
+
+export const uploadTaskAttachment = async (
+  taskId: string,
+  file: File
+): Promise<void> => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  await axiosInstance.post(
+    `${TASKS_BASE_PATH}/${taskId}/attachments/upload`,
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+};
+
+export const deleteTaskAttachment = async (
+  taskId: string,
+  attachmentId: string
+): Promise<void> => {
+  await axiosInstance.delete(
+    `${TASKS_BASE_PATH}/${taskId}/attachments/${attachmentId}`
+  );
 };
