@@ -1,3 +1,16 @@
+export interface TaskAttachment {
+  id: string;
+  fileName?: string;
+  originalFileName?: string;
+  url?: string;
+  previewUrl?: string;
+  fileUrl?: string;
+  mimeType?: string;
+  size?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Task {
   id: string;
   projectId: string;
@@ -12,6 +25,7 @@ export interface Task {
   orderIndex?: number;
   createdAt?: string;
   updatedAt?: string;
+  attachments?: TaskAttachment[];
 }
 
 export interface TaskComment {

@@ -339,6 +339,79 @@ export const tasksSlice = createAppSlice({
       }
     ),
 
+    uploadTaskAttachment: create.asyncThunk(
+      async ({
+        taskId,
+        file,
+      }: {
+        taskId: string;
+        file: File;
+      }) => {
+        await api.uploadTaskAttachment(taskId, file);
+        const task = await api.fetchTaskById(taskId);
+        return task;
+      },
+      {
+        pending: (state, action) => {
+          const taskId = action.meta.arg.taskId;
+          state.updatingTaskIds[taskId] = true;
+          state.updateTaskError = undefined;
+        },
+        fulfilled: (state, action) => {
+          const updatedTask = action.payload;
+          const taskId = updatedTask.id;
+
+          state.updatingTaskIds[taskId] = false;
+          delete state.updatingTaskIds[taskId];
+          state.updateTaskError = undefined;
+
+          applyUpdatedTask(state, updatedTask);
+        },
+        rejected: (state, action) => {
+          const taskId = action.meta.arg.taskId;
+          state.updatingTaskIds[taskId] = false;
+          delete state.updatingTaskIds[taskId];
+          state.updateTaskError = action.error.message;
+        },
+      }
+    ),
+
+    deleteTaskAttachment: create.asyncThunk(
+      async ({
+        taskId,
+        attachmentId,
+      }: {
+        taskId: string;
+        attachmentId: string;
+      }) => {
+        await api.deleteTaskAttachment(taskId, attachmentId);
+        const task = await api.fetchTaskById(taskId);
+        return task;
+      },
+      {
+        pending: (state, action) => {
+          const taskId = action.meta.arg.taskId;
+          state.updatingTaskIds[taskId] = true;
+          state.updateTaskError = undefined;
+        },
+        fulfilled: (state, action) => {
+          const updatedTask = action.payload;
+          const taskId = updatedTask.id;
+
+          state.updatingTaskIds[taskId] = false;
+          delete state.updatingTaskIds[taskId];
+          state.updateTaskError = undefined;
+
+          applyUpdatedTask(state, updatedTask);
+        },
+        rejected: (state, action) => {
+          const taskId = action.meta.arg.taskId;
+          state.updatingTaskIds[taskId] = false;
+          delete state.updatingTaskIds[taskId];
+          state.updateTaskError = action.error.message;
+        },
+      }
+    ),
     deleteTask: create.asyncThunk(
       async ({
         projectId,
@@ -689,6 +762,8 @@ export const {
   createTask,
   updateTask,
   deleteTask,
+  uploadTaskAttachment,
+  deleteTaskAttachment,
   bulkUpdateTaskStatus,
   bulkMoveTasks,
   moveTask,

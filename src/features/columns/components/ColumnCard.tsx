@@ -20,6 +20,8 @@ import {
     selectMovingTaskIds,
     selectUpdateTaskError,
     selectUpdatingTaskIds,
+    uploadTaskAttachment,
+    deleteTaskAttachment,
     updateTask,
 } from "../../tasks/slice/tasksSlice";
 import TaskCard from "../../tasks/components/TaskCard";
@@ -162,6 +164,26 @@ export default function ColumnCard({
     const handleDeleteTask = async (taskId: string) => {
         try {
             await dispatch(deleteTask({ projectId, taskId })).unwrap();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+const handleUploadAttachment = async (taskId: string, file: File) => {
+        try {
+            await dispatch(uploadTaskAttachment({ taskId, file })).unwrap();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleDeleteAttachment = async (
+        taskId: string,
+        attachmentId: string
+    ) => {
+        try {
+            await dispatch(
+                deleteTaskAttachment({ taskId, attachmentId })
+            ).unwrap();
         } catch (error) {
             console.error(error);
         }
@@ -488,6 +510,8 @@ export default function ColumnCard({
                                     isMoving={isMovingTask}
                                     onUpdateTask={handleUpdateTask}
                                     onDeleteTask={handleDeleteTask}
+                                    onUploadAttachment={handleUploadAttachment}
+                                    onDeleteAttachment={handleDeleteAttachment}
                                     onOpenComments={() =>
                                         onOpenTaskComments(taskItem)
                                     }
