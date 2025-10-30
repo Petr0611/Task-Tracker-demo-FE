@@ -22,7 +22,7 @@ export default function ProjectActions({
   return (
     <div className="rounded-lg border border-gray-200 bg-gray-50 p-5 shadow-sm space-y-3 transition-opacity duration-500 animate-fadeIn">
       <h2 className="text-lg font-semibold text-gray-800">
-        Управление проектом
+        Project management
       </h2>
 
       {isOwner && <DeleteProjectButton projectId={projectId} />}
@@ -36,7 +36,7 @@ export default function ProjectActions({
 
       {(isMember || isViewer) && (
         <p className="text-gray-600 italic">
-          У вас права только на просмотр проекта.
+          You only have view permissions for this project.
         </p>
       )}
     </div>

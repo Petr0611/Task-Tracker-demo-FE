@@ -11,9 +11,8 @@ import ResetPasswordForm from "./features/auth/components/ResetPasswordForm";
 import ProjectTasks from "./pages/ProjectTasks";
 import ConfirmInvitePage from "./pages/ConfirmInvitePage";
 import InviteFormPage from "./features/projects/components/InviteFormPage";
-
+import DeleteProjectPage from "./features/projects/components/DeleteProjectPage";
 import EditProjectPage from "./features/projects/components/EditProjectPage";
-
 
 function App() {
   return (
@@ -39,6 +38,10 @@ function App() {
           <Route
             path="/projects/:projectId/edit"
             element={<EditProjectPage />}
+          />
+          <Route
+            path="/projects/:projectId/delete"
+            element={<DeleteProjectPage />}
           />
         </Routes>
       </Layout>
