@@ -19,7 +19,7 @@ function EditProjectPage() {
         setTitle(response.data.title || "");
         setDescription(response.data.description || "");
       } catch {
-        setError("Не удалось загрузить данные проекта");
+        setError("Failed to load project data");
       }
     };
     fetchProject();
@@ -42,7 +42,7 @@ function EditProjectPage() {
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message: string }>;
       setError(
-        axiosError.response?.data?.message || "Ошибка при обновлении проекта"
+        axiosError.response?.data?.message || "Failed to update the project"
       );
     } finally {
       setLoading(false);
@@ -51,14 +51,12 @@ function EditProjectPage() {
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md border border-gray-200">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800">
-        Редактировать проект
-      </h2>
+      <h2 className="text-xl font-semibold mb-4 text-gray-800">Edit project</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Название проекта:
+            Project title:
           </label>
           <input
             type="text"
@@ -71,7 +69,7 @@ function EditProjectPage() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Описание:
+            Description:
           </label>
           <textarea
             value={description}
@@ -91,13 +89,13 @@ function EditProjectPage() {
                 : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {loading ? "Сохранение..." : "Сохранить изменения"}
+            {loading ? "Saving..." : "Save changes"}
           </button>
         )}
 
         {success && (
           <p className="text-green-600 text-sm mt-2 font-medium animate-fadeIn">
-            Изменения сохранены ✅
+            Changes saved ✅
           </p>
         )}
         {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
@@ -108,7 +106,7 @@ function EditProjectPage() {
           onClick={() => navigate(-1)}
           className="mt-4 w-full py-2 px-4 rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
         >
-          Отмена
+          Cancel
         </button>
       )}
     </div>
