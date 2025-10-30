@@ -53,10 +53,8 @@ export default function ColumnTemplatesManager({
     const [localError, setLocalError] = useState<string | undefined>();
 
     useEffect(() => {
-        if (!isLoadingTemplates && templates.length === 0) {
-            void dispatch(getColumnTemplates());
-        }
-    }, [dispatch, isLoadingTemplates, templates.length]);
+    void dispatch(getColumnTemplates());
+}, [dispatch]);
 
     const templatesByLatest = useMemo(
         () =>
