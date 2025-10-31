@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/images/logo_s.webp";
 import { useEffect, useState } from "react";
 import type { UserDetails } from "../../features/users/types";
@@ -9,12 +9,16 @@ import { selectIsAuthenticated } from "../../features/auth/slice/authSlice";
 export default function Header() {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const [user, setUser] = useState<UserDetails | null>(null);
+  const location = useLocation();
+
+  const isProjectTasksPage = /^\/projects\/[^/]+\/tasks/.test(location.pathname);
 
   useEffect(() => {
     if (!isAuthenticated) {
       setUser(null);
       return;
     }
+
     const fetchUser = async () => {
       try {
         const res = await axiosInstance.get("/users/me");
@@ -29,28 +33,27 @@ export default function Header() {
     const handleAvatarUpdate = (e: CustomEvent) => {
       setUser((prev) => (prev ? { ...prev, avatarUrl: e.detail } : prev));
     };
-    window.addEventListener(
-      "avatarUpdated",
-      handleAvatarUpdate as EventListener
-    );
+
+    window.addEventListener("avatarUpdated", handleAvatarUpdate as EventListener);
 
     return () => {
-      window.removeEventListener(
-        "avatarUpdated",
-        handleAvatarUpdate as EventListener
-      );
+      window.removeEventListener("avatarUpdated", handleAvatarUpdate as EventListener);
     };
   }, [isAuthenticated]);
 
   return (
     <header className="w-full bg-gradient-to-t from-teal-400 to-emerald-400 shadow-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+      <div
+        className={`mx-auto flex max-w-7xl items-center justify-between px-4 ${
+          isProjectTasksPage ? "pt-3 pb-0" : "py-4"
+        }`}
+      >
         {/* Logo / Brand */}
         <Link to="/" className="text-xl font-semibold text-gray-900">
           <img src={logo} alt="logo" />
         </Link>
 
-        {/* Navigation Links */}
+        {/* Navigation */}
         <nav className="flex items-center space-x-4">
           <Link
             to="/"
@@ -70,6 +73,7 @@ export default function Header() {
           >
             Projects
           </Link>
+
           {user ? (
             <Link to="/profile" className="flex items-center space-x-2">
               {user?.avatarUrl ? (
@@ -87,7 +91,7 @@ export default function Header() {
                         .map((n) => n[0])
                         .slice(0, 2)
                         .join("")
-                    : user.email[0].toUpperCase()}
+                    : user?.email?.[0]?.toUpperCase() ?? "?"}
                 </div>
               )}
             </Link>

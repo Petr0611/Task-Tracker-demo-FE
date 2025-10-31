@@ -1,0 +1,399 @@
+.project-tasks-header-full {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100vw;
+  margin: 0;
+  padding: 12px clamp(20px, 4vw, 48px);
+  background: #fff;
+  box-shadow: 0 3px 8px -4px rgba(15, 23, 42, 0.12);
+  border: none;
+  border-radius: 0;
+  transform: translateX(-50%);
+  position: relative;
+  left: 50%;
+  min-height: 68px;
+  gap: 0;
+}
+
+.project-tasks-header-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.project-tasks-title,
+.project-tasks-subtitle {
+  margin: 0;
+}
+
+.project-tasks-header-actions {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.project-tasks-header-actions .project-tasks-button {
+  padding: 0.45rem 1rem;
+  font-size: 0.9rem;
+  border-radius: 10px;
+}
+
+.project-tasks-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s, color 0.2s,
+    border-color 0.2s;
+}
+
+.project-tasks-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.project-tasks-button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px -20px rgba(15, 23, 42, 0.4);
+}
+
+.project-tasks-button--primary {
+  background: linear-gradient(135deg, #111827, #020617);
+  color: #fff;
+}
+.project-tasks-button--primary:not(:disabled):hover {
+  background: linear-gradient(135deg, #0f172a, #111827);
+}
+
+.project-tasks-button--secondary {
+  background: rgba(15, 23, 42, 0.06);
+  border-color: rgba(148, 163, 184, 0.45);
+  color: #0f172a;
+}
+.project-tasks-button--secondary:hover:not(:disabled) {
+  background: rgba(15, 23, 42, 0.12);
+}
+
+.project-tasks-button--ghost {
+  border-color: rgba(148, 163, 184, 0.45);
+  background: rgba(241, 245, 249, 0.8);
+  color: #475569;
+}
+.project-tasks-button--ghost:hover:not(:disabled) {
+  background: rgba(226, 232, 240, 0.95);
+  color: #0f172a;
+}
+
+.project-tasks-button--outline {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: rgba(253, 230, 138, 0.35);
+  color: #b45309;
+}
+.project-tasks-button--outline:hover:not(:disabled) {
+  background: rgba(252, 211, 77, 0.5);
+}
+
+.project-tasks-button--accent {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+}
+.project-tasks-button--accent:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+}
+
+.project-tasks-subheader {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-top: 1px solid rgba(226, 232, 240, 0.9);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.project-tasks-subheader .project-tasks-button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 12px;
+}
+
+.project-tasks-page {
+  --page-inline-padding: clamp(16px, 4vw, 56px);
+  margin: 0;
+  width: 100%;
+  padding: 0 var(--page-inline-padding) clamp(48px, 6vw, 88px);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  color: #0f172a;
+}
+
+@media (min-width: 768px) {
+  .project-tasks-page {
+    padding: 0 var(--page-inline-padding) clamp(56px, 7vw, 100px);
+    gap: 36px;
+  }
+}
+
+.project-tasks-alert-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.project-tasks-alert {
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid transparent;
+  background: rgba(226, 232, 240, 0.6);
+  color: #1f2937;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.project-tasks-alert--error {
+  background: linear-gradient(135deg, rgba(254, 226, 226, 0.8), rgba(252, 165, 165, 0.65));
+  border-color: rgba(220, 38, 38, 0.45);
+  color: #b91c1c;
+}
+
+.project-tasks-placeholder {
+  border-radius: 20px;
+  border: 1px dashed rgba(148, 163, 184, 0.6);
+  background: rgba(241, 245, 249, 0.7);
+  padding: 24px;
+  color: #475569;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.project-tasks-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(14px);
+  border-radius: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 28px 60px -38px rgba(30, 41, 59, 0.55);
+}
+
+.project-tasks-filters--in-header {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+  padding: 0;
+}
+
+.project-tasks-filters-grid {
+  display: grid;
+  gap: 18px;
+}
+
+@media (min-width: 640px) {
+  .project-tasks-filters-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .project-tasks-filters-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.project-tasks-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.project-tasks-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #1e293b;
+}
+
+.project-tasks-label--warm {
+  color: #92400e;
+}
+
+.project-tasks-input {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  padding: 0.7rem 0.9rem;
+  font-size: 0.95rem;
+  background: rgba(248, 250, 252, 0.9);
+  color: #0f172a;
+  transition: 0.2s;
+}
+
+.project-tasks-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+.project-tasks-input::placeholder {
+  color: #94a3b8;
+}
+
+.project-tasks-bulk-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  border-radius: 24px;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  background: linear-gradient(135deg, rgba(255, 251, 235, 0.9), rgba(254, 243, 199, 0.88));
+  box-shadow: 0 32px 60px -36px rgba(202, 138, 4, 0.45);
+}
+
+.project-tasks-bulk-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .project-tasks-bulk-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.project-tasks-bulk-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.project-tasks-bulk-subtitle {
+  font-size: 0.82rem;
+  color: #b45309;
+}
+
+.project-tasks-bulk-grid {
+  display: grid;
+  gap: 18px;
+}
+
+@media (min-width: 768px) {
+  .project-tasks-bulk-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.project-tasks-bulk-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .project-tasks-bulk-row {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.project-tasks-error-text {
+  font-size: 0.78rem;
+  color: #b91c1c;
+}
+
+.project-tasks-create {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.project-tasks-create.project-management {
+  background: rgba(248, 250, 252, 0.85);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 16px 30px -20px rgba(15, 23, 42, 0.2);
+}
+
+.project-tasks-columns {
+  display: flex;
+ align-items: flex-start;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  margin: 0 calc(var(--page-inline-padding) * -1);
+  padding: 0 var(--page-inline-padding) 12px;
+  scroll-snap-type: x proximity;
+}
+
+.project-tasks-columns::-webkit-scrollbar {
+  height: 10px;
+}
+.project-tasks-columns::-webkit-scrollbar-track {
+  background: rgba(226, 232, 240, 0.6);
+  border-radius: 999px;
+}
+.project-tasks-columns::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.6);
+  border-radius: 999px;
+}
+
+.project-tasks-columns > * {
+  flex: 0 0 clamp(280px, 32vw, 360px);
+  scroll-snap-align: start;
+}
+
+@media (min-width: 1024px) {
+  .project-tasks-columns {
+    gap: 28px;
+  }
+  .project-tasks-columns > * {
+    flex-basis: clamp(300px, 24vw, 380px);
+  }
+}
+
+.project-tasks-empty {
+  margin: 0 auto;
+  max-width: 560px;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(254, 226, 226, 0.45), rgba(248, 113, 113, 0.2));
+  border-radius: 24px;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  box-shadow: 0 24px 44px -28px rgba(220, 38, 38, 0.4);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
