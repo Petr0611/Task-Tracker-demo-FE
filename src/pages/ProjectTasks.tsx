@@ -18,7 +18,6 @@ import {
   createColumn,
   getColumnsByProject,
   selectColumnsByProject,
-  selectColumnsError,
   selectColumnsIsLoading,
   selectCreateColumnError,
   selectIsCreatingColumn,
@@ -31,8 +30,6 @@ import {
   selectColumnTasksLoaded,
   selectColumnTasksLoading,
   selectTasksByColumn,
-  selectTasksError,
-  selectTasksIsLoading,
   selectTaskDetailsById,
   selectIsBulkUpdatingStatus,
   selectBulkUpdateStatusError,
@@ -129,14 +126,12 @@ export default function ProjectTasks() {
   const [bulkStatusLocalError, setBulkStatusLocalError] = useState<string>();
   const [bulkMoveLocalError, setBulkMoveLocalError] = useState<string>();
 
-  // секции
   const [openFilters, setOpenFilters] = useState(false);
   const [openBulkActions, setOpenBulkActions] = useState(false);
   const [openTemplates, setOpenTemplates] = useState(false);
   const [openCreateColumn, setOpenCreateColumn] = useState(columns.length === 0);
   const [openProjectManagement, setOpenProjectManagement] = useState(false);
 
-  // универсальная функция — открывает одну секцию, закрывает остальные
   const handleToggleSection = (section: string) => {
     setOpenFilters((prev) => (section === "filters" ? !prev : false));
     setOpenBulkActions((prev) => (section === "bulk" ? !prev : false));
@@ -162,9 +157,9 @@ export default function ProjectTasks() {
 
   const hasActiveFilters = Boolean(
     sanitizedFilters.status ||
-      sanitizedFilters.executorId ||
-      sanitizedFilters.dueBefore ||
-      sanitizedFilters.sortBy
+    sanitizedFilters.executorId ||
+    sanitizedFilters.dueBefore ||
+    sanitizedFilters.sortBy
   );
   const hasSelectedTasks = selectedTaskIds.length > 0;
   const isAnyBulkActionLoading = isBulkUpdatingStatus || isBulkMovingTasks;
@@ -310,7 +305,6 @@ export default function ProjectTasks() {
 
   return (
     <div className="project-tasks-page">
-      {/* Хедер */}
       <header className="project-tasks-header-full">
         <div className="project-tasks-header-top">
           <button
@@ -371,7 +365,6 @@ export default function ProjectTasks() {
         </div>
       </header>
 
-      {/* Формы под хедером */}
       {openProjectManagement && projectId && (
         <div className="project-tasks-create">
           <RoleUIBlock projectId={projectId} />
@@ -566,7 +559,6 @@ export default function ProjectTasks() {
         </div>
       )}
 
-      {/* Колонки */}
       {!isLoadingColumns && columns.length === 0 && !openCreateColumn ? (
         <div className="project-tasks-placeholder project-tasks-placeholder--centered">
           В этом проекте еще нет колонок. Нажмите «Добавить колонку».
