@@ -37,16 +37,6 @@ function EditProjectPage() {
     fetchRole();
   }, [projectId]);
 
-  if (checkingAccess) {
-    return (
-      <p className="text-gray-500 text-center mt-10 animate-pulse">
-        Checking access permissions...
-      </p>
-    );
-  }
-
-  if (accessDenied) return <AccessDenied />;
-
   useEffect(() => {
     if (!role || accessDenied) return;
     const fetchProject = async () => {
@@ -60,6 +50,16 @@ function EditProjectPage() {
     };
     fetchProject();
   }, [projectId, role, accessDenied]);
+
+  if (checkingAccess) {
+    return (
+      <p className="text-gray-500 text-center mt-10 animate-pulse">
+        Checking access permissions...
+      </p>
+    );
+  }
+
+  if (accessDenied) return <AccessDenied />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
