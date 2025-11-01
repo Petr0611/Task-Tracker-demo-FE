@@ -49,7 +49,7 @@ import {
   Plus,
   Wrench,
 } from "lucide-react";
-import "./ProjectTasks.css";
+import "../css/ProjectTasks.css";
 
 const TASK_STATUS_OPTIONS = [
   { value: "", label: "Все" },

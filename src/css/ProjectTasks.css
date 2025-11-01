@@ -4,23 +4,24 @@
     justify-content: space-between;
     width: 100vw;
     margin: 0;
-    padding: 12px clamp(20px, 4vw, 48px);
-    background: #fff;
-    box-shadow: 0 3px 8px -4px rgba(15, 23, 42, 0.12);
+    padding: 1.1rem clamp(20px, 4vw, 48px);
+    background: linear-gradient(135deg, rgba(255, 244, 252, 0.96), rgba(241, 231, 255, 0.94));
+    box-shadow: 0 18px 36px rgba(208, 171, 255, 0.24);
     border: none;
-    border-radius: 0;
+    border-radius: 0 0 24px 24px;
     transform: translateX(-50%);
     position: relative;
     left: 50%;
-    min-height: 68px;
-    gap: 0;
+    min-height: 76px;
+    gap: 1.5rem;
+    backdrop-filter: blur(10px);
 }
 
 .project-tasks-header-info {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 2px;
+    gap: 0.35rem;
 }
 
 .project-tasks-title,
@@ -28,110 +29,138 @@
     margin: 0;
 }
 
+.project-tasks-title {
+    font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+    font-weight: 800;
+    color: #4b1f8c;
+    text-shadow: 0 4px 16px rgba(255, 255, 255, 0.85);
+}
+
+.project-tasks-subtitle {
+    font-size: 0.95rem;
+    color: #6f5aa9;
+    line-height: 1.5;
+}
+
 .project-tasks-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     margin: 0;
     padding: 0;
     border: none;
 }
 
 .project-tasks-header-actions .project-tasks-button {
-    padding: 0.45rem 1rem;
-    font-size: 0.9rem;
-    border-radius: 10px;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.92rem;
+    border-radius: 14px;
 }
 
 .project-tasks-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    border: 1px solid transparent;
-    border-radius: 14px;
-    background: transparent;
-    color: inherit;
+    gap: 0.55rem;
+    border: 2px solid transparent;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.72);
+    color: #5b3aa0;
     font-size: 0.95rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s, color 0.2s,
-        border-color 0.2s;
+    padding: 0.55rem 1.1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease,
+        color 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 12px 26px rgba(210, 190, 255, 0.32);
 }
 
 .project-tasks-button:disabled {
-    opacity: 0.6;
+    opacity: 0.55;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
 }
 
 .project-tasks-button:not(:disabled):hover {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 30px -20px rgba(15, 23, 42, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 38px rgba(199, 184, 255, 0.35);
+    background: rgba(255, 255, 255, 0.88);
+}
+
+.project-tasks-button:focus-visible {
+    outline: none;
+    border-color: rgba(255, 147, 209, 0.5);
+    box-shadow: 0 0 0 4px rgba(255, 147, 209, 0.28);
 }
 
 .project-tasks-button--primary {
-    background: linear-gradient(135deg, #111827, #020617);
-    color: #fff;
+    background: linear-gradient(135deg, #ffb3e6, #f19cff);
+    border-color: rgba(255, 147, 209, 0.5);
+    color: #4b1f8c;
 }
 
 .project-tasks-button--primary:not(:disabled):hover {
-    background: linear-gradient(135deg, #0f172a, #111827);
+    background: linear-gradient(135deg, #ffa6e1, #ea8cff);
+    color: #441d83;
 }
 
 .project-tasks-button--secondary {
-    background: rgba(15, 23, 42, 0.06);
-    border-color: rgba(148, 163, 184, 0.45);
-    color: #0f172a;
+    background: rgba(245, 238, 255, 0.86);
+    border-color: rgba(199, 184, 255, 0.7);
+    color: #6b41b5;
 }
 
 .project-tasks-button--secondary:hover:not(:disabled) {
-    background: rgba(15, 23, 42, 0.12);
+    background: rgba(245, 238, 255, 0.95);
 }
 
 .project-tasks-button--ghost {
-    border-color: rgba(148, 163, 184, 0.45);
-    background: rgba(241, 245, 249, 0.8);
-    color: #475569;
+    background: rgba(255, 255, 255, 0.65);
+    border-color: rgba(208, 171, 255, 0.4);
+    color: #5b3aa0;
 }
 
 .project-tasks-button--ghost:hover:not(:disabled) {
-    background: rgba(226, 232, 240, 0.95);
-    color: #0f172a;
+    background: rgba(255, 255, 255, 0.85);
+    color: #4b1f8c;
 }
 
 .project-tasks-button--outline {
-    border-color: rgba(245, 158, 11, 0.4);
-    background: rgba(253, 230, 138, 0.35);
-    color: #b45309;
+    background: rgba(255, 244, 252, 0.72);
+    border-color: rgba(255, 182, 222, 0.55);
+    color: #b5497e;
 }
 
 .project-tasks-button--outline:hover:not(:disabled) {
-    background: rgba(252, 211, 77, 0.5);
+    background: rgba(255, 236, 250, 0.9);
 }
 
 .project-tasks-button--accent {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    color: #fff;
+    background: linear-gradient(135deg, #b1c5ff, #9ac1ff);
+    border-color: rgba(168, 200, 255, 0.55);
+    color: #2c3e94;
 }
 
 .project-tasks-button--accent:hover:not(:disabled) {
-    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    background: linear-gradient(135deg, #a5baff, #90b5ff);
 }
 
 .project-tasks-subheader {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
-    border-top: 1px solid rgba(226, 232, 240, 0.9);
-    padding-top: 12px;
-    margin-top: 4px;
+    gap: 0.75rem;
+    border-top: 1px dashed rgba(208, 171, 255, 0.55);
+    padding-top: 0.85rem;
+    margin-top: 0.5rem;
 }
 
 .project-tasks-subheader .project-tasks-button {
     width: 40px;
     height: 40px;
     padding: 0;
-    border-radius: 12px;
+    border-radius: 13px;
 }
 
 .project-tasks-page {
@@ -141,21 +170,26 @@
     padding: 0 var(--page-inline-padding) clamp(48px, 6vw, 88px);
     display: flex;
     flex-direction: column;
-    gap: 28px;
-    color: #0f172a;
+    gap: 32px;
+    color: #4b1f8c;
+    background: radial-gradient(circle at top, rgba(255, 248, 255, 0.75), rgba(235, 226, 255, 0));
 }
 
 @media (min-width: 768px) {
     .project-tasks-page {
         padding: 0 var(--page-inline-padding) clamp(56px, 7vw, 100px);
-        gap: 36px;
+        gap: 40px;
     }
 }
 
 .project-tasks-alert-group {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 0.85rem;
+}
+
+.project-tasks-alert-group .project-task-card__button--danger {
+    box-shadow: none;
 }
 
 .project-tasks-alert {

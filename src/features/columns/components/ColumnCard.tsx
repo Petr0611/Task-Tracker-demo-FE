@@ -3,6 +3,8 @@ import {
     type DragEvent,
     useEffect,
     useMemo,
+    useRef,
+    type SVGProps,
     useState,
 } from "react";
 import clsx from "clsx";
@@ -41,6 +43,7 @@ import {
 import type { Column } from "../types";
 import type { Task, UpdateTaskDto } from "../../tasks/types";
 import ColumnForm from "./ColumnForm";
+import "../../../css/ColumnCard.css";
 
 interface ColumnCardProps {
     column: Column;
@@ -70,6 +73,8 @@ export default function ColumnCard({
     const dispatch = useAppDispatch();
     const [showTaskForm, setShowTaskForm] = useState(false);
     const [isEditingColumn, setIsEditingColumn] = useState(false);
+    const [showColumnActionsMenu, setShowColumnActionsMenu] = useState(false);
+    const actionsMenuRef = useRef<HTMLDivElement | null>(null);
 
     const sortedTasks = useMemo(
         () =>
@@ -168,7 +173,7 @@ export default function ColumnCard({
             console.error(error);
         }
     };
-const handleUploadAttachment = async (taskId: string, file: File) => {
+    const handleUploadAttachment = async (taskId: string, file: File) => {
         try {
             await dispatch(uploadTaskAttachment({ taskId, file })).unwrap();
         } catch (error) {
@@ -308,6 +313,23 @@ const handleUploadAttachment = async (taskId: string, file: File) => {
         }
     };
 
+    const handleToggleColumnActionsMenu = () => {
+        if (isUpdatingColumn || isDeletingColumn) {
+            return;
+        }
+
+        setShowColumnActionsMenu((prev) => !prev);
+    };
+
+    const handleStartEditColumn = () => {
+        if (isUpdatingColumn || isDeletingColumn) {
+            return;
+        }
+
+        setShowColumnActionsMenu(false);
+        setIsEditingColumn(true);
+    };
+
     const handleDeleteColumn = async () => {
         const hasTasks = column.tasks && column.tasks.length > 0;
 
@@ -320,12 +342,63 @@ const handleUploadAttachment = async (taskId: string, file: File) => {
         }
 
         try {
+            setShowColumnActionsMenu(false);
             await dispatch(deleteColumn({ projectId, columnId: column.id })).unwrap();
             dispatch(clearTasksForColumn(column.id));
         } catch (error) {
             console.error(error);
         }
     };
+
+    useEffect(() => {
+        if (!showColumnActionsMenu) {
+            return;
+        }
+
+        const handlePointerDown = (event: PointerEvent) => {
+            if (!actionsMenuRef.current) {
+                return;
+            }
+
+            const target = event.target as Node | null;
+
+            if (target && actionsMenuRef.current.contains(target)) {
+                return;
+            }
+
+            setShowColumnActionsMenu(false);
+        };
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setShowColumnActionsMenu(false);
+            }
+        };
+
+        window.addEventListener("pointerdown", handlePointerDown);
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("pointerdown", handlePointerDown);
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [showColumnActionsMenu]);
+
+    useEffect(() => {
+        if (!isUpdatingColumn && !isDeletingColumn) {
+            return;
+        }
+
+        setShowColumnActionsMenu(false);
+    }, [isUpdatingColumn, isDeletingColumn]);
+
+    useEffect(() => {
+        if (!isEditingColumn) {
+            return;
+        }
+
+        setShowColumnActionsMenu(false);
+    }, [isEditingColumn]);
 
     const DropZone = ({
         index,
@@ -340,72 +413,112 @@ const handleUploadAttachment = async (taskId: string, file: File) => {
             onDragLeave={() => handleDragLeaveZone(index)}
             onDrop={(event) => handleDropOnZone(event, index)}
             className={clsx(
-                "my-1 rounded-md transition-all duration-200",
-                activeDropZone === index
-                    ? "h-10 opacity-100 border-2 border-dashed border-black/40 bg-black/5"
-                    : isInitial
-                      ? "h-10 border-2 border-dashed border-gray-200/70 opacity-60"
-                      : "h-2 opacity-0"
+                "column-card__drop-zone",
+                isInitial
+                    ? "column-card__drop-zone--initial"
+                    : "column-card__drop-zone--compact",
+                {
+                    "column-card__drop-zone--active":
+                        activeDropZone === index,
+                }
             )}
         />
     );
 
     return (
-        <section className="flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="space-y-1">
-                    <h2 className="text-lg font-semibold text-gray-900">{column.title}</h2>
-                    <p className="text-xs text-gray-500">
+        <section className="column-card">
+            <header className="column-card__header">
+                <div className="column-card__heading-group">
+                    <h2 className="column-card__title">{column.title}</h2>
+                    <p className="column-card__meta">
                         Порядок: {Number.isFinite(column.orderIndex) ? column.orderIndex : "—"}
                         {" · "}
                         Задач: {sortedTasks.length}
                     </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="column-card__actions">
                     <button
                         type="button"
                         onClick={() => setShowTaskForm((prev) => !prev)}
-                        className="inline-flex items-center rounded-md bg-black px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-                        disabled={isCreatingTask || isDeletingColumn || isUpdatingColumn}
+                        className={clsx(
+                            "column-card__button",
+                            "column-card__button--primary"
+                        )} disabled={isCreatingTask || isDeletingColumn || isUpdatingColumn}
                     >
                         {showTaskForm ? "Скрыть форму" : "Добавить задачу"}
                     </button>
-                    <button
-                        type="button"
-                        onClick={() => setIsEditingColumn(true)}
-                        className="inline-flex items-center rounded-md border border-gray-200 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-                        disabled={isUpdatingColumn || isDeletingColumn}
-                    >
-                        Редактировать колонку
-                    </button>
-                    <button
+                    <div className="column-card__actions-menu">
+                        <button
+                            type="button"
+                            onClick={handleToggleColumnActionsMenu}
+                            className="column-card__actions-trigger"
+                            aria-haspopup="menu"
+                            aria-expanded={showColumnActionsMenu}
+                            aria-controls={`column-actions-${column.id}`}
+                            disabled={isUpdatingColumn || isDeletingColumn}
+                            aria-label="Дополнительные действия с колонкой"
+                        >
+                            <EllipsisVerticalIcon className="column-card__actions-trigger-icon" aria-hidden="true" />
+                        </button>
+                        {showColumnActionsMenu && (
+                            <div
+                                ref={actionsMenuRef}
+                                id={`column-actions-${column.id}`}
+                                role="menu"
+                                aria-orientation="vertical"
+                                className="column-card__actions-popover"
+                            >
+                                <button
+                                    type="button"
+                                    onClick={handleStartEditColumn}
+                                    className="column-card__actions-item"
+                                    role="menuitem"
+                                >
+                                    <PencilIcon className="column-card__actions-item-icon" aria-hidden="true" />
+                                    Редактировать колонку
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleDeleteColumn}
+                                    className="column-card__actions-item column-card__actions-item--danger"
+                                    role="menuitem"
+                                >
+                                    <TrashIcon className="column-card__actions-item-icon" aria-hidden="true" />
+                                    {isDeletingColumn ? "Удаляем..." : "Удалить колонку"}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                    {/* <button
                         type="button"
                         onClick={handleDeleteColumn}
-                        className="inline-flex items-center rounded-md bg-red-500 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                        disabled={isDeletingColumn}
+                        className={clsx(
+                            "column-card__button",
+                            "column-card__button--danger"
+                        )} disabled={isDeletingColumn}
                     >
                         {isDeletingColumn ? "Удаляем..." : "Удалить колонку"}
-                    </button>
+                    </button> */}
                 </div>
             </header>
 
             {deleteColumnError && (
-                <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                <div className="column-card__alert column-card__alert--error">
                     {deleteColumnError}
                 </div>
             )}
 
             {isEditingColumn && (
-                <div className="space-y-3">
+                <div className="column-card__edit-section">
                     {columnDetailsLoading && (
-                        <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-3 text-sm text-gray-600">
-                            Загружаем актуальные данные колонки...
+                        <div className="column-card__alert column-card__alert--info column-card__alert--dashed">                           
+                         Загружаем актуальные данные колонки...
                         </div>
                     )}
 
                     {columnDetailsError && (
-                        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                        <div className="column-card__alert column-card__alert--error">
                             {columnDetailsError}
                         </div>
                     )}
@@ -424,32 +537,34 @@ const handleUploadAttachment = async (taskId: string, file: File) => {
             )}
 
             {showTaskForm && (
-                <TaskCreateForm
-                    columns={allColumns}
-                    defaultColumnId={column.id}
-                    lockColumnSelection
-                    onSubmit={handleCreateTaskSubmit}
-                    onCancel={() => setShowTaskForm(false)}
-                    isSubmitting={isCreatingTask}
-                    error={createTaskError}
-                />
+                <div className="column-card__task-form">
+                    <TaskCreateForm
+                        columns={allColumns}
+                        defaultColumnId={column.id}
+                        lockColumnSelection
+                        onSubmit={handleCreateTaskSubmit}
+                        onCancel={() => setShowTaskForm(false)}
+                        isSubmitting={isCreatingTask}
+                        error={createTaskError}
+                    />
+                </div>
             )}
 
             {tasksError && (
-                <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                <div className="column-card__alert column-card__alert--error">
                     {tasksError}
                 </div>
             )}
 
             {tasksLoading && (
-                <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-3 text-sm text-gray-600">
+                <div className="column-card__alert column-card__alert--info column-card__alert--dashed">
                     Загружаем задачи для этой колонки...
                 </div>
             )}
 
             {!tasksLoading && tasks.length === 0 && !showTaskForm && (
                 <div
-                    className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600"
+                    className="column-card__empty-state"
                     onDragOver={handleDragOverZone}
                     onDragEnter={() => handleDragEnterZone(0)}
                     onDragLeave={() => handleDragLeaveZone(0)}
@@ -460,26 +575,26 @@ const handleUploadAttachment = async (taskId: string, file: File) => {
             )}
 
             {(updateTaskError || deleteTaskError || moveTaskError) && (
-                <div className="space-y-2">
+                <div className="column-card__alert-stack">
                     {updateTaskError && (
-                        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                        <div className="column-card__alert column-card__alert--error">
                             {updateTaskError}
                         </div>
                     )}
                     {deleteTaskError && (
-                        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                        <div className="column-card__alert column-card__alert--error">
                             {deleteTaskError}
                         </div>
                     )}
                     {moveTaskError && (
-                        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                        <div className="column-card__alert column-card__alert--error">
                             {moveTaskError}
                         </div>
                     )}
                 </div>
             )}
 
-            <div className="flex flex-col">
+            <div className="column-card__tasks">
                 <DropZone index={0} isInitial={sortedTasks.length === 0} />
                 {sortedTasks.map((taskItem, index) => {
                     const isUpdatingTask = Boolean(updatingTaskIds[taskItem.id]);
@@ -492,10 +607,13 @@ const handleUploadAttachment = async (taskId: string, file: File) => {
                         <Fragment key={taskItem.id}>
                             <div
                                 className={clsx(
-                                    "mb-3",
-                                    isTaskBusy
-                                        ? "cursor-not-allowed opacity-60"
-                                        : "cursor-move"
+                                    "column-card__task-wrapper",
+                                    {
+                                        "column-card__task-wrapper--busy":
+                                            isTaskBusy,
+                                        "column-card__task-wrapper--draggable":
+                                            !isTaskBusy,
+                                    }
                                 )}
                                 draggable={!isTaskBusy}
                                 onDragStart={(event) =>
@@ -532,5 +650,68 @@ const handleUploadAttachment = async (taskId: string, file: File) => {
                 })}
             </div>
         </section>
+    );
+
+    }
+
+function EllipsisVerticalIcon(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            {...props}
+        >
+            <circle cx={12} cy={5} r={1.5} />
+            <circle cx={12} cy={12} r={1.5} />
+            <circle cx={12} cy={19} r={1.5} />
+        </svg>
+    );
+}
+
+function PencilIcon(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            {...props}
+        >
+            <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M16.862 4.487l1.651-1.65a1.5 1.5 0 112.122 2.122l-9.193 9.193a3 3 0 01-1.061.707l-3.11 1.037a.75.75 0 01-.948-.948l1.037-3.11a3 3 0 01.707-1.06l6.898-6.9"
+            />
+            <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.5 11.25V19.5a1.5 1.5 0 01-1.5 1.5h-12A1.5 1.5 0 014.5 19.5v-12A1.5 1.5 0 016 6h8.25"
+            />
+        </svg>
+    );
+}
+
+function TrashIcon(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            {...props}
+        >
+            <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9.5 4.5h5a1 1 0 011 1V7h4.25M4.25 7H20.5M6.5 7v12a1.5 1.5 0 001.5 1.5h8a1.5 1.5 0 001.5-1.5V7"
+            />
+            <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M10 11.5v6m4-6v6"
+            />
+        </svg>
     );
 }

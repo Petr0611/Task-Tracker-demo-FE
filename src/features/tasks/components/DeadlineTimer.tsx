@@ -83,10 +83,14 @@ export function DeadlineTimer({ dueDate }: DeadlineTimerProps) {
     };
   }, [dueDate]);
 
+  const timerClassName = timerState.isOverdue
+    ? "deadline-timer deadline-timer--overdue"
+    : "deadline-timer";
+
   return (
-    <p className={`text-sm ${timerState.isOverdue ? "text-red-600" : "text-gray-600"}`}>
-      <span className="font-medium text-gray-700">До дедлайна:</span>{" "}
-      {timerState.text}
+    <p className={timerClassName}>
+      <span className="deadline-timer__label">До дедлайна:</span>{" "}
+      <span className="deadline-timer__value">{timerState.text}</span>
     </p>
   );
 }
