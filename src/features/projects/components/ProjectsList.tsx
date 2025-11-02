@@ -43,9 +43,8 @@ export default function ProjectsList({
 
   return (
     <section className="space-y-6 p-4 md:p-6 bg-gray-50 rounded-xl shadow-inner">
-      {/* Обновленный заголовок */}
       <h2 className="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-3">
-        Ваши Проекты{" "}
+        Your projects{" "}
         <span className="text-indigo-600">({projects.length})</span>
       </h2>
 
@@ -62,25 +61,20 @@ export default function ProjectsList({
                 className="block w-full text-left p-5 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-opacity-50 rounded-xl transition duration-150"
               >
                 <div className="flex flex-col gap-2">
-                  {/* Стильный заголовок */}
                   <span className="text-xl font-extrabold text-gray-900 group-hover:text-indigo-600 transition">
                     {project.title}
                   </span>
 
-                  {/* Описание */}
                   <span className="block text-sm text-gray-600">
                     {project.description}
                   </span>
                 </div>
-
-                {/* Блок с участниками и приглашениями */}
                 <div className="mt-4 flex flex-wrap gap-4 pt-3 border-t border-gray-100">
-                  {/* Члены проекта */}
                   {project.members && project.members.length > 0 && (
                     <div className="flex items-center gap-2">
                       {UsersIcon}
                       <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                        Участники:
+                        Members:
                       </span>
 
                       <div className="flex flex-wrap gap-2">
@@ -112,12 +106,11 @@ export default function ProjectsList({
                     </div>
                   )}
 
-                  {/* Приглашённые */}
                   {project.invitations && project.invitations.length > 0 && (
                     <div className="flex items-center gap-2 ml-auto">
                       {MailIcon}
                       <span className="text-sm font-medium text-orange-700 whitespace-nowrap">
-                        Приглашения:
+                        Invitations:
                       </span>
 
                       <div className="flex flex-wrap gap-2">
@@ -125,7 +118,7 @@ export default function ProjectsList({
                           <span
                             key={`${project.id}-inv-${index}`}
                             className="inline-flex items-center rounded-full bg-orange-50 text-xs font-medium text-orange-800 px-3 py-1 shadow-sm border border-orange-200"
-                            title={`Статус: ${inv.collaboratorStatus}`}
+                            title={`Status: ${inv.collaboratorStatus}`}
                           >
                             {inv.email} — {inv.role} — {inv.collaboratorStatus}
                           </span>

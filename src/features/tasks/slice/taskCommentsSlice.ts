@@ -121,7 +121,7 @@ export const taskCommentsSlice = createAppSlice({
       }) => {
         const trimmedText = sanitizeCommentText(text);
         if (!trimmedText) {
-          throw new Error("Введите текст комментария");
+          throw new Error("Enter a comment");
         }
 
         const payload: CreateTaskCommentDto = {
@@ -172,7 +172,7 @@ export const taskCommentsSlice = createAppSlice({
       }) => {
         const trimmedText = sanitizeCommentText(text);
         if (!trimmedText) {
-          throw new Error("Введите текст комментария");
+          throw new Error("Enter a comment");
         }
 
         const payload: UpdateTaskCommentDto = {

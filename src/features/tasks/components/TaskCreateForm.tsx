@@ -16,8 +16,8 @@ interface TaskCreateFormProps {
 }
 
 const validationSchema = Yup.object({
-    columnId: Yup.string().trim().required("Выберите колонку"),
-    title: Yup.string().trim().required("Введите название задачи"),
+    columnId: Yup.string().trim().required("Select a column"),
+    title: Yup.string().trim().required("Enter a task title"),
     description: Yup.string().optional(),
     status: Yup.string().optional(),
     priority: Yup.string().optional(),
@@ -98,9 +98,9 @@ export default function TaskCreateForm({
 
     return (
         <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-            <h3 className="text-lg font-semibold">Новая задача</h3>
+            <h3 className="text-lg font-semibold">New task</h3>
             <p className="text-sm text-gray-500">
-                Заполните поля, чтобы добавить задачу
+                Fill in the fields to add a task
             </p>
 
             {error && (
@@ -115,14 +115,14 @@ export default function TaskCreateForm({
                         htmlFor="task-title"
                         className="block text-sm font-medium text-gray-700"
                     >
-                        Название
+                        Title
                     </label>
                     <input
                         id="task-title"
                         type="text"
                         {...formik.getFieldProps("title")}
                         className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${titleHasError ? "border-red-500 focus:ring-red-500" : "border-input"}`}
-                        placeholder="Например, Сверстать лендинг"
+                        placeholder="For example, Design the landing page"
                         disabled={formik.isSubmitting || isSubmitting}
                     />
                     {titleHasError && (
@@ -135,14 +135,14 @@ export default function TaskCreateForm({
                         htmlFor="task-description"
                         className="block text-sm font-medium text-gray-700"
                     >
-                        Описание
+                        Description
                     </label>
                     <textarea
                         id="task-description"
                         rows={3}
                         {...formik.getFieldProps("description")}
                         className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
-                        placeholder="Кратко опишите, что нужно сделать"
+                        placeholder="Briefly describe what needs to be done"
                         disabled={formik.isSubmitting || isSubmitting}
                     />
                 </div>
@@ -151,7 +151,7 @@ export default function TaskCreateForm({
                         htmlFor="task-due-date"
                         className="block text-sm font-medium text-gray-700"
                     >
-                        Срок выполнения
+                        Due date
                     </label>
                     <input
                         id="task-due-date"
@@ -170,7 +170,7 @@ export default function TaskCreateForm({
                         className="inline-flex w-full items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
                         disabled={formik.isSubmitting || isSubmitting}
                     >
-                        {formik.isSubmitting || isSubmitting ? "Создаем..." : "Создать задачу"}
+                        {formik.isSubmitting || isSubmitting ? "Creating..." : "Create task"}
                     </button>
                     <button
                         type="button"
@@ -178,7 +178,7 @@ export default function TaskCreateForm({
                         className="inline-flex w-full items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
                         disabled={formik.isSubmitting || isSubmitting}
                     >
-                        Отменить
+                        Cancel
                     </button>
                 </div>
             </form>

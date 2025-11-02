@@ -31,7 +31,7 @@ export default function RoleUIBlock({ projectId }: { projectId: string }) {
   if (!role)
     return (
       <p className="text-gray-500 text-center mt-10 animate-pulse">
-        Загрузка прав доступа...
+        Loading access rights...
       </p>
     );
 

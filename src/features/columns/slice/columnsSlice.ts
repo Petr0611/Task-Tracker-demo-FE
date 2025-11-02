@@ -240,7 +240,7 @@ export const columnsSlice = createAppSlice({
                         if (status === 400) {
                             return rejectWithValue(
                                 responseMessage ??
-                                    "Вы не можете удалить базовую колонку"
+                                    "You cannot delete a base column"
                             );
                         }
 
@@ -252,7 +252,7 @@ export const columnsSlice = createAppSlice({
                     return rejectWithValue(
                         error instanceof Error
                             ? error.message
-                            : "Не удалось удалить колонку"
+                            : "Failed to delete the column"
                     );
                 }
             },
@@ -290,7 +290,7 @@ export const columnsSlice = createAppSlice({
                     state.deleteColumnError =
                         payloadMessage ??
                         action.error.message ??
-                        "Не удалось удалить колонку";
+                        "Failed to delete the column";
                 },
             }
         ),
@@ -329,7 +329,7 @@ export const columnsSlice = createAppSlice({
                 const sanitizedTemplate = sanitizeTemplateDto(template);
 
                 if (!sanitizedTemplate.name) {
-                    throw new Error("Укажите название шаблона");
+                    throw new Error("Provide a template name");
                 }
 
                 const createdTemplate =

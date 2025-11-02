@@ -334,8 +334,8 @@ export default function ColumnCard({
         const hasTasks = column.tasks && column.tasks.length > 0;
 
         const confirmMessage = hasTasks
-            ? "Удалить колонку вместе со связанными задачами?"
-            : "Удалить колонку?";
+            ? "Delete this column along with its tasks?"
+            : "Delete this column?";
 
         if (!window.confirm(confirmMessage)) {
             return;
@@ -431,9 +431,9 @@ export default function ColumnCard({
                 <div className="column-card__heading-group">
                     <h2 className="column-card__title">{column.title}</h2>
                     <p className="column-card__meta">
-                        Порядок: {Number.isFinite(column.orderIndex) ? column.orderIndex : "—"}
+                        Order: {Number.isFinite(column.orderIndex) ? column.orderIndex : "—"}
                         {" · "}
-                        Задач: {sortedTasks.length}
+                        Tasks: {sortedTasks.length}
                     </p>
                 </div>
 
@@ -446,7 +446,7 @@ export default function ColumnCard({
                             "column-card__button--primary"
                         )} disabled={isCreatingTask || isDeletingColumn || isUpdatingColumn}
                     >
-                        {showTaskForm ? "Скрыть форму" : "Добавить задачу"}
+                        {showTaskForm ? "Hide form" : "Add task"}
                     </button>
                     <div className="column-card__actions-menu">
                         <button
@@ -457,7 +457,7 @@ export default function ColumnCard({
                             aria-expanded={showColumnActionsMenu}
                             aria-controls={`column-actions-${column.id}`}
                             disabled={isUpdatingColumn || isDeletingColumn}
-                            aria-label="Дополнительные действия с колонкой"
+                            aria-label="Additional column actions"
                         >
                             <EllipsisVerticalIcon className="column-card__actions-trigger-icon" aria-hidden="true" />
                         </button>
@@ -476,7 +476,7 @@ export default function ColumnCard({
                                     role="menuitem"
                                 >
                                     <PencilIcon className="column-card__actions-item-icon" aria-hidden="true" />
-                                    Редактировать колонку
+                                    Edit column
                                 </button>
                                 <button
                                     type="button"
@@ -485,21 +485,11 @@ export default function ColumnCard({
                                     role="menuitem"
                                 >
                                     <TrashIcon className="column-card__actions-item-icon" aria-hidden="true" />
-                                    {isDeletingColumn ? "Удаляем..." : "Удалить колонку"}
+                                    {isDeletingColumn ? "Deleting..." : "Delete column"}
                                 </button>
                             </div>
                         )}
                     </div>
-                    {/* <button
-                        type="button"
-                        onClick={handleDeleteColumn}
-                        className={clsx(
-                            "column-card__button",
-                            "column-card__button--danger"
-                        )} disabled={isDeletingColumn}
-                    >
-                        {isDeletingColumn ? "Удаляем..." : "Удалить колонку"}
-                    </button> */}
                 </div>
             </header>
 
@@ -513,7 +503,7 @@ export default function ColumnCard({
                 <div className="column-card__edit-section">
                     {columnDetailsLoading && (
                         <div className="column-card__alert column-card__alert--info column-card__alert--dashed">                           
-                         Загружаем актуальные данные колонки...
+                         Loading the latest column data...
                         </div>
                     )}
 
@@ -525,7 +515,7 @@ export default function ColumnCard({
 
                     <ColumnForm
                         initialValues={columnFormInitialValues}
-                        submitLabel={isUpdatingColumn ? "Сохраняем..." : "Сохранить"}
+                        submitLabel={isUpdatingColumn ? "Saving..." : "Save"}
                         onSubmit={handleSubmitColumn}
                         onCancel={() => setIsEditingColumn(false)}
                         isSubmitting={isUpdatingColumn}
@@ -558,7 +548,7 @@ export default function ColumnCard({
 
             {tasksLoading && (
                 <div className="column-card__alert column-card__alert--info column-card__alert--dashed">
-                    Загружаем задачи для этой колонки...
+                    Loading tasks for this column...
                 </div>
             )}
 
@@ -570,7 +560,7 @@ export default function ColumnCard({
                     onDragLeave={() => handleDragLeaveZone(0)}
                     onDrop={(event) => handleDropOnZone(event, 0)}
                 >
-                    В колонке пока нет задач. Нажмите «Добавить задачу», чтобы создать первую.
+                    This column doesn't have any tasks yet. Click "Add task" to create the first one.
                 </div>
             )}
 

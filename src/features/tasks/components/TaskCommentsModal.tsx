@@ -149,7 +149,7 @@ export default function TaskCommentsModal({
     const trimmed = newComment.trim();
 
     if (!trimmed) {
-      setNewCommentLocalError("Введите текст комментария");
+      setNewCommentLocalError("Enter a comment");
       return;
     }
 
@@ -182,7 +182,7 @@ export default function TaskCommentsModal({
     const trimmed = editingContent.trim();
 
     if (!trimmed) {
-      setEditingLocalError("Введите текст комментария");
+      setEditingLocalError("Enter a comment");
       return;
     }
 
@@ -221,17 +221,17 @@ export default function TaskCommentsModal({
         <div className="flex items-start justify-between gap-4 border-b border-gray-200 px-6 py-4">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">
-              Комментарии к задаче
+              Task comments
             </h2>
             <p className="text-sm text-gray-500">
-              {task.title || "Без названия"}
+              {task.title || "Untitled"}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-lg font-semibold text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-            aria-label="Закрыть окно комментариев"
+            aria-label="Close comments modal"
           >
             ×
           </button>
@@ -240,7 +240,7 @@ export default function TaskCommentsModal({
         <div className="flex-1 space-y-4 overflow-y-auto px-6 py-4">
           {commentsLoading && (
             <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
-              Загружаем комментарии...
+              Loading comments...
             </div>
           )}
 
@@ -252,7 +252,7 @@ export default function TaskCommentsModal({
 
           {!commentsLoading && !commentsError && sortedComments.length === 0 && (
             <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
-              Здесь пока нет комментариев. Будьте первым, кто поделится мнением.
+              No comments yet. Be the first to share your thoughts.
             </div>
           )}
 
@@ -271,13 +271,13 @@ export default function TaskCommentsModal({
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="space-y-1">
                     <p className="text-sm font-semibold text-gray-900">
-                      {comment.authorName || "Участник проекта"}
+                      {comment.authorName || "Project member"}
                     </p>
                     <div className="text-xs text-gray-500">
                       <span>{formatCommentTimestamp(comment.createdAt)}</span>
                       {comment.updatedAt && (
                         <span className="ml-2 text-gray-400">
-                          Обновлено {formatCommentTimestamp(comment.updatedAt)}
+                          Updated {formatCommentTimestamp(comment.updatedAt)}
                         </span>
                       )}
                     </div>
@@ -293,7 +293,7 @@ export default function TaskCommentsModal({
                         className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                         disabled={isUpdating || isDeleting}
                       >
-                        Редактировать
+                        Edit
                       </button>
                       <button
                         type="button"
@@ -301,7 +301,7 @@ export default function TaskCommentsModal({
                         className="inline-flex items-center rounded-md border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                         disabled={isDeleting || isUpdating}
                       >
-                        {isDeleting ? "Удаляем..." : "Удалить"}
+                        {isDeleting ? "Deleting..." : "Delete"}
                       </button>
                     </div>
                   )}
@@ -336,7 +336,7 @@ export default function TaskCommentsModal({
                           className="inline-flex items-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                           disabled={isUpdating}
                         >
-                          {isUpdating ? "Сохраняем..." : "Сохранить"}
+                          {isUpdating ? "Saving..." : "Save"}
                         </button>
                         <button
                           type="button"
@@ -344,7 +344,7 @@ export default function TaskCommentsModal({
                           className="inline-flex items-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                           disabled={isUpdating}
                         >
-                          Отменить
+                          Cancel
                         </button>
                       </div>
                     </form>
@@ -375,7 +375,7 @@ export default function TaskCommentsModal({
               htmlFor="new-task-comment"
               className="block text-sm font-medium text-gray-700"
             >
-              Добавить комментарий
+              Add a comment
             </label>
             <textarea
               id="new-task-comment"
@@ -383,7 +383,7 @@ export default function TaskCommentsModal({
               rows={4}
               value={newComment}
               onChange={(event) => setNewComment(event.target.value)}
-              placeholder="Поделитесь своими мыслями по задаче..."
+              placeholder="Share your thoughts about the task..."
               disabled={isCreatingComment}
             />
           </div>
@@ -401,7 +401,7 @@ export default function TaskCommentsModal({
               className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
               disabled={isCreatingComment}
             >
-              {isCreatingComment ? "Сохраняем..." : "Добавить комментарий"}
+              {isCreatingComment ? "Saving..." : "Add comment"}
             </button>
           </div>
         </form>

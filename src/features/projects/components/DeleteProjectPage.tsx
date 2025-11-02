@@ -23,7 +23,7 @@ function DeleteProjectPage() {
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message: string }>;
       setError(
-        axiosError.response?.data?.message || "Ошибка при удалении проекта"
+        axiosError.response?.data?.message || "Failed to delete the project"
       );
     } finally {
       setLoading(false);

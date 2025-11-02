@@ -21,18 +21,18 @@ const formatRemaining = (totalSeconds: number) => {
   const parts: string[] = [];
 
   if (days > 0) {
-    parts.push(formatPart(days, "д"));
+    parts.push(formatPart(days, "d"));
   }
 
   if (hours > 0 || days > 0) {
-    parts.push(formatPart(hours, "ч"));
+    parts.push(formatPart(hours, "h"));
   }
 
   if (minutes > 0 || hours > 0 || days > 0) {
-    parts.push(formatPart(minutes, "м"));
+    parts.push(formatPart(minutes, "m"));
   }
 
-  parts.push(formatPart(seconds, "с"));
+  parts.push(formatPart(seconds, "s"));
 
   return parts.join(" ");
 };
@@ -42,7 +42,7 @@ const getTimerState = (dueDate: string) => {
 
   if (Number.isNaN(dueTimestamp)) {
     return {
-      text: "Не удалось вычислить срок",
+      text: "Couldn't calculate the due date",
       isOverdue: false,
     };
   }
@@ -54,8 +54,8 @@ const getTimerState = (dueDate: string) => {
     return {
       text:
         overdueSeconds > 0
-          ? `Просрочено на ${formatRemaining(overdueSeconds)}`
-          : "Дедлайн истёк",
+          ? `Overdue by ${formatRemaining(overdueSeconds)}`
+          : "Deadline passed",
       isOverdue: true,
     };
   }
@@ -89,7 +89,7 @@ export function DeadlineTimer({ dueDate }: DeadlineTimerProps) {
 
   return (
     <p className={timerClassName}>
-      <span className="deadline-timer__label">До дедлайна:</span>{" "}
+      <span className="deadline-timer__label">Time until deadline:</span>{" "}
       <span className="deadline-timer__value">{timerState.text}</span>
     </p>
   );

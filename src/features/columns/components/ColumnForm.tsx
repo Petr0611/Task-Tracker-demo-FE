@@ -25,10 +25,10 @@ interface ColumnFormValues {
 }
 
 const validationSchema = Yup.object({
-    title: Yup.string().trim().required("Введите название колонки"),
+    title: Yup.string().trim().required("Enter a column name"),
     orderIndex: Yup.string()
         .trim()
-        .matches(/^[0-9]*$/, "Порядок должен быть целым числом")
+        .matches(/^[0-9]*$/, "Order must be an integer")
         .optional(),
     baseColumn: Yup.boolean().optional(),
 });
@@ -153,14 +153,14 @@ export default function ColumnForm({
                         htmlFor="column-title"
                         className="block text-sm font-medium text-gray-700"
                     >
-                        Название
+                        Title
                     </label>
                     <input
                         id="column-title"
                         type="text"
                         {...formik.getFieldProps("title")}
                         className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${titleHasError ? "border-red-500 focus:ring-red-500" : "border-input"}`}
-                        placeholder="Например, В работе"
+                        placeholder="For example, In progress"
                         disabled={formik.isSubmitting || isSubmitting}
                     />
                     {titleHasError && (
@@ -173,7 +173,7 @@ export default function ColumnForm({
                         htmlFor="column-order"
                         className="block text-sm font-medium text-gray-700"
                     >
-                        Порядок отображения
+                        Display order
                     </label>
                     <input
                         id="column-order"
@@ -183,7 +183,7 @@ export default function ColumnForm({
                         step={1}
                         {...formik.getFieldProps("orderIndex")}
                         className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${orderIndexHasError ? "border-red-500 focus:ring-red-500" : "border-input"}`}
-                        placeholder="Например, 1"
+                        placeholder="For example, 1"
                         disabled={formik.isSubmitting || isSubmitting}
                     />
                     {orderIndexHasError && (
@@ -213,7 +213,7 @@ export default function ColumnForm({
                                 htmlFor="column-base"
                                 className="text-sm font-medium text-gray-700"
                             >
-                                Базовая колонка
+                                Base column
                             </label>
                         </div>
                     </div>
@@ -225,7 +225,7 @@ export default function ColumnForm({
                         className="inline-flex w-full items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
                         disabled={formik.isSubmitting || isSubmitting}
                     >
-                        {formik.isSubmitting || isSubmitting ? "Сохраняем..." : submitLabel}
+                        {formik.isSubmitting || isSubmitting ? "Saving..." : submitLabel}
                     </button>
 
                     {showCancelButton && (
@@ -235,7 +235,7 @@ export default function ColumnForm({
                             className="inline-flex w-full items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
                             disabled={formik.isSubmitting || isSubmitting}
                         >
-                            Отменить
+                            Cancel
                         </button>
                     )}
                 </div>

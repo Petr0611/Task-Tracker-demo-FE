@@ -71,7 +71,7 @@ function TaskListItem({
     event.preventDefault();
     const title = formState.title.trim();
     if (!title) {
-      setLocalError("Введите название задачи");
+      setLocalError("Enter a task title");
       return;
     }
 
@@ -128,7 +128,7 @@ function TaskListItem({
               htmlFor={`title-${task.id}`}
               className="task-card__label"
             >
-              Название
+              Title
             </label>
             <input
               id={`title-${task.id}`}
@@ -146,7 +146,7 @@ function TaskListItem({
               htmlFor={`description-${task.id}`}
               className="task-card__label"
             >
-              Описание
+              Description
             </label>
             <textarea
               id={`description-${task.id}`}
@@ -164,7 +164,7 @@ function TaskListItem({
               htmlFor={`dueDate-${task.id}`}
               className="task-card__label"
             >
-              Срок выполнения
+              Due date
             </label>
             <input
               id={`dueDate-${task.id}`}
@@ -188,7 +188,7 @@ function TaskListItem({
               className="task-card__button task-card__button--primary"
               disabled={isUpdating}
             >
-              {isUpdating ? "Сохраняем..." : "Сохранить"}
+              {isUpdating ? "Saving..." : "Save"}
             </button>
             <button
               type="button"
@@ -200,7 +200,7 @@ function TaskListItem({
               )}
               disabled={isUpdating}
             >
-              Отменить
+              Cancel
             </button>
           </div>
         </form>
@@ -215,7 +215,7 @@ function TaskListItem({
           <div className="task-card__summary">
             <h3 className="task-card__title">{task.title}</h3>
             <p className="task-card__description">
-              {task.description || "Нет описания"}
+              {task.description || "No description"}
             </p>
             {task.dueDate && (
               <div className="task-card__deadline">
@@ -224,15 +224,15 @@ function TaskListItem({
             )}
             <div className="project-task-card__meta-block">
               <div className="task-card__meta-line">
-                <span className="task-card__meta-label">Статус:</span>
+                <span className="task-card__meta-label">Status:</span>
                 <span className="task-card__meta-value">
-                  {task.status ?? "Не указан"}
+                  {task.status ?? "Not specified"}
                 </span>
               </div>
               <div className="task-card__meta-line">
                 <span className="task-card__meta-label">Приоритет:</span>
                 <span className="task-card__meta-value">
-                  {task.priority ?? "Не указан"}
+                  {task.priority ?? "Not specified"}
                 </span>
               </div>
             </div>
@@ -253,7 +253,7 @@ function TaskListItem({
           )}
           disabled={isUpdating || isDeleting}
         >
-          Редактировать
+          Edit
         </button>
         <button
           type="button"
@@ -264,7 +264,7 @@ function TaskListItem({
           )} 
           disabled={isDeleting || isUpdating}
         >
-          {isDeleting ? "Удаляем..." : "Удалить"}
+          {isDeleting ? "Deleting..." : "Delete"}
         </button>
       </div>
     </article>
@@ -287,9 +287,9 @@ export default function TasksList({
   return (
     <section className="project-tasks-list">
       <div className="project-tasks-list__header">
-        <h2 className="project-tasks-list__title">Задачи проекта</h2>
+        <h2 className="project-tasks-list__title">Project tasks</h2>
         <p className="project-tasks-list__description">
-          Управляйте задачами: редактируйте детали или удаляйте ненужные позиции
+          Manage tasks: edit details or remove items that are no longer needed.
         </p>
       </div>
 

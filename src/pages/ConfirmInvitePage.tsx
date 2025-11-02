@@ -15,7 +15,7 @@ const ConfirmInvitePage = () => {
 
   useEffect(() => {
     if (!inviteToken) {
-      setMessage("Токен приглашения отсутствует");
+      setMessage("Invite token is missing");
       setStatus("error");
       return;
     }
@@ -28,14 +28,14 @@ const ConfirmInvitePage = () => {
 
         const projectId = response.data.projectId;
         const projectTitle = response.data.projectTitle;
-        const role = response.data.role || "участник";
+        const role = response.data.role || "member";
 
-        setMessage(`Вы добавлены в проект "${projectTitle}" как ${role}`);
+        setMessage(`You've been added to the project "${projectTitle}" as ${role}`);
         setStatus("success");
 
         setTimeout(() => navigate(`/projects/${projectId}`), 3000);
       } catch (err: unknown) {
-        const fallback = "Ссылка недействительна или уже использована";
+        const fallback = "The link is invalid or has already been used";
         const axiosErr = err as AxiosError<{ message?: string }>;
         const backendMessage = axiosErr.response?.data?.message;
         setMessage(backendMessage || fallback);
@@ -49,13 +49,13 @@ const ConfirmInvitePage = () => {
   return (
     <div className="max-w-xl mx-auto mt-20 text-center px-4">
       {status === "loading" && (
-        <p className="text-gray-600 text-lg">⏳ Подтверждение приглашения...</p>
+        <p className="text-gray-600 text-lg">⏳ Confirming your invitation...</p>
       )}
       {status === "success" && (
         <p className="text-green-700 text-lg">
           ✅{" "}
           {message ||
-            "Приглашение успешно подтверждено! Перенаправляем в проект..."}
+            "Invitation confirmed! Redirecting you to the project..."}
         </p>
       )}
       {status === "error" && (
@@ -65,7 +65,7 @@ const ConfirmInvitePage = () => {
             onClick={() => navigate("/projects")}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            Перейти к проектам
+            Go to projects
           </button>
         </div>
       )}

@@ -52,21 +52,21 @@ import {
 import "../css/ProjectTasks.css";
 
 const TASK_STATUS_OPTIONS = [
-  { value: "", label: "Все" },
-  { value: "NEW", label: "Новая" },
-  { value: "IN_PROGRESS", label: "В работе" },
-  { value: "DONE", label: "Завершена" },
-  { value: "BLOCKED", label: "Заблокирована" },
+  { value: "", label: "All" },
+  { value: "NEW", label: "New" },
+  { value: "IN_PROGRESS", label: "In progress" },
+  { value: "DONE", label: "Done" },
+  { value: "BLOCKED", label: "Blocked" },
 ];
 
 const BULK_STATUS_OPTIONS = TASK_STATUS_OPTIONS.filter((o) => o.value);
 
 const SORT_OPTIONS = [
-  { value: "", label: "Без сортировки" },
-  { value: "dueDate", label: "По дедлайну" },
-  { value: "createdAt", label: "По дате создания" },
-  { value: "priority", label: "По приоритету" },
-  { value: "status", label: "По статусу" },
+  { value: "", label: "No sorting" },
+  { value: "dueDate", label: "By due date" },
+  { value: "createdAt", label: "By creation date" },
+  { value: "priority", label: "By priority" },
+  { value: "status", label: "By status" },
 ];
 
 export default function ProjectTasks() {
@@ -233,9 +233,9 @@ export default function ProjectTasks() {
   const handleBulkStatusApply = async () => {
     if (!projectId) return;
     if (!selectedTaskIds.length)
-      return setBulkStatusLocalError("Выберите задачи для обновления");
+      return setBulkStatusLocalError("Select tasks to update");
     if (!bulkStatus.trim())
-      return setBulkStatusLocalError("Выберите новый статус");
+      return setBulkStatusLocalError("Choose a new status");
     setBulkStatusLocalError(undefined);
     try {
       await dispatch(
@@ -252,9 +252,9 @@ export default function ProjectTasks() {
   const handleBulkMoveApply = async () => {
     if (!projectId) return;
     if (!selectedTaskIds.length)
-      return setBulkMoveLocalError("Выберите задачи для перемещения");
+      return setBulkMoveLocalError("Select tasks to move");
     if (!bulkMoveColumnId.trim())
-      return setBulkMoveLocalError("Выберите колонку назначения");
+      return setBulkMoveLocalError("Choose a destination column");
     setBulkMoveLocalError(undefined);
 
     const target = columnTasksData.tasksByColumn[bulkMoveColumnId] ?? [];
@@ -289,14 +289,14 @@ export default function ProjectTasks() {
     return (
       <div className="project-tasks-empty">
         <div className="project-tasks-alert project-tasks-alert--error">
-          Не удалось определить проект.
+          Couldn't determine the project.
         </div>
         <button
           type="button"
           onClick={() => navigate("/projects")}
           className="project-tasks-button project-tasks-button--primary"
         >
-          К проектам
+          Go to projects
         </button>
       </div>
     );
@@ -310,14 +310,14 @@ export default function ProjectTasks() {
           <button
             onClick={() => navigate("/projects")}
             className="project-tasks-button project-tasks-button--secondary"
-            title="Назад"
+            title="Back"
           >
             <ArrowLeft size={18} />
           </button>
           <div className="project-tasks-header-info">
-            <h1 className="project-tasks-title">{project?.title || "Проект"}</h1>
+            <h1 className="project-tasks-title">{project?.title || "Project"}</h1>
             <p className="project-tasks-subtitle">
-              {project?.description || "Управление задачами"}
+              {project?.description || "Task management"}
             </p>
           </div>
         </div>
@@ -326,7 +326,7 @@ export default function ProjectTasks() {
           <button
             onClick={() => handleToggleSection("filters")}
             className="project-tasks-button project-tasks-button--ghost"
-            title="Фильтры"
+            title="Filters"
           >
             <Filter size={20} />
           </button>
@@ -334,7 +334,7 @@ export default function ProjectTasks() {
           <button
             onClick={() => handleToggleSection("bulk")}
             className="project-tasks-button project-tasks-button--ghost"
-            title="Массовые действия"
+            title="Bulk actions"
           >
             <Wrench size={20} />
           </button>
@@ -342,7 +342,7 @@ export default function ProjectTasks() {
           <button
             onClick={() => handleToggleSection("templates")}
             className="project-tasks-button project-tasks-button--ghost"
-            title="Шаблоны"
+            title="Templates"
           >
             <Layers size={20} />
           </button>
@@ -350,7 +350,7 @@ export default function ProjectTasks() {
           <button
             onClick={() => handleToggleSection("createColumn")}
             className="project-tasks-button project-tasks-button--primary"
-            title="Добавить колонку"
+            title="Add column"
           >
             <Plus size={20} />
           </button>
@@ -378,7 +378,7 @@ export default function ProjectTasks() {
         >
           <div className="project-tasks-filters-grid">
             <div className="project-tasks-field">
-              <label className="project-tasks-label">Статус</label>
+              <label className="project-tasks-label">Status</label>
               <select
                 name="status"
                 value={taskFilters.status}
@@ -393,17 +393,17 @@ export default function ProjectTasks() {
               </select>
             </div>
             <div className="project-tasks-field">
-              <label className="project-tasks-label">Исполнитель</label>
+              <label className="project-tasks-label">Assignee</label>
               <input
                 name="executorId"
                 value={taskFilters.executorId}
                 onChange={handleTaskFiltersChange}
-                placeholder="ID исполнителя"
+                placeholder="Assignee ID"
                 className="project-tasks-input"
               />
             </div>
             <div className="project-tasks-field">
-              <label className="project-tasks-label">Дедлайн до</label>
+              <label className="project-tasks-label">Due before</label>
               <input
                 name="dueBefore"
                 type="datetime-local"
@@ -413,7 +413,7 @@ export default function ProjectTasks() {
               />
             </div>
             <div className="project-tasks-field">
-              <label className="project-tasks-label">Сортировка</label>
+              <label className="project-tasks-label">Sort by</label>
               <select
                 name="sortBy"
                 value={taskFilters.sortBy}
@@ -430,7 +430,7 @@ export default function ProjectTasks() {
           </div>
           <div className="project-tasks-filters-footer">
             <span className="project-tasks-selection-info">
-              {hasActiveFilters ? "Фильтры активны" : "Все задачи"}
+              {hasActiveFilters ? "Filters active" : "All tasks"}
             </span>
             <button
               type="button"
@@ -438,7 +438,7 @@ export default function ProjectTasks() {
               className="project-tasks-button project-tasks-button--ghost"
               disabled={!hasActiveFilters}
             >
-              Сбросить фильтры
+              Reset filters
             </button>
           </div>
         </form>
@@ -449,12 +449,12 @@ export default function ProjectTasks() {
           <div className="project-tasks-bulk-header">
             <div>
               <h2 className="project-tasks-bulk-title">
-                Выбрано задач: {selectedTaskIds.length}
+                Tasks selected: {selectedTaskIds.length}
               </h2>
               <p className="project-tasks-bulk-subtitle">
                 {hasSelectedTasks
-                  ? "Выберите действие."
-                  : "Отметьте задачи чекбоксами."}
+                  ? "Choose an action."
+                  : "Select tasks using the checkboxes."}
               </p>
             </div>
             <button
@@ -462,14 +462,14 @@ export default function ProjectTasks() {
               disabled={!hasSelectedTasks || isAnyBulkActionLoading}
               className="project-tasks-button project-tasks-button--outline"
             >
-              Очистить выбор
+              Clear selection
             </button>
           </div>
 
           <div className="project-tasks-bulk-grid">
             <div className="project-tasks-field">
               <label className="project-tasks-label project-tasks-label--warm">
-                Изменить статус
+                Update status
               </label>
               <div className="project-tasks-bulk-row">
                 <select
@@ -478,7 +478,7 @@ export default function ProjectTasks() {
                   disabled={!hasSelectedTasks || isBulkUpdatingStatus}
                   className="project-tasks-input"
                 >
-                  <option value="">Выберите статус</option>
+                  <option value="">Choose status</option>
                   {BULK_STATUS_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>
                       {o.label}
@@ -490,7 +490,7 @@ export default function ProjectTasks() {
                   disabled={!hasSelectedTasks || isBulkUpdatingStatus}
                   className="project-tasks-button project-tasks-button--primary"
                 >
-                  {isBulkUpdatingStatus ? "Применяем..." : "Применить"}
+                  {isBulkUpdatingStatus ? "Applying..." : "Apply"}
                 </button>
               </div>
               {(bulkStatusLocalError || bulkUpdateStatusError) && (
@@ -502,7 +502,7 @@ export default function ProjectTasks() {
 
             <div className="project-tasks-field">
               <label className="project-tasks-label project-tasks-label--warm">
-                Переместить в колонку
+                Move to column
               </label>
               <div className="project-tasks-bulk-row">
                 <select
@@ -511,7 +511,7 @@ export default function ProjectTasks() {
                   disabled={!hasSelectedTasks || isBulkMovingTasks}
                   className="project-tasks-input"
                 >
-                  <option value="">Выберите колонку</option>
+                  <option value="">Choose column</option>
                   {columns.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.title}
@@ -523,7 +523,7 @@ export default function ProjectTasks() {
                   disabled={!hasSelectedTasks || isBulkMovingTasks}
                   className="project-tasks-button project-tasks-button--accent"
                 >
-                  {isBulkMovingTasks ? "Перемещаем..." : "Переместить"}
+                  {isBulkMovingTasks ? "Moving..." : "Move"}
                 </button>
               </div>
               {(bulkMoveLocalError || bulkMoveTasksError) && (
@@ -546,13 +546,13 @@ export default function ProjectTasks() {
       {openCreateColumn && (
         <div className="project-tasks-create">
           <ColumnForm
-            submitLabel={isCreatingColumn ? "Создаем..." : "Создать колонку"}
+            submitLabel={isCreatingColumn ? "Creating..." : "Create column"}
             onSubmit={handleCreateColumn}
             onCancel={() => setOpenCreateColumn(false)}
             isSubmitting={isCreatingColumn}
             error={createColumnError}
-            title="Новая колонка"
-            description="Укажите название и порядок"
+            title="New column"
+            description="Provide a title and order"
             resetOnSubmit
             projectId={projectId}
           />
@@ -561,7 +561,7 @@ export default function ProjectTasks() {
 
       {!isLoadingColumns && columns.length === 0 && !openCreateColumn ? (
         <div className="project-tasks-placeholder project-tasks-placeholder--centered">
-          В этом проекте еще нет колонок. Нажмите «Добавить колонку».
+          This project doesn't have any columns yet. Click 'Add column.'
         </div>
       ) : (
         <div className="project-tasks-columns">

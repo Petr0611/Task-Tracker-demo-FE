@@ -155,7 +155,7 @@ export default function TaskCard({
               type="button"
               onClick={() => handleOpenAttachmentPreview(attachment.id)}
               className="task-card__attachment-preview-button"
-              aria-label={`Открыть вложение ${attachmentName}`}
+              aria-label={`Open attachment ${attachmentName}`}
             >
               {attachmentUrl ? (
                 <img
@@ -176,7 +176,7 @@ export default function TaskCard({
               className="task-card__attachment-remove-button"
               disabled={isBusy}
             >
-              <span className="task-card__sr-only">Удалить вложение</span>
+              <span className="task-card__sr-only">Remove attachment</span>
               <XMarkIcon
                 className="task-card__attachment-remove-icon"
                 aria-hidden="true"
@@ -233,7 +233,7 @@ export default function TaskCard({
     const title = formState.title.trim();
 
     if (!title) {
-      setLocalError("Введите название задачи");
+      setLocalError("Enter a task title");
       return;
     }
 
@@ -343,7 +343,7 @@ export default function TaskCard({
       checked={isSelected}
       onChange={handleToggleSelection}
       disabled={selectionIsDisabled}
-      aria-label="Выбрать задачу для массовых действий"
+      aria-label="Select task for bulk actions"
     />
   );
 
@@ -362,8 +362,8 @@ export default function TaskCard({
           {selectionControl}
           <span className="task-card__selection-hint-text">
             {isSelected
-              ? "Задача включена в массовые действия"
-              : "Отметьте, чтобы добавить к массовым действиям"}
+              ? "Task included in bulk actions"
+              : "Check to add to bulk actions"}
           </span>
         </div>
         <form className="task-card__form" onSubmit={handleSubmit}>
@@ -372,7 +372,7 @@ export default function TaskCard({
               htmlFor={`title-${task.id}`}
               className="task-card__label"
             >
-              Название
+              Title
             </label>
             <input
               id={`title-${task.id}`}
@@ -390,7 +390,7 @@ export default function TaskCard({
               htmlFor={`description-${task.id}`}
               className="task-card__label"
             >
-              Описание
+              Description
             </label>
             <textarea
               id={`description-${task.id}`}
@@ -407,7 +407,7 @@ export default function TaskCard({
               htmlFor={`dueDate-${task.id}`}
               className="task-card__label"
             >
-              Срок выполнения
+              Due date
             </label>
             <input
               id={`dueDate-${task.id}`}
@@ -424,7 +424,7 @@ export default function TaskCard({
               htmlFor={`status-${task.id}`}
               className="task-card__label"
             >
-              Статус
+              Status
             </label>
             <select
               id={`status-${task.id}`}
@@ -434,7 +434,7 @@ export default function TaskCard({
               className="task-card__select"
               disabled={isBusy}
             >
-              <option value="">Не выбран</option>
+              <option value="">Not selected</option>
               {TASK_STATUSES.map((status) => (
                 <option key={status} value={status}>
                   {status}
@@ -443,9 +443,9 @@ export default function TaskCard({
             </select>
           </div>
           <div className="task-card__attachments-editor">
-            <span className="task-card__label">Вложения</span>
+            <span className="task-card__label">Attachments</span>
             {attachmentsGallery ?? (
-              <p className="task-card__attachments-empty">Вложений нет</p>
+              <p className="task-card__attachments-empty">No attachments</p>
             )}
             <button
               type="button"
@@ -470,7 +470,7 @@ export default function TaskCard({
               className="task-card__button task-card__button--primary"
               disabled={isBusy}
             >
-              {isUpdating ? "Сохраняем..." : "Сохранить"}
+              {isUpdating ? "Saving..." : "Save"}
             </button>
             <button
               type="button"
@@ -478,7 +478,7 @@ export default function TaskCard({
               className="task-card__button task-card__button--outline"
               disabled={isBusy}
             >
-              Отменить
+              Cancel
             </button>
           </div>
         </form>
@@ -500,7 +500,7 @@ export default function TaskCard({
           <div className="task-card__summary">
             <h3 className="task-card__title">{task.title}</h3>
             <p className="task-card__description">
-              {task.description || "Нет описания"}
+              {task.description || "No description"}
             </p>
             {task.dueDate && (
               <div className="task-card__deadline">
@@ -508,9 +508,9 @@ export default function TaskCard({
               </div>
             )}
             <div className="task-card__meta-line">
-              <span className="task-card__meta-label">Статус:</span>
+              <span className="task-card__meta-label">Status:</span>
               <span className="task-card__meta-value">
-                {task.status ?? "Не указан"}
+                {task.status ?? "Not specified"}
               </span>
             </div>
           </div>
@@ -519,7 +519,7 @@ export default function TaskCard({
 
       {hasAttachments && (
         <div className="task-card__attachments">
-          <h4 className="task-card__attachments-heading">Вложения</h4>
+          <h4 className="task-card__attachments-heading">Attachments</h4>
           {attachmentsGallery}
         </div>
       )}
@@ -542,7 +542,7 @@ export default function TaskCard({
           className="task-card__button task-card__button--comments" 
           disabled={isBusy}
         >
-          Комментарии
+          Comments
         </button>
         <div className="relative">
           <button
@@ -555,7 +555,7 @@ export default function TaskCard({
             aria-controls={`task-actions-${task.id}`}
           >
             <EllipsisVerticalIcon className="h-5 w-5" aria-hidden="true" />
-            <span className="sr-only">Дополнительные действия с задачей</span>
+            <span className="sr-only">Additional task actions</span>
           </button>
           {showActionsMenu && (
             <div
@@ -572,7 +572,7 @@ export default function TaskCard({
                 role="menuitem"
               >
                 <PencilIcon className="h-4 w-4" aria-hidden="true" />
-                Редактировать
+                Edit
               </button>
               <button
                 type="button"
@@ -581,7 +581,7 @@ export default function TaskCard({
                 role="menuitem"
               >
                 <TrashIcon className="h-4 w-4" aria-hidden="true" />
-                {isDeleting ? "Удаляем..." : "Удалить"}
+                {isDeleting ? "Deleting..." : "Delete"}
               </button>
             </div>
           )}
