@@ -69,7 +69,7 @@ export default function About() {
             ToDoBeDo brings tasks, statuses, and discussions into one board so your team can see progress in real time. We are
             preparing for our public launch and looking for the first teams ready to grow with us.
           </p>
-          <Link to="/projects" className="about-action">
+          <Link to="/register" className="about-action">
             Register here for early access
           </Link>
         </header>
