@@ -5,7 +5,7 @@ import Layout from "./layouts/Layout";
 import Registration from "./pages/Registration";
 import Login from "./pages/Login";
 import Projects from "./pages/Projects";
-import Profile from "./pages/Proile";
+import Profile from "./pages/Profile";
 import ForgotPasswordForm from "./features/auth/components/ForgotPasswordForm";
 import ResetPasswordForm from "./features/auth/components/ResetPasswordForm";
 import ProjectTasks from "./pages/ProjectTasks";
@@ -13,6 +13,7 @@ import ConfirmInvitePage from "./pages/ConfirmInvitePage";
 import InviteFormPage from "./features/projects/components/InviteFormPage";
 import DeleteProjectPage from "./features/projects/components/DeleteProjectPage";
 import EditProjectPage from "./features/projects/components/EditProjectPage";
+import UserProfile from "./features/users/components/UserProfile";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/users/:id" element={<UserProfile />} />
           <Route path="/register" element={<Registration />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPasswordForm />} />
