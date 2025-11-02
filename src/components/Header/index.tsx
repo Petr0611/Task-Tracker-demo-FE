@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link} from "react-router-dom";
 import logo from "../../assets/images/logo_s.webp";
 import { useEffect, useState } from "react";
 import type { UserDetails } from "../../features/users/types";
@@ -9,9 +9,7 @@ import { selectIsAuthenticated } from "../../features/auth/slice/authSlice";
 export default function Header() {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const [user, setUser] = useState<UserDetails | null>(null);
-  const location = useLocation();
 
-  const isProjectTasksPage = /^\/projects\/[^/]+\/tasks/.test(location.pathname);
 
   // get user data from server
   const fetchUser = async () => {
