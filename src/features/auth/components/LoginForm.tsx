@@ -6,7 +6,8 @@ import {
   selectLoginError,
 } from "../slice/authSlice";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import "../../../css/Auth.css";
 
 const LoginForm = () => {
   const dispatch = useAppDispatch();
@@ -32,94 +33,99 @@ const LoginForm = () => {
     },
   });
 
+  const emailHasError = Boolean(formik.touched.email && formik.errors.email);
+  const passwordHasError = Boolean(
+    formik.touched.password && formik.errors.password,
+  );
+
   return (
-    <div className="mx-auto max-w-sm space-y-6 p-6 rounded-lg border bg-white shadow-sm mt-10">
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
-        <p className="text-sm text-muted-foreground text-gray-500">
-          Enter your email and password to sign in
-        </p>
+     <main className="auth-page" aria-labelledby="login-title">
+      <section className="auth-wrapper">
+        <button
+          type="button"
+          className="auth-back"
+          onClick={() => navigate(-1)}
+        >
+          ← Back
+        </button>
+
+        <header className="auth-header">
+          <span className="auth-label">Sign in</span>
+          <h1 id="login-title" className="auth-title">
+            Welcome back to ToDoBeDo
+          </h1>
+          <p className="auth-subtitle">
+            Enter your email address and password to continue collaborating with your team.
+          </p>
+        </header>
 
         {isAuthenticated && (
-          <div className="rounded-md bg-green-50 p-3 text-sm text-green-700 border border-green-200">
-            Login successful!
+          <div className="auth-status auth-status--success" role="status">
+            Login successful! Redirecting you now.
           </div>
         )}
 
         {loginError && (
-          <div className="rounded-md bg-red-50 p-3 text-sm text-red-700 border border-red-200">
+          <div className="auth-status auth-status--error" role="alert">
             {loginError}
           </div>
         )}
-      </div>
-      <form onSubmit={formik.handleSubmit} className="space-y-4">
-        {/* Email Field */}
-        <div className="space-y-2">
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            {...formik.getFieldProps("email")}
-            className={`w-full px-3 py-2 text-sm border rounded-md shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${
-              formik.touched.email && formik.errors.email
-                ? "border-red-500 focus:ring-red-500"
-                : "border-input"
-            }`}
-            placeholder="you@example.com"
-          />
-          {formik.touched.email && formik.errors.email && (
-            <p className="text-sm text-red-500">{formik.errors.email}</p>
-          )}
-        </div>
+      
 
-        {/* Password Field */}
-        <div className="space-y-2">
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            {...formik.getFieldProps("password")}
-            className={`w-full px-3 py-2 text-sm border rounded-md shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${
-              formik.touched.password && formik.errors.password
-                ? "border-red-500 focus:ring-red-500"
-                : "border-input"
-            }`}
-            placeholder="••••••••"
-          />
-          {formik.touched.password && formik.errors.password && (
-            <p className="text-sm text-red-500">{formik.errors.password}</p>
-          )}
-        </div>
+        <form onSubmit={formik.handleSubmit} className="auth-form">
+          <div className="auth-field">
+            <label htmlFor="email" className="auth-field__label">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              {...formik.getFieldProps("email")}
+              className={`auth-input ${emailHasError ? "auth-input--error" : ""}`}
+              placeholder="you@example.com"
+            />
+            {emailHasError && (
+              <p className="auth-error-message">{formik.errors.email}</p>
+            )}
+          </div>
 
-        {/* Forgot Password Field */}
-        <div className="text-right">
-          <button
-            type="button"
-            onClick={() => navigate("/forgot-password")}
-            className="text-sm text-blue-600 hover:underline"
-          >
-            Forgot password
+          <div className="auth-field">
+            <label htmlFor="password" className="auth-field__label">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              {...formik.getFieldProps("password")}
+              className={`auth-input ${
+                passwordHasError ? "auth-input--error" : ""
+              }`}
+              placeholder="••••••••"
+            />
+            {passwordHasError && (
+              <p className="auth-error-message">{formik.errors.password}</p>
+            )}
+          </div>
+
+          <div className="auth-actions">
+            <button
+              type="button"
+              onClick={() => navigate("/forgot-password")}
+              className="auth-link"
+            >
+              Forgot password?
+            </button>
+            <Link to="/registration" className="auth-link">
+              Create account
+            </Link>
+          </div>
+
+        <button type="submit" className="auth-submit">
+            Sign in
           </button>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full inline-flex items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-        >
-          Sign in
-        </button>
-      </form>
-    </div>
+        </form>
+      </section>
+    </main>
   );
 };
 

@@ -1,9 +1,12 @@
 import axios from "axios";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "../../../css/Auth.css";
 
 const ForgotPasswordForm = () => {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,52 +20,65 @@ const ForgotPasswordForm = () => {
   };
 
   return (
-    <div className="mx-auto max-w-sm mt-10 p-6 bg-white border rounded-lg shadow-sm space-y-6">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-semibold">Forgot Password</h2>
-        <p className="text-sm text-gray-500">
-          Enter your email and we'll send you a password reset link
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="you@example.com"
-          />
-        </div>
+    <main className="auth-page" aria-labelledby="forgot-password-title">
+      <section className="auth-wrapper">
 
         <button
-          type="submit"
-          className="w-full py-2 px-4 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          type="button"
+          className="auth-back"
+          onClick={() => navigate(-1)}
         >
-          Send Reset Link
+          ← Back
         </button>
-      </form>
 
-      {status === "success" && (
-        <div className="text-sm text-green-600 text-center">
-          Link sent! Please check your email.
-        </div>
-      )}
-      {status === "error" && (
-        <div className="text-sm text-red-600 text-center">
-          Failed to send. Please check your email address.
-        </div>
-      )}
-    </div>
+      <header className="auth-header">
+          <span className="auth-label">Password reset</span>
+          <h1 id="forgot-password-title" className="auth-title">
+            Forgot your password?
+          </h1>
+          <p className="auth-subtitle">
+            Enter the email you use for ToDoBeDo and we’ll send a secure link to set a new password.
+          </p>
+        </header>
+
+        {status === "success" && (
+          <div className="auth-status auth-status--success" role="status">
+            Link sent! Please check your inbox.
+          </div>
+        )}
+
+        {status === "error" && (
+          <div className="auth-status auth-status--error" role="alert">
+            Failed to send the reset email. Please double-check the address and try again.
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="auth-field">
+            <label htmlFor="email" className="auth-field__label">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="auth-input"
+              placeholder="you@example.com"
+            />
+          </div>
+
+          <button type="submit" className="auth-submit">
+            Send reset link
+          </button>
+        </form>
+
+        <p className="auth-footer">
+          Remembered your password? <Link className="auth-link" to="/login">Sign in</Link>
+        </p>
+      </section>
+    </main>
   );
 };
 

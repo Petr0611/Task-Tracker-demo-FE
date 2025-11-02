@@ -9,9 +9,14 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const isProjectTasksPage = /^\/projects\/[^/]+\/tasks/.test(location.pathname);
+  const isAuthPage = ["/login", "/registration", "/forgot-password"].includes(
+    location.pathname,
+  );
   const mainClassName = isProjectTasksPage
     ? "flex-1 w-full px-0 py-0"
-    : "flex-1 w-full max-w-7xl mx-auto px-4 py-6";
+    : isAuthPage
+      ? "flex flex-1 w-full p-0"
+      : "flex-1 w-full max-w-7xl mx-auto px-4 py-4 md:py-6";
 
   return (
     <div className="min-h-screen flex flex-col bg-indigo-50 text-gray-900">
