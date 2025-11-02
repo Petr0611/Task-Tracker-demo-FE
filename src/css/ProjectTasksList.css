@@ -1,0 +1,116 @@
+.project-tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.project-tasks-list__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.project-tasks-list__title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #4b1f8c;
+    text-shadow: 0 4px 14px rgba(208, 171, 255, 0.45);
+}
+
+.project-tasks-list__description {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: #6f5aa9;
+}
+
+.project-tasks-list__alerts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.project-tasks-list__alert {
+    padding: 0.85rem 1.1rem;
+    border-radius: 16px;
+    border: 1px solid rgba(199, 184, 255, 0.55);
+    background: rgba(246, 242, 255, 0.85);
+    color: #5b3aa0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    box-shadow: 0 18px 34px rgba(208, 171, 255, 0.25);
+}
+
+.project-tasks-list__alert--error {
+    background: linear-gradient(135deg, rgba(255, 230, 244, 0.92), rgba(255, 200, 226, 0.88));
+    border-color: rgba(255, 142, 189, 0.55);
+    color: #c02652;
+    box-shadow: 0 20px 40px rgba(255, 142, 189, 0.28);
+}
+
+.project-tasks-list__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.project-task-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.project-task-card--busy {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.project-task-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.project-task-card__meta-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.project-task-card__actions-row {
+    margin-top: 0.75rem;
+}
+
+.project-task-card__button--danger {
+    background: linear-gradient(135deg, rgba(255, 133, 173, 0.95), rgba(255, 84, 142, 0.9));
+    color: #ffffff;
+}
+
+.project-task-card__button--danger:not(:disabled):hover {
+    background: linear-gradient(135deg, rgba(255, 84, 142, 0.95), rgba(255, 56, 119, 0.92));
+    color: #ffffff;
+}
+
+.project-task-card__button--outline {
+    background: rgba(255, 255, 255, 0.78);
+    color: #7044b1;
+    box-shadow: 0 10px 26px rgba(199, 184, 255, 0.2);
+}
+
+.project-task-card__button--outline:not(:disabled):hover {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.project-task-card__form-actions {
+    margin-top: 0.5rem;
+}
+
+.project-task-card__form-error {
+    margin: -0.35rem 0 0;
+}
+
+@media (min-width: 768px) {
+    .project-tasks-list__grid {
+        gap: 1.5rem;
+    }
+}

@@ -18,6 +18,7 @@ import {
   getAttachmentDisplayName,
   getAttachmentUrl,
 } from "../utils/attachments";
+import "../../../css/TaskCard.css"
 
 interface TaskCardProps {
   task: Task;
@@ -69,11 +70,13 @@ export default function TaskCard({
   const dispatch = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
   const [showDetails] = useState(false);
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [formState, setFormState] = useState<TaskFormState>(
     mapTaskToFormState(task)
   );
   const [localError, setLocalError] = useState<string | undefined>();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const [previewAttachmentId, setPreviewAttachmentId] = useState<string | null>(
     null
   );
@@ -92,7 +95,7 @@ export default function TaskCard({
       ref={fileInputRef}
       type="file"
       accept="image/*"
-      className="hidden"
+      className="task-card__hidden-file-input"
       onChange={async (event) => {
         const file = event.target.files?.[0];
         if (!file) {
@@ -112,7 +115,7 @@ export default function TaskCard({
 
   const isBusy = isUpdating || isDeleting || isMoving;
   const selectionIsDisabled = selectionDisabled || isBusy;
-const handleAttachmentUploadClick = () => {
+  const handleAttachmentUploadClick = () => {
     if (isBusy) {
       return;
     }
@@ -141,31 +144,28 @@ const handleAttachmentUploadClick = () => {
   };
 
   const attachmentsGallery = hasAttachments ? (
-    <ul className="flex flex-wrap gap-3">
+    <ul className="task-card__attachment-list">
       {attachments.map((attachment) => {
         const attachmentUrl = getAttachmentUrl(attachment);
         const attachmentName = getAttachmentDisplayName(attachment);
 
         return (
-          <li
-            key={attachment.id}
-            className="group relative h-20 w-20 overflow-hidden rounded-md border border-gray-200 bg-gray-50"
-          >
+          <li key={attachment.id} className="task-card__attachment-item">
             <button
               type="button"
               onClick={() => handleOpenAttachmentPreview(attachment.id)}
-              className="h-full w-full"
-              aria-label={`Открыть вложение ${attachmentName}`}
+              className="task-card__attachment-preview-button"
+              aria-label={`Open attachment ${attachmentName}`}
             >
               {attachmentUrl ? (
                 <img
                   src={attachmentUrl}
                   alt={attachmentName}
-                  className="h-full w-full object-cover"
+                  className="task-card__attachment-image"
                   loading="lazy"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center px-2 text-center text-xs text-gray-500">
+                <div className="task-card__attachment-fallback">
                   {attachmentName}
                 </div>
               )}
@@ -173,11 +173,14 @@ const handleAttachmentUploadClick = () => {
             <button
               type="button"
               onClick={() => handleRemoveAttachment(attachment.id)}
-              className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white opacity-0 transition-opacity hover:bg-black focus-visible:opacity-100 focus:outline-none focus:ring-2 focus:ring-black group-hover:opacity-100"
+              className="task-card__attachment-remove-button"
               disabled={isBusy}
             >
-              <span className="sr-only">Удалить вложение</span>
-              <XMarkIcon className="h-4 w-4" aria-hidden="true" />
+              <span className="task-card__sr-only">Remove attachment</span>
+              <XMarkIcon
+                className="task-card__attachment-remove-icon"
+                aria-hidden="true"
+              />
             </button>
           </li>
         );
@@ -230,7 +233,7 @@ const handleAttachmentUploadClick = () => {
     const title = formState.title.trim();
 
     if (!title) {
-      setLocalError("Введите название задачи");
+      setLocalError("Enter a task title");
       return;
     }
 
@@ -267,20 +270,80 @@ const handleAttachmentUploadClick = () => {
     }
 
     try {
+      setShowActionsMenu(false);
       await onDeleteTask(task.id);
     } catch (deleteError) {
       console.error(deleteError);
     }
   };
 
+  const handleStartEdit = () => {
+    if (isBusy) {
+      return;
+    }
+
+    setShowActionsMenu(false);
+    setIsEditing(true);
+  };
+
+  const handleToggleActionsMenu = () => {
+    if (isBusy) {
+      return;
+    }
+
+    setShowActionsMenu((prev) => !prev);
+  };
+
+  useEffect(() => {
+    if (!showActionsMenu) {
+      return;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!menuRef.current) {
+        return;
+      }
+
+      const target = event.target as Node | null;
+
+      if (target && menuRef.current.contains(target)) {
+        return;
+      }
+
+      setShowActionsMenu(false);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowActionsMenu(false);
+      }
+    };
+
+    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showActionsMenu]);
+
+  useEffect(() => {
+    if (!isBusy) {
+      return;
+    }
+
+    setShowActionsMenu(false);
+  }, [isBusy]);
+
   const selectionControl = (
     <input
       type="checkbox"
-      className="mt-1 h-4 w-4 cursor-pointer rounded border-gray-300 text-black focus:ring-black disabled:cursor-not-allowed"
+      className="task-card__selection-control"
       checked={isSelected}
       onChange={handleToggleSelection}
       disabled={selectionIsDisabled}
-      aria-label="Выбрать задачу для массовых действий"
+      aria-label="Select task for bulk actions"
     />
   );
 
@@ -289,26 +352,27 @@ const handleAttachmentUploadClick = () => {
     return (
       <article
         className={clsx(
-          "rounded-lg border border-gray-200 bg-white p-4 shadow-sm",
-          isSelected && "border-black ring-2 ring-black/40"
+          "task-card",
+          "task-card--editing",
+          isSelected && "task-card--selected"
         )}
       >
         {attachmentFileInput}
-        <div className="mb-4 flex items-center gap-2 text-sm text-gray-600">
+        <div className="task-card__selection-hint">
           {selectionControl}
-          <span>
+          <span className="task-card__selection-hint-text">
             {isSelected
-              ? "Задача включена в массовые действия"
-              : "Отметьте, чтобы добавить к массовым действиям"}
+              ? "Task included in bulk actions"
+              : "Check to add to bulk actions"}
           </span>
         </div>
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-2">
+        <form className="task-card__form" onSubmit={handleSubmit}>
+          <div className="task-card__field">
             <label
               htmlFor={`title-${task.id}`}
-              className="block text-sm font-medium text-gray-700"
+              className="task-card__label"
             >
-              Название
+              Title
             </label>
             <input
               id={`title-${task.id}`}
@@ -316,17 +380,17 @@ const handleAttachmentUploadClick = () => {
               type="text"
               value={formState.title}
               onChange={handleChange}
-              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
+              className="task-card__input"
               disabled={isBusy}
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="task-card__field">
             <label
               htmlFor={`description-${task.id}`}
-              className="block text-sm font-medium text-gray-700"
+              className="task-card__label"
             >
-              Описание
+              Description
             </label>
             <textarea
               id={`description-${task.id}`}
@@ -334,16 +398,16 @@ const handleAttachmentUploadClick = () => {
               rows={3}
               value={formState.description}
               onChange={handleChange}
-              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
+              className="task-card__textarea"
               disabled={isBusy}
             />
           </div>
-          <div className="space-y-2">
+          <div className="task-card__field">
             <label
               htmlFor={`dueDate-${task.id}`}
-              className="block text-sm font-medium text-gray-700"
+              className="task-card__label"
             >
-              Срок выполнения
+              Due date
             </label>
             <input
               id={`dueDate-${task.id}`}
@@ -351,26 +415,26 @@ const handleAttachmentUploadClick = () => {
               type="datetime-local"
               value={formState.dueDate}
               onChange={handleChange}
-              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
+              className="task-card__input"
               disabled={isBusy}
             />
           </div>
-          <div className="space-y-2">
+          <div className="task-card__field">
             <label
               htmlFor={`status-${task.id}`}
-              className="block text-sm font-medium text-gray-700"
+              className="task-card__label"
             >
-              Статус
+              Status
             </label>
             <select
               id={`status-${task.id}`}
               name="status"
               value={formState.status}
               onChange={handleChange}
-              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
+              className="task-card__select"
               disabled={isBusy}
             >
-              <option value="">Не выбран</option>
+              <option value="">Not selected</option>
               {TASK_STATUSES.map((status) => (
                 <option key={status} value={status}>
                   {status}
@@ -378,42 +442,43 @@ const handleAttachmentUploadClick = () => {
               ))}
             </select>
           </div>
-           <div className="space-y-2">
-            <span className="block text-sm font-medium text-gray-700">
-              Вложения
-            </span>
+          <div className="task-card__attachments-editor">
+            <span className="task-card__label">Attachments</span>
             {attachmentsGallery ?? (
-              <p className="text-sm text-gray-500">Вложений нет</p>
+              <p className="task-card__attachments-empty">No attachments</p>
             )}
             <button
               type="button"
               onClick={handleAttachmentUploadClick}
-              className="inline-flex items-center gap-2 rounded-md border border-dashed border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+              className="task-card__button task-card__button--dashed"
               disabled={isBusy}
             >
-              <PaperClipIcon className="h-4 w-4" aria-hidden="true" />
-              Прикрепить файл
+              <PaperClipIcon
+                className="task-card__button-icon"
+                aria-hidden="true"
+              />
             </button>
           </div>
           {localError && (
-            <p className="text-sm text-red-500">{localError}</p>
+            <p className="task-card__error">{localError}</p>
           )}
 
-          <div className="flex flex-wrap items-center gap-3">
+
+          <div className="task-card__actions-row">
             <button
               type="submit"
-              className="inline-flex w-full items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
+              className="task-card__button task-card__button--primary"
               disabled={isBusy}
             >
-              {isUpdating ? "Сохраняем..." : "Сохранить"}
+              {isUpdating ? "Saving..." : "Save"}
             </button>
             <button
               type="button"
               onClick={handleCancelEdit}
-              className="inline-flex w-full items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
+              className="task-card__button task-card__button--outline"
               disabled={isBusy}
             >
-              Отменить
+              Cancel
             </button>
           </div>
         </form>
@@ -424,71 +489,103 @@ const handleAttachmentUploadClick = () => {
   return (
     <article
       className={clsx(
-        "rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-colors",
-        isSelected && "border-black ring-2 ring-black/40"
+        "task-card",
+        isSelected && "task-card--selected"
       )}
     >
       {attachmentFileInput}
-      <div className="flex flex-col gap-3">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            {selectionControl}
-            <div className="space-y-1">
-              <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
-              <p className="text-sm text-gray-500">
-                {task.description || "Нет описания"}
-              </p>
-              {task.dueDate && <DeadlineTimer dueDate={task.dueDate} />}
-              <div className="text-sm text-gray-700">
-                <span className="font-medium">Статус: </span>
-                <span>{task.status ?? "Не указан"}</span>
+      <div className="task-card__body">
+        <div className="task-card__header">
+          {selectionControl}
+          <div className="task-card__summary">
+            <h3 className="task-card__title">{task.title}</h3>
+            <p className="task-card__description">
+              {task.description || "No description"}
+            </p>
+            {task.dueDate && (
+              <div className="task-card__deadline">
+                <DeadlineTimer dueDate={task.dueDate} />
               </div>
+            )}
+            <div className="task-card__meta-line">
+              <span className="task-card__meta-label">Status:</span>
+              <span className="task-card__meta-value">
+                {task.status ?? "Not specified"}
+              </span>
             </div>
           </div>
         </div>
       </div>
 
       {hasAttachments && (
-        <div className="mt-4 space-y-2">
-          <h4 className="text-sm font-medium text-gray-700">Вложения</h4>
+        <div className="task-card__attachments">
+          <h4 className="task-card__attachments-heading">Attachments</h4>
           {attachmentsGallery}
         </div>
       )}
 
-      <div className="mt-4 flex flex-wrap items-center gap-3">
+      <div className="task-card__actions-row">
         <button
           type="button"
           onClick={handleAttachmentUploadClick}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-400 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto"
+          className="task-card__button task-card__button--dashed"
           disabled={isBusy}
         >
-          <PaperClipIcon className="h-4 w-4" aria-hidden="true" />
-          Прикрепить
+          <PaperClipIcon
+            className="task-card__button-icon"
+            aria-hidden="true"
+          />
         </button>
         <button
           type="button"
           onClick={onOpenComments}
-          className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 sm:w-auto"
+          className="task-card__button task-card__button--comments" 
           disabled={isBusy}
         >
-          Комментарии
+          Comments
         </button>
-        <button
-          type="button"
-          onClick={() => setIsEditing(true)}
-          className="inline-flex w-full items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto"
-          disabled={isBusy}
-        >
-          Редактировать
-        </button>
-        <button
-          type="button"
-          onClick={handleDelete}
-          className="inline-flex w-full items-center justify-center rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:w-auto"
-          disabled={isBusy}
-        >
-          {isDeleting ? "Удаляем..." : "Удалить"}
-        </button>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={handleToggleActionsMenu}
+            className="inline-flex w-full items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto"
+            disabled={isBusy}
+            aria-haspopup="menu"
+            aria-expanded={showActionsMenu}
+            aria-controls={`task-actions-${task.id}`}
+          >
+            <EllipsisVerticalIcon className="h-5 w-5" aria-hidden="true" />
+            <span className="sr-only">Additional task actions</span>
+          </button>
+          {showActionsMenu && (
+            <div
+              ref={menuRef}
+              id={`task-actions-${task.id}`}
+              role="menu"
+              aria-orientation="vertical"
+              className="absolute right-0 z-10 mt-2 w-44 rounded-lg border border-gray-200 bg-white p-2 shadow-lg"
+            >
+              <button
+                type="button"
+                onClick={handleStartEdit}
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                role="menuitem"
+              >
+                <PencilIcon className="h-4 w-4" aria-hidden="true" />
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="mt-1 flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                role="menuitem"
+              >
+                <TrashIcon className="h-4 w-4" aria-hidden="true" />
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
       {previewAttachment && (
         <TaskAttachmentPreviewModal
@@ -528,6 +625,48 @@ function XMarkIcon(props: SVGProps<SVGSVGElement>) {
       {...props}
     >
       <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
+    </svg>
+  );
+}
+
+function EllipsisVerticalIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      {...props}
+    >
+      <circle cx={12} cy={5} r={1.5} />
+      <circle cx={12} cy={12} r={1.5} />
+      <circle cx={12} cy={19} r={1.5} />
+    </svg>
+  );
+}
+
+function PencilIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} {...props}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M16.862 4.487l1.651-1.65a1.5 1.5 0 112.122 2.122l-9.193 9.193a3 3 0 01-1.061.707l-3.11 1.037a.75.75 0 01-.948-.948l1.037-3.11a3 3 0 01.707-1.06l6.898-6.9"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 11.25V19.5a1.5 1.5 0 01-1.5 1.5h-12A1.5 1.5 0 014.5 19.5v-12A1.5 1.5 0 016 6h8.25" />
+    </svg>
+  );
+}
+
+function TrashIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} {...props}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9.5 4.5h5a1 1 0 011 1V7h4.25M4.25 7H20.5M6.5 7v12a1.5 1.5 0 001.5 1.5h8a1.5 1.5 0 001.5-1.5V7"
+      />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10 11.5v6m4-6v6" />
     </svg>
   );
 }

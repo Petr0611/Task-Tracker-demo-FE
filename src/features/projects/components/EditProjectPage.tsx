@@ -1,6 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
+import { getUserRole } from "../../../lib/api/projectApi";
+import AccessDenied from "./AccessDenied";
+
+type Role = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 
 function EditProjectPage() {
   const { projectId } = useParams();
@@ -11,19 +15,51 @@ function EditProjectPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [role, setRole] = useState<Role | null>(null);
+  const [accessDenied, setAccessDenied] = useState(false);
+  const [checkingAccess, setCheckingAccess] = useState(true);
 
   useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        const userRole = await getUserRole(projectId!);
+        setRole(userRole);
+        if (userRole === "MEMBER" || userRole === "VIEWER") {
+          setAccessDenied(true);
+        }
+      } catch {
+        console.error("Failed to fetch user role");
+        setAccessDenied(true);
+      } finally {
+        setCheckingAccess(false);
+      }
+    };
+    fetchRole();
+  }, [projectId]);
+
+  useEffect(() => {
+    if (!role || accessDenied) return;
     const fetchProject = async () => {
       try {
         const response = await axios.get(`/api/v1/projects/${projectId}`);
         setTitle(response.data.title || "");
         setDescription(response.data.description || "");
       } catch {
-        setError("Failed to load project data");
+        setError("Failed to load project data. Please try again later.");
       }
     };
     fetchProject();
-  }, [projectId]);
+  }, [projectId, role, accessDenied]);
+
+  if (checkingAccess) {
+    return (
+      <p className="text-gray-500 text-center mt-10 animate-pulse">
+        Checking access permissions...
+      </p>
+    );
+  }
+
+  if (accessDenied) return <AccessDenied />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +78,8 @@ function EditProjectPage() {
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message: string }>;
       setError(
-        axiosError.response?.data?.message || "Failed to update the project"
+        axiosError.response?.data?.message ||
+          "Failed to update the project. Please try again."
       );
     } finally {
       setLoading(false);

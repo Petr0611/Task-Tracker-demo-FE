@@ -236,7 +236,7 @@ export const tasksSlice = createAppSlice({
       }) => {
         const columnId = task.columnId.trim();
         if (!columnId) {
-          throw new Error("Не выбрана колонка для задачи");
+          throw new Error("A column must be selected for the task");
         }
 
         const payload: CreateTaskDto = {
@@ -462,11 +462,11 @@ export const tasksSlice = createAppSlice({
         const uniqueTaskIds = Array.from(new Set(taskIds.filter(Boolean)));
 
         if (uniqueTaskIds.length === 0) {
-          throw new Error("Выберите хотя бы одну задачу");
+          throw new Error("Select at least one task");
         }
 
         if (!sanitizedStatus) {
-          throw new Error("Укажите статус для обновления");
+          throw new Error("Provide a status to update");
         }
 
         const payload: BulkUpdateTaskStatusDto = {
@@ -510,11 +510,11 @@ export const tasksSlice = createAppSlice({
           : 0;
 
         if (uniqueTaskIds.length === 0) {
-          throw new Error("Выберите хотя бы одну задачу");
+          throw new Error("Select at least one task");
         }
 
         if (!sanitizedColumnId) {
-          throw new Error("Выберите колонку для перемещения");
+          throw new Error("Choose a column to move to");
         }
 
         const payload: BulkMoveTasksDto = {

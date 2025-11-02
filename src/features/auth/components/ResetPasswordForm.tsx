@@ -47,7 +47,7 @@ const ResetPasswordForm = () => {
             htmlFor="newPassword"
             className="block text-sm font-medium text-gray-700"
           >
-            Новый пароль
+            New password
           </label>
           <input
             id="newPassword"

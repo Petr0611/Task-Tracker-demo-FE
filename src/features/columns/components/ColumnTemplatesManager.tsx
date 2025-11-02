@@ -26,7 +26,7 @@ interface TemplateFormState {
 
 const mapTemplateColumns = (template: ColumnTemplate): string => {
     if (!Array.isArray(template.columns) || template.columns.length === 0) {
-        return "Нет колонок";
+        return "No columns";
     }
 
     return template.columns.map((column) => column.title).join(", ");
@@ -71,7 +71,7 @@ export default function ColumnTemplatesManager({
         const trimmedName = formState.name.trim();
 
         if (!trimmedName) {
-            setLocalError("Введите название шаблона");
+            setLocalError("Enter a template name");
             return;
         }
 
@@ -109,11 +109,10 @@ export default function ColumnTemplatesManager({
             <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="space-y-1">
                     <h2 className="text-lg font-semibold text-gray-900">
-                        Шаблоны досок
+                        Board templates
                     </h2>
                     <p className="text-sm text-gray-500">
-                        Сохраняйте конфигурацию колонок и применяйте её к другим
-                        проектам
+                        Save your column configurations and reuse them across other projects.
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -122,7 +121,7 @@ export default function ColumnTemplatesManager({
                         onClick={() => setShowCreateForm((prev) => !prev)}
                         className="inline-flex items-center rounded-md bg-black px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                     >
-                        {showCreateForm ? "Скрыть форму" : "Создать шаблон"}
+                        {showCreateForm ? "Hide form" : "Create template"}
                     </button>
                     <button
                         type="button"
@@ -130,7 +129,7 @@ export default function ColumnTemplatesManager({
                         className="inline-flex items-center rounded-md border border-gray-200 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                         disabled={isLoadingTemplates}
                     >
-                        {isLoadingTemplates ? "Обновляем..." : "Обновить"}
+                        {isLoadingTemplates ? "Refreshing..." : "Refresh"}
                     </button>
                 </div>
             </header>
@@ -157,7 +156,7 @@ export default function ColumnTemplatesManager({
                             htmlFor="templateName"
                             className="block text-sm font-medium text-gray-700"
                         >
-                            Название шаблона
+                            Template name
                         </label>
                         <input
                             id="templateName"
@@ -180,7 +179,7 @@ export default function ColumnTemplatesManager({
                             htmlFor="templateDescription"
                             className="block text-sm font-medium text-gray-700"
                         >
-                            Описание
+                            Description
                         </label>
                         <textarea
                             id="templateDescription"
@@ -210,7 +209,7 @@ export default function ColumnTemplatesManager({
                             className="inline-flex items-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                             disabled={isCreatingTemplate}
                         >
-                            {isCreatingTemplate ? "Сохраняем..." : "Сохранить шаблон"}
+                            {isCreatingTemplate ? "Saving..." : "Save template"}
                         </button>
                         <button
                             type="button"
@@ -221,7 +220,7 @@ export default function ColumnTemplatesManager({
                             className="inline-flex items-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                             disabled={isCreatingTemplate}
                         >
-                            Отменить
+                            Cancel
                         </button>
                     </div>
                 </form>
@@ -230,14 +229,13 @@ export default function ColumnTemplatesManager({
             <div className="mt-5 space-y-3">
                 {isLoadingTemplates && (
                     <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-3 text-sm text-gray-600">
-                        Загружаем доступные шаблоны...
+                        Loading available templates...
                     </div>
                 )}
 
                 {!isLoadingTemplates && templatesByLatest.length === 0 && (
                     <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-3 text-sm text-gray-600">
-                        Пока нет сохранённых шаблонов. Создайте новый, чтобы
-                        использовать его в других проектах.
+                        No saved templates yet. Create a new one to reuse it in other projects.
                     </div>
                 )}
 
@@ -259,10 +257,10 @@ export default function ColumnTemplatesManager({
                                                 {template.name}
                                             </h3>
                                             <p className="text-sm text-gray-600">
-                                                {template.description || "Без описания"}
+                                                {template.description || "No description"}
                                             </p>
                                             <p className="text-xs text-gray-500">
-                                                Колонок: {template.columns?.length ?? 0}
+                                                Columns: {template.columns?.length ?? 0}
                                             </p>
                                             <p className="text-xs text-gray-500">
                                                 {mapTemplateColumns(template)}
@@ -275,8 +273,8 @@ export default function ColumnTemplatesManager({
                                             disabled={isApplying}
                                         >
                                             {isApplying
-                                                ? "Применяем..."
-                                                : "Применить к проекту"}
+                                                ? "Applying..."
+                                                : "Apply to project"}
                                         </button>
                                     </div>
                                 </li>

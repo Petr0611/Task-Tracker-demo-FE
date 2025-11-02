@@ -22,8 +22,8 @@ interface TaskFormProps {
 }
 
 const validationSchema = Yup.object({
-  columnId: Yup.string().trim().required("Выберите колонку"),
-  title: Yup.string().trim().required("Введите название задачи"),
+  columnId: Yup.string().trim().required("Select a column"),
+  title: Yup.string().trim().required("Enter a task title"),
   description: Yup.string().optional(),
   status: Yup.string().optional(),
   priority: Yup.string().optional(),
@@ -97,9 +97,9 @@ export default function TaskForm({
   return (
     <div className="space-y-6 rounded-lg border bg-white p-6 shadow-sm">
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">Новая задача</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">New task</h1>
         <p className="text-sm text-gray-500">
-          Заполните данные, чтобы добавить задачу в проект
+          Fill in the details to add a task to the project.
         </p>
         {createError && (
           <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
@@ -114,7 +114,7 @@ export default function TaskForm({
             htmlFor="columnId"
             className="block text-sm font-medium text-gray-700"
           >
-            Колонка
+            Column
           </label>
           <select
             id="columnId"
@@ -126,7 +126,7 @@ export default function TaskForm({
             disabled={formik.isSubmitting || isCreating || lockColumnSelection}
           >
             <option value="" disabled>
-              Выберите колонку
+              Select a column
             </option>
             {columns.map((column) => (
               <option key={column.id} value={column.id}>
@@ -144,14 +144,14 @@ export default function TaskForm({
             htmlFor="title"
             className="block text-sm font-medium text-gray-700"
           >
-            Название
+            Title
           </label>
           <input
             id="title"
             type="text"
             {...formik.getFieldProps("title")}
             className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${titleHasError ? "border-red-500 focus:ring-red-500" : "border-input"}`}
-            placeholder="Например, Подготовить презентацию"
+            placeholder="For example, Prepare a presentation"
             disabled={formik.isSubmitting || isCreating}
           />
           {titleHasError && (
@@ -164,14 +164,14 @@ export default function TaskForm({
             htmlFor="description"
             className="block text-sm font-medium text-gray-700"
           >
-            Описание
+            Description
           </label>
           <textarea
             id="description"
             rows={3}
             {...formik.getFieldProps("description")}
             className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
-            placeholder="Кратко опишите задачу"
+            placeholder="Briefly describe the task"
             disabled={formik.isSubmitting || isCreating}
           />
         </div>
@@ -180,7 +180,7 @@ export default function TaskForm({
             htmlFor="dueDate"
             className="block text-sm font-medium text-gray-700"
           >
-            Срок выполнения
+            Due date
           </label>
           <input
             id="dueDate"
@@ -199,7 +199,7 @@ export default function TaskForm({
             className="inline-flex w-full items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
             disabled={formik.isSubmitting || isCreating}
           >
-            {formik.isSubmitting || isCreating ? "Создаем..." : "Создать задачу"}
+            {formik.isSubmitting || isCreating ? "Creating..." : "Create task"}
           </button>
 
           {showCancelButton && (
@@ -209,7 +209,7 @@ export default function TaskForm({
               className="inline-flex w-full items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
               disabled={formik.isSubmitting || isCreating}
             >
-              Отменить
+              Cancel
             </button>
           )}
         </div>

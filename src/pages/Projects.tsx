@@ -43,7 +43,7 @@ export default function Projects() {
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-6">
       {isLoading && (
         <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-4 text-sm text-gray-600">
-          Загружаем ваши проекты...
+          Loading your projects...
         </div>
       )}
 
@@ -61,7 +61,7 @@ export default function Projects() {
             onClick={() => setIsCreating(true)}
             className="self-start rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
           >
-            Создать новый проект
+            Create new project
           </button>
 
           <ProjectsList

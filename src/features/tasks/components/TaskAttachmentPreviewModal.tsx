@@ -53,14 +53,14 @@ export default function TaskAttachmentPreviewModal({
       <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
         <header className="flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Вложение</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Attachment</h2>
             <p className="text-sm text-gray-500">{attachmentName}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-lg font-semibold text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-            aria-label="Закрыть просмотр вложения"
+            aria-label="Close attachment preview"
           >
             ×
           </button>
@@ -75,7 +75,7 @@ export default function TaskAttachmentPreviewModal({
             />
           ) : (
             <div className="flex h-full min-h-[50vh] items-center justify-center px-6 py-10 text-center text-sm text-gray-600">
-              Не удалось отобразить вложение. Попробуйте скачать файл по ссылке ниже.
+              We couldn't display this attachment. Try downloading it via the link below
             </div>
           )}
         </div>
@@ -88,7 +88,7 @@ export default function TaskAttachmentPreviewModal({
               rel="noreferrer"
               className="text-blue-600 underline hover:text-blue-700"
             >
-              Открыть вложение в новой вкладке
+              Open attachment in a new tab
             </a>
           </div>
         )}
