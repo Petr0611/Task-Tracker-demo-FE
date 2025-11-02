@@ -1,16 +1,16 @@
-const MONTHS_RU = [
-  "января",
-  "февраля",
-  "марта",
-  "апреля",
-  "мая",
-  "июня",
-  "июля",
-  "августа",
-  "сентября",
-  "октября",
-  "ноября",
-  "декабря",
+const MONTHS_EN = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 const DATE_TIME_WITH_OPTIONAL_SECONDS =
@@ -123,8 +123,8 @@ export function formatDueDate(value?: string): string | undefined {
       return trimmed;
     }
 
-    const monthName = MONTHS_RU[month - 1];
-    const datePart = `${day} ${monthName} ${year}`;
+    const monthName = MONTHS_EN[month - 1];
+    const datePart = `${monthName} ${day}, ${year}`;
 
     if (hoursStr && minutesStr) {
       const hours = Number.parseInt(hoursStr, 10);
@@ -154,7 +154,7 @@ export function formatDueDate(value?: string): string | undefined {
     return trimmed;
   }
 
-  return parsedDate.toLocaleString("ru-RU", {
+  return parsedDate.toLocaleString("en-US", {
     day: "numeric",
     month: "long",
     year: "numeric",

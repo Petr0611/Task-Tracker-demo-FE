@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link} from "react-router-dom";
 import logo from "../../assets/images/logo_s.webp";
 import { useEffect, useState } from "react";
 import type { UserDetails } from "../../features/users/types";
@@ -9,6 +9,7 @@ import { selectIsAuthenticated } from "../../features/auth/slice/authSlice";
 export default function Header() {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const [user, setUser] = useState<UserDetails | null>(null);
+
 
   // get user data from server
   const fetchUser = async () => {
@@ -103,7 +104,7 @@ export default function Header() {
                         .map((n) => n[0])
                         .slice(0, 2)
                         .join("")
-                    : user.email[0].toUpperCase()}
+                    : user?.email?.[0]?.toUpperCase() ?? "?"}
                 </div>
               )}
             </Link>

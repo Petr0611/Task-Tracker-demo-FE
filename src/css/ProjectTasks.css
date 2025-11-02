@@ -1,0 +1,442 @@
+.project-tasks-header-full {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100vw;
+    margin: 0;
+    padding: 1.1rem clamp(20px, 4vw, 48px);
+    background: linear-gradient(135deg, rgba(255, 244, 252, 0.96), rgba(241, 231, 255, 0.94));
+    box-shadow: 0 18px 36px rgba(208, 171, 255, 0.24);
+    border: none;
+    border-radius: 0 0 24px 24px;
+    transform: translateX(-50%);
+    position: relative;
+    left: 50%;
+    min-height: 76px;
+    gap: 1.5rem;
+    backdrop-filter: blur(10px);
+}
+
+.project-tasks-header-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.project-tasks-title,
+.project-tasks-subtitle {
+    margin: 0;
+}
+
+.project-tasks-title {
+    font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+    font-weight: 800;
+    color: #4b1f8c;
+    text-shadow: 0 4px 16px rgba(255, 255, 255, 0.85);
+}
+
+.project-tasks-subtitle {
+    font-size: 0.95rem;
+    color: #6f5aa9;
+    line-height: 1.5;
+}
+
+.project-tasks-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.project-tasks-header-actions .project-tasks-button {
+    padding: 0.6rem 1.25rem;
+    font-size: 0.92rem;
+    border-radius: 14px;
+}
+
+.project-tasks-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    border: 2px solid transparent;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.72);
+    color: #5b3aa0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0.55rem 1.1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease,
+        color 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 12px 26px rgba(210, 190, 255, 0.32);
+}
+
+.project-tasks-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.project-tasks-button:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 38px rgba(199, 184, 255, 0.35);
+    background: rgba(255, 255, 255, 0.88);
+}
+
+.project-tasks-button:focus-visible {
+    outline: none;
+    border-color: rgba(255, 147, 209, 0.5);
+    box-shadow: 0 0 0 4px rgba(255, 147, 209, 0.28);
+}
+
+.project-tasks-button--primary {
+    background: linear-gradient(135deg, #ffb3e6, #f19cff);
+    border-color: rgba(255, 147, 209, 0.5);
+    color: #4b1f8c;
+}
+
+.project-tasks-button--primary:not(:disabled):hover {
+    background: linear-gradient(135deg, #ffa6e1, #ea8cff);
+    color: #441d83;
+}
+
+.project-tasks-button--secondary {
+    background: rgba(245, 238, 255, 0.86);
+    border-color: rgba(199, 184, 255, 0.7);
+    color: #6b41b5;
+}
+
+.project-tasks-button--secondary:hover:not(:disabled) {
+    background: rgba(245, 238, 255, 0.95);
+}
+
+.project-tasks-button--ghost {
+    background: rgba(255, 255, 255, 0.65);
+    border-color: rgba(208, 171, 255, 0.4);
+    color: #5b3aa0;
+}
+
+.project-tasks-button--ghost:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.85);
+    color: #4b1f8c;
+}
+
+.project-tasks-button--outline {
+    background: rgba(255, 244, 252, 0.72);
+    border-color: rgba(255, 182, 222, 0.55);
+    color: #b5497e;
+}
+
+.project-tasks-button--outline:hover:not(:disabled) {
+    background: rgba(255, 236, 250, 0.9);
+}
+
+.project-tasks-button--accent {
+    background: linear-gradient(135deg, #b1c5ff, #9ac1ff);
+    border-color: rgba(168, 200, 255, 0.55);
+    color: #2c3e94;
+}
+
+.project-tasks-button--accent:hover:not(:disabled) {
+    background: linear-gradient(135deg, #a5baff, #90b5ff);
+}
+
+.project-tasks-subheader {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    border-top: 1px dashed rgba(208, 171, 255, 0.55);
+    padding-top: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.project-tasks-subheader .project-tasks-button {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 13px;
+}
+
+.project-tasks-page {
+    --page-inline-padding: clamp(16px, 4vw, 56px);
+    margin: 0;
+    width: 100%;
+    padding: 0 var(--page-inline-padding) clamp(48px, 6vw, 88px);
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    color: #4b1f8c;
+    background: radial-gradient(circle at top, rgba(255, 248, 255, 0.75), rgba(235, 226, 255, 0));
+}
+
+@media (min-width: 768px) {
+    .project-tasks-page {
+        padding: 0 var(--page-inline-padding) clamp(56px, 7vw, 100px);
+        gap: 40px;
+    }
+}
+
+.project-tasks-alert-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.project-tasks-alert-group .project-task-card__button--danger {
+    box-shadow: none;
+}
+
+.project-tasks-alert {
+    padding: 16px 18px;
+    border-radius: 18px;
+    border: 1px solid transparent;
+    background: rgba(226, 232, 240, 0.6);
+    color: #1f2937;
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+.project-tasks-alert--error {
+    background: linear-gradient(135deg, rgba(254, 226, 226, 0.8), rgba(252, 165, 165, 0.65));
+    border-color: rgba(220, 38, 38, 0.45);
+    color: #b91c1c;
+}
+
+.project-tasks-placeholder {
+    border-radius: 20px;
+    border: 1px dashed rgba(148, 163, 184, 0.6);
+    background: rgba(241, 245, 249, 0.7);
+    padding: 24px;
+    color: #475569;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    text-align: center;
+}
+
+.project-tasks-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(14px);
+    border-radius: 24px;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 28px 60px -38px rgba(30, 41, 59, 0.55);
+}
+
+.project-tasks-filters--in-header {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+}
+
+.project-tasks-filters-grid {
+    display: grid;
+    gap: 18px;
+}
+
+@media (min-width: 640px) {
+    .project-tasks-filters-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .project-tasks-filters-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.project-tasks-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.project-tasks-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #1e293b;
+}
+
+.project-tasks-label--warm {
+    color: #92400e;
+}
+
+.project-tasks-input {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid rgba(203, 213, 225, 0.8);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+    background: rgba(248, 250, 252, 0.9);
+    color: #0f172a;
+    transition: 0.2s;
+}
+
+.project-tasks-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+.project-tasks-input::placeholder {
+    color: #94a3b8;
+}
+
+.project-tasks-bulk-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+    border-radius: 24px;
+    border: 1px solid rgba(251, 191, 36, 0.45);
+    background: linear-gradient(135deg, rgba(255, 251, 235, 0.9), rgba(254, 243, 199, 0.88));
+    box-shadow: 0 32px 60px -36px rgba(202, 138, 4, 0.45);
+}
+
+.project-tasks-bulk-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+@media (min-width: 640px) {
+    .project-tasks-bulk-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.project-tasks-bulk-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #92400e;
+}
+
+.project-tasks-bulk-subtitle {
+    font-size: 0.82rem;
+    color: #b45309;
+}
+
+.project-tasks-bulk-grid {
+    display: grid;
+    gap: 18px;
+}
+
+@media (min-width: 768px) {
+    .project-tasks-bulk-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.project-tasks-bulk-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+@media (min-width: 640px) {
+    .project-tasks-bulk-row {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+.project-tasks-error-text {
+    font-size: 0.78rem;
+    color: #b91c1c;
+}
+
+.project-tasks-create {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    animation: fadeIn 0.25s ease-out;
+}
+
+.project-tasks-create.project-management {
+    background: rgba(248, 250, 252, 0.85);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 16px 30px -20px rgba(15, 23, 42, 0.2);
+}
+
+.project-tasks-columns {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    margin: 0 calc(var(--page-inline-padding) * -1);
+    padding: 0 var(--page-inline-padding) 12px;
+    scroll-snap-type: x proximity;
+}
+
+.project-tasks-columns::-webkit-scrollbar {
+    height: 10px;
+}
+
+.project-tasks-columns::-webkit-scrollbar-track {
+    background: rgba(226, 232, 240, 0.6);
+    border-radius: 999px;
+}
+
+.project-tasks-columns::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.6);
+    border-radius: 999px;
+}
+
+.project-tasks-columns>* {
+    flex: 0 0 clamp(280px, 32vw, 360px);
+    scroll-snap-align: start;
+}
+
+@media (min-width: 1024px) {
+    .project-tasks-columns {
+        gap: 28px;
+    }
+
+    .project-tasks-columns>* {
+        flex-basis: clamp(300px, 24vw, 380px);
+    }
+}
+
+.project-tasks-empty {
+    margin: 0 auto;
+    max-width: 560px;
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(254, 226, 226, 0.45), rgba(248, 113, 113, 0.2));
+    border-radius: 24px;
+    border: 1px solid rgba(248, 113, 113, 0.35);
+    box-shadow: 0 24px 44px -28px rgba(220, 38, 38, 0.4);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -4,6 +4,9 @@ import {
   useEffect,
   useState,
 } from "react";
+import clsx from "clsx";
+import "./TaskCard.css";
+import "../../../css/ProjectTasksList.css";
 import type { Task, UpdateTaskDto } from "../types";
 import { normalizeDueDate, toDueDateInputValue } from "../utils/formatDueDate";
 import { DeadlineTimer } from "./DeadlineTimer";
@@ -68,7 +71,7 @@ function TaskListItem({
     event.preventDefault();
     const title = formState.title.trim();
     if (!title) {
-      setLocalError("Введите название задачи");
+      setLocalError("Enter a task title");
       return;
     }
 
@@ -110,16 +113,22 @@ function TaskListItem({
     }
   };
 
+  const baseCardClasses = clsx(
+    "task-card",
+    "project-task-card",
+    (isUpdating || isDeleting) && "project-task-card--busy"
+  );
+
   if (isEditing) {
     return (
-      <article className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-2">
+      <article className={clsx(baseCardClasses, "task-card--editing")}>
+        <form className="task-card__form" onSubmit={handleSubmit}>
+          <div className="task-card__field">
             <label
               htmlFor={`title-${task.id}`}
-              className="block text-sm font-medium text-gray-700"
+              className="task-card__label"
             >
-              Название
+              Title
             </label>
             <input
               id={`title-${task.id}`}
@@ -127,17 +136,17 @@ function TaskListItem({
               type="text"
               value={formState.title}
               onChange={handleChange}
-              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
+              className="task-card__input"
               disabled={isUpdating}
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="task-card__field">
             <label
               htmlFor={`description-${task.id}`}
-              className="block text-sm font-medium text-gray-700"
+              className="task-card__label"
             >
-              Описание
+              Description
             </label>
             <textarea
               id={`description-${task.id}`}
@@ -145,16 +154,17 @@ function TaskListItem({
               rows={3}
               value={formState.description}
               onChange={handleChange}
-              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
+              className="task-card__textarea"
               disabled={isUpdating}
             />
           </div>
-          <div className="space-y-2">
+
+          <div className="task-card__field">
             <label
               htmlFor={`dueDate-${task.id}`}
-              className="block text-sm font-medium text-gray-700"
+              className="task-card__label"
             >
-              Срок выполнения
+              Due date
             </label>
             <input
               id={`dueDate-${task.id}`}
@@ -162,29 +172,35 @@ function TaskListItem({
               type="datetime-local"
               value={formState.dueDate}
               onChange={handleChange}
-              className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
+              className="task-card__input"
               disabled={isUpdating}
             />
           </div>
           {localError && (
-            <p className="text-sm text-red-500">{localError}</p>
+            <p className="task-card__error project-task-card__form-error">
+              {localError}
+            </p>
           )}
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="task-card__actions-row project-task-card__form-actions">
             <button
               type="submit"
-              className="inline-flex w-full items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
+              className="task-card__button task-card__button--primary"
               disabled={isUpdating}
             >
-              {isUpdating ? "Сохраняем..." : "Сохранить"}
+              {isUpdating ? "Saving..." : "Save"}
             </button>
             <button
               type="button"
               onClick={handleCancelEdit}
-              className="inline-flex w-full items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
+              className={clsx(
+                "task-card__button",
+                "task-card__button--outline",
+                "project-task-card__button--outline"
+              )}
               disabled={isUpdating}
             >
-              Отменить
+              Cancel
             </button>
           </div>
         </form>
@@ -193,35 +209,62 @@ function TaskListItem({
   }
 
   return (
-    <article className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
-          <p className="text-sm text-gray-500">
-            {task.description || "Нет описания"}
-          </p>
-          {task.dueDate && <DeadlineTimer dueDate={task.dueDate} />}
+    <article className={baseCardClasses}>
+      <div className="task-card__body project-task-card__content">
+        <div className="task-card__header">
+          <div className="task-card__summary">
+            <h3 className="task-card__title">{task.title}</h3>
+            <p className="task-card__description">
+              {task.description || "No description"}
+            </p>
+            {task.dueDate && (
+              <div className="task-card__deadline">
+                <DeadlineTimer dueDate={task.dueDate} />
+              </div>
+            )}
+            <div className="project-task-card__meta-block">
+              <div className="task-card__meta-line">
+                <span className="task-card__meta-label">Status:</span>
+                <span className="task-card__meta-value">
+                  {task.status ?? "Not specified"}
+                </span>
+              </div>
+              <div className="task-card__meta-line">
+                <span className="task-card__meta-label">Приоритет:</span>
+                <span className="task-card__meta-value">
+                  {task.priority ?? "Not specified"}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      
 
-      <div className="mt-4 flex flex-wrap items-center gap-3">
+
+      <div className="task-card__actions-row project-task-card__actions-row">
         <button
           type="button"
           onClick={() => setIsEditing(true)}
-          className="inline-flex w-full items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 sm:w-auto"
+          className={clsx(
+            "task-card__button",
+            "task-card__button--outline",
+            "project-task-card__button--outline"
+          )}
           disabled={isUpdating || isDeleting}
         >
-          Редактировать
+          Edit
         </button>
         <button
           type="button"
           onClick={handleDelete}
-          className="inline-flex w-full items-center justify-center rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:w-auto"
+          className={clsx(
+            "task-card__button",
+            "project-task-card__button--danger"
+          )} 
           disabled={isDeleting || isUpdating}
         >
-          {isDeleting ? "Удаляем..." : "Удалить"}
+          {isDeleting ? "Deleting..." : "Delete"}
         </button>
       </div>
     </article>
@@ -242,30 +285,30 @@ export default function TasksList({
   }
 
   return (
-    <section className="space-y-4">
-      <div className="space-y-2">
-        <h2 className="text-xl font-semibold">Задачи проекта</h2>
-        <p className="text-sm text-gray-500">
-          Управляйте задачами: редактируйте детали или удаляйте ненужные позиции
+    <section className="project-tasks-list">
+      <div className="project-tasks-list__header">
+        <h2 className="project-tasks-list__title">Project tasks</h2>
+        <p className="project-tasks-list__description">
+          Manage tasks: edit details or remove items that are no longer needed.
         </p>
       </div>
 
       {(updateTaskError || deleteTaskError) && (
-        <div className="space-y-2">
+        <div className="project-tasks-list__alerts">
           {updateTaskError && (
-            <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            <div className="project-tasks-list__alert project-tasks-list__alert--error">
               {updateTaskError}
             </div>
           )}
           {deleteTaskError && (
-            <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            <div className="project-tasks-list__alert project-tasks-list__alert--error">
               {deleteTaskError}
             </div>
           )}
         </div>
       )}
 
-      <div className="flex flex-col gap-3">
+      <div className="project-tasks-list__grid">
         {tasks.map((task) => (
           <TaskListItem
             key={task.id}

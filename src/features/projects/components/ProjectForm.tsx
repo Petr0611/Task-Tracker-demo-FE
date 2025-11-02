@@ -140,7 +140,7 @@ const ProjectForm = ({
               className="inline-flex w-full items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
               disabled={formik.isSubmitting}
             >
-              Отменить
+              Cancel
             </button>
           )}
         </div>

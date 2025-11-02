@@ -26,7 +26,7 @@ function InviteFormPage() {
       setRole("MEMBER");
     } catch (err: unknown) {
       const axiosError = err as AxiosError<{ message: string }>;
-      setError(axiosError.response?.data?.message || "Ошибка при приглашении");
+      setError(axiosError.response?.data?.message || "Failed to send the invite");
     } finally {
       setLoading(false);
     }
@@ -35,7 +35,7 @@ function InviteFormPage() {
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md border border-gray-200">
       <h2 className="text-xl font-semibold mb-4 text-gray-800">
-        Пригласить пользователя
+        Invite a collaborator
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -55,7 +55,7 @@ function InviteFormPage() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Роль:
+            Role:
           </label>
           <select
             value={role}
@@ -78,12 +78,12 @@ function InviteFormPage() {
               : "bg-blue-600 hover:bg-blue-700"
           }`}
         >
-          {loading ? "Отправка..." : "Отправить"}
+          {loading ? "Sending..." : "Send"}
         </button>
 
         {success && (
           <p className="text-green-600 text-sm mt-2">
-            Инвайт успешно отправлен ✅
+            Invite sent successfully ✅
           </p>
         )}
         {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
