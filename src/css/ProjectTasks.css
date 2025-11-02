@@ -24,6 +24,23 @@
     gap: 0.35rem;
 }
 
+.project-tasks-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.project-tasks-header-top .project-tasks-header-info {
+    align-items: flex-start;
+}
+
+.project-tasks-header-top .project-tasks-button {
+    flex-shrink: 0;
+}
+
 .project-tasks-title,
 .project-tasks-subtitle {
     margin: 0;
@@ -219,6 +236,11 @@
     text-align: center;
 }
 
+.project-tasks-placeholder--centered {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .project-tasks-filters {
     display: flex;
     flex-direction: column;
@@ -236,6 +258,25 @@
     box-shadow: none;
     border: none;
     padding: 0;
+}
+
+.project-tasks-filters-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    border-top: 1px dashed rgba(148, 163, 184, 0.5);
+    padding-top: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.project-tasks-selection-info {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #334155;
+    background: rgba(191, 219, 254, 0.5);
+    padding: 0.45rem 0.75rem;
+    border-radius: 14px;
 }
 
 .project-tasks-filters-grid {
