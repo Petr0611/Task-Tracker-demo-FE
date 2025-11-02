@@ -13,47 +13,62 @@ export default function Header() {
 
   const isProjectTasksPage = /^\/projects\/[^/]+\/tasks/.test(location.pathname);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
+  // get user data from server
+  const fetchUser = async () => {
+    try {
+      const res = await axiosInstance.get<UserDetails>("/users/me", {
+        withCredentials: true,
+      });
+      setUser(res.data);
+    } catch {
       setUser(null);
-      return;
     }
+  };
 
-    const fetchUser = async () => {
-      try {
-        const res = await axiosInstance.get("/users/me");
-        setUser(res.data);
-      } catch {
-        setUser(null);
-      }
-    };
-
-    fetchUser();
-
+  // first listener register
+  useEffect(() => {
     const handleAvatarUpdate = (e: CustomEvent) => {
       setUser((prev) => (prev ? { ...prev, avatarUrl: e.detail } : prev));
     };
 
-    window.addEventListener("avatarUpdated", handleAvatarUpdate as EventListener);
+    const handleLogin = () => fetchUser();
+    const handleLogout = () => setUser(null);
+
+    window.addEventListener(
+      "avatarUpdated",
+      handleAvatarUpdate as EventListener
+    );
+    window.addEventListener("userLoggedIn", handleLogin);
+    window.addEventListener("userLoggedOut", handleLogout);
+
+    // Fallback to session-cookie
+    fetchUser();
 
     return () => {
-      window.removeEventListener("avatarUpdated", handleAvatarUpdate as EventListener);
+      window.removeEventListener(
+        "avatarUpdated",
+        handleAvatarUpdate as EventListener
+      );
+      window.removeEventListener("userLoggedIn", handleLogin);
+      window.removeEventListener("userLoggedOut", handleLogout);
     };
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchUser();
+    } else {
+      setUser(null);
+    }
   }, [isAuthenticated]);
 
   return (
     <header className="w-full bg-gradient-to-t from-teal-400 to-emerald-400 shadow-sm">
-      <div
-        className={`mx-auto flex max-w-7xl items-center justify-between px-4 ${
-          isProjectTasksPage ? "pt-3 pb-0" : "py-4"
-        }`}
-      >
-        {/* Logo / Brand */}
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
         <Link to="/" className="text-xl font-semibold text-gray-900">
           <img src={logo} alt="logo" />
         </Link>
-
-        {/* Navigation */}
+        {/* Navigation Links */}
         <nav className="flex items-center space-x-4">
           <Link
             to="/"
@@ -76,7 +91,7 @@ export default function Header() {
 
           {user ? (
             <Link to="/profile" className="flex items-center space-x-2">
-              {user?.avatarUrl ? (
+              {user.avatarUrl ? (
                 <img
                   src={user.avatarUrl}
                   alt="User Avatar"
@@ -84,7 +99,7 @@ export default function Header() {
                 />
               ) : (
                 <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center text-xs font-bold text-gray-700 border-2 border-white transition-transform duration-200 hover:scale-110">
-                  {user?.displayName
+                  {user.displayName
                     ? user.displayName
                         .toUpperCase()
                         .split(" ")
@@ -105,7 +120,7 @@ export default function Header() {
               </Link>
               <Link
                 to="/login"
-                className="rounded bg-black px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-800 transition"
+                className="rounded bg-black px-4 py-1.5 text-sm font-medium text-white hover:bg-gray-800"
               >
                 Sign in
               </Link>
