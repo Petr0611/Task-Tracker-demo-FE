@@ -1,5 +1,5 @@
 export interface UserDetails {
-  id: any;
+  id: unknown;
   role: string;
   displayName?: string;
   email: string;
