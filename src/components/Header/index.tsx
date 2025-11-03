@@ -1,6 +1,6 @@
-import { Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import logo from "../../assets/images/logo_s.webp";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { UserDetails } from "../../features/users/types";
 import axiosInstance from "../../lib/axiosInstance";
 import { useAppSelector } from "../../app/hooks";
@@ -10,8 +10,12 @@ export default function Header() {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const [user, setUser] = useState<UserDetails | null>(null);
 
+  const userRef = useRef<UserDetails | null>(null);
 
-  // get user data from server
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
   const fetchUser = async () => {
     try {
       const res = await axiosInstance.get<UserDetails>("/users/me", {
@@ -23,10 +27,17 @@ export default function Header() {
     }
   };
 
-  // first listener register
   useEffect(() => {
     const handleAvatarUpdate = (e: CustomEvent) => {
-      setUser((prev) => (prev ? { ...prev, avatarUrl: e.detail } : prev));
+      if (!userRef.current || !e.detail) return;
+
+      const { avatarUrl, email } = e.detail as {
+        avatarUrl: string;
+        email?: string;
+      };
+      if (email && email === userRef.current.email) {
+        setUser((prev) => (prev ? { ...prev, avatarUrl } : prev));
+      }
     };
 
     const handleLogin = () => fetchUser();
@@ -39,7 +50,6 @@ export default function Header() {
     window.addEventListener("userLoggedIn", handleLogin);
     window.addEventListener("userLoggedOut", handleLogout);
 
-    // Fallback to session-cookie
     fetchUser();
 
     return () => {
@@ -66,7 +76,8 @@ export default function Header() {
         <Link to="/" className="text-xl font-semibold text-gray-900">
           <img src={logo} alt="logo" />
         </Link>
-        {/* Navigation Links */}
+
+        {/* Navigation */}
         <nav className="flex items-center space-x-4">
           <Link
             to="/"

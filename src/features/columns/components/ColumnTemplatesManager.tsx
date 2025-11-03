@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import clsx from "clsx";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import {
     applyColumnTemplate,
@@ -13,6 +14,7 @@ import {
     selectIsCreatingColumnTemplate,
 } from "../slice/columnsSlice";
 import type { ColumnTemplate } from "../types";
+import "../../../css/ColumnTemplatesManager.css";
 
 interface ColumnTemplatesManagerProps {
     projectId: string;
@@ -53,8 +55,8 @@ export default function ColumnTemplatesManager({
     const [localError, setLocalError] = useState<string | undefined>();
 
     useEffect(() => {
-    void dispatch(getColumnTemplates());
-}, [dispatch]);
+        void dispatch(getColumnTemplates());
+    }, [dispatch]);
 
     const templatesByLatest = useMemo(
         () =>
@@ -105,28 +107,29 @@ export default function ColumnTemplatesManager({
     };
 
     return (
-        <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-            <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="space-y-1">
-                    <h2 className="text-lg font-semibold text-gray-900">
-                        Board templates
-                    </h2>
-                    <p className="text-sm text-gray-500">
+        <section className="column-templates">
+            <header className="column-templates__header">
+                <div className="column-templates__intro">
+                    <h2 className="column-templates__title">Board templates</h2>
+                    <p className="column-templates__subtitle">
                         Save your column configurations and reuse them across other projects.
                     </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="column-templates__actions">
                     <button
                         type="button"
                         onClick={() => setShowCreateForm((prev) => !prev)}
-                        className="inline-flex items-center rounded-md bg-black px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
-                    >
+                        className={clsx(
+                            "column-templates__button column-templates__button--primary",
+                            { "column-templates__button--active": showCreateForm }
+                        )}
+                        >
                         {showCreateForm ? "Hide form" : "Create template"}
                     </button>
                     <button
                         type="button"
                         onClick={() => void dispatch(getColumnTemplates())}
-                        className="inline-flex items-center rounded-md border border-gray-200 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                        className="column-templates__button column-templates__button--ghost"
                         disabled={isLoadingTemplates}
                     >
                         {isLoadingTemplates ? "Refreshing..." : "Refresh"}
@@ -135,14 +138,14 @@ export default function ColumnTemplatesManager({
             </header>
 
             {(templatesError || applyTemplateError) && (
-                <div className="mt-4 space-y-2">
+                <div className="column-templates__alerts">
                     {templatesError && (
-                        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                        <div className="column-templates__alert column-templates__alert--error">
                             {templatesError}
                         </div>
                     )}
                     {applyTemplateError && (
-                        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                        <div className="column-templates__alert column-templates__alert--error">
                             {applyTemplateError}
                         </div>
                     )}
@@ -150,12 +153,9 @@ export default function ColumnTemplatesManager({
             )}
 
             {showCreateForm && (
-                <form className="mt-4 space-y-4" onSubmit={handleSubmitTemplate}>
-                    <div className="space-y-2">
-                        <label
-                            htmlFor="templateName"
-                            className="block text-sm font-medium text-gray-700"
-                        >
+                <form className="column-templates__form" onSubmit={handleSubmitTemplate}>
+                    <div className="column-templates__field">
+                        <label htmlFor="templateName" className="column-templates__label">
                             Template name
                         </label>
                         <input
@@ -169,16 +169,13 @@ export default function ColumnTemplatesManager({
                                     name: event.target.value,
                                 }))
                             }
-                            className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1"
+                            className="column-templates__input"
                             disabled={isCreatingTemplate}
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label
-                            htmlFor="templateDescription"
-                            className="block text-sm font-medium text-gray-700"
-                        >
+                    <div className="column-templates__field">
+                        <label htmlFor="templateDescription" className="column-templates__label">
                             Description
                         </label>
                         <textarea
@@ -192,21 +189,21 @@ export default function ColumnTemplatesManager({
                                     description: event.target.value,
                                 }))
                             }
-                            className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-1"
+                            className="column-templates__input column-templates__input--textarea"
                             disabled={isCreatingTemplate}
                         />
                     </div>
 
                     {(localError || createTemplateError) && (
-                        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                        <div className="column-templates__alert column-templates__alert--error">
                             {localError || createTemplateError}
                         </div>
                     )}
 
-                    <div className="flex flex-wrap items-center gap-3">
+                    <div className="column-templates__form-actions">
                         <button
                             type="submit"
-                            className="inline-flex items-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                            className="column-templates__button column-templates__button--primary"
                             disabled={isCreatingTemplate}
                         >
                             {isCreatingTemplate ? "Saving..." : "Save template"}
@@ -217,7 +214,7 @@ export default function ColumnTemplatesManager({
                                 setShowCreateForm(false);
                                 setLocalError(undefined);
                             }}
-                            className="inline-flex items-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                            className="column-templates__button column-templates__button--ghost"
                             disabled={isCreatingTemplate}
                         >
                             Cancel
@@ -226,55 +223,44 @@ export default function ColumnTemplatesManager({
                 </form>
             )}
 
-            <div className="mt-5 space-y-3">
+            <div className="column-templates__content">
                 {isLoadingTemplates && (
-                    <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-3 text-sm text-gray-600">
+                    <div className="column-templates__placeholder">
                         Loading available templates...
                     </div>
                 )}
 
                 {!isLoadingTemplates && templatesByLatest.length === 0 && (
-                    <div className="rounded-md border border-dashed border-gray-300 bg-gray-50 p-3 text-sm text-gray-600">
+                    <div className="column-templates__placeholder">
                         No saved templates yet. Create a new one to reuse it in other projects.
                     </div>
                 )}
 
                 {templatesByLatest.length > 0 && (
-                    <ul className="space-y-3">
+                    <ul className="column-templates__list">
                         {templatesByLatest.map((template) => {
-                            const isApplying = Boolean(
-                                applyingTemplateIds[template.id]
-                            );
+                            const isApplying = Boolean(applyingTemplateIds[template.id]);
 
                             return (
-                                <li
-                                    key={template.id}
-                                    className="rounded-lg border border-gray-200 bg-gray-50 p-4"
-                                >
-                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                        <div className="space-y-1">
-                                            <h3 className="text-base font-semibold text-gray-900">
-                                                {template.name}
-                                            </h3>
-                                            <p className="text-sm text-gray-600">
+                                <li key={template.id} className="column-templates__item">
+                                    <div className="column-templates__item-inner">
+                                        <div className="column-templates__item-info">
+                                            <h3 className="column-templates__item-title">{template.name}</h3>
+                                            <p className="column-templates__item-description">
                                                 {template.description || "No description"}
                                             </p>
-                                            <p className="text-xs text-gray-500">
-                                                Columns: {template.columns?.length ?? 0}
-                                            </p>
-                                            <p className="text-xs text-gray-500">
-                                                {mapTemplateColumns(template)}
-                                            </p>
+                                            <div className="column-templates__meta">
+                                                <span>Columns: {template.columns?.length ?? 0}</span>
+                                                <span>{mapTemplateColumns(template)}</span>
+                                            </div>
                                         </div>
                                         <button
                                             type="button"
                                             onClick={() => handleApplyTemplate(template.id)}
-                                            className="inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+                                            className="column-templates__button column-templates__button--accent"
                                             disabled={isApplying}
                                         >
-                                            {isApplying
-                                                ? "Applying..."
-                                                : "Apply to project"}
+                                            {isApplying ? "Applying..." : "Apply to project"}
                                         </button>
                                     </div>
                                 </li>

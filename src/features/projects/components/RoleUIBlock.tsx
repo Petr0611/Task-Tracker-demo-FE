@@ -3,6 +3,7 @@ import { getUserRole } from "../../../lib/api/projectApi";
 import ProjectActions from "./ProjectActions";
 import AccessDenied from "./AccessDenied";
 import { AxiosError } from "axios";
+import "../../../css/ProjectManagement.css";
 
 type Role = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 
@@ -24,13 +25,13 @@ export default function RoleUIBlock({ projectId }: { projectId: string }) {
         }
       }
     };
-    fetchRole();
+    void fetchRole();
   }, [projectId]);
 
   if (error) return <AccessDenied />;
   if (!role)
     return (
-      <p className="text-gray-500 text-center mt-10 animate-pulse">
+      <p className="project-role__loading" role="status">
         Loading access rights...
       </p>
     );
