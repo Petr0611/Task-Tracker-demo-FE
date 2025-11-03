@@ -13,8 +13,13 @@ interface ProjectFormProps {
 }
 
 const validationSchema = Yup.object({
-  title: Yup.string().required("Title is required"),
-  description: Yup.string().required("Description is required"),
+  title: Yup.string()
+    .min(2, "Title must be at least 2 characters")
+    .max(50, "Title must be less than 50 characters")
+    .required("Title is required"),
+  description: Yup.string()
+    .min(3, "Description must be at least 3 characters")
+    .required("Description is required"),
 });
 
 const ProjectForm = ({
@@ -43,7 +48,6 @@ const ProjectForm = ({
         resetForm();
       } catch (error) {
         console.error(error);
-      } finally {
         setSubmitting(false);
       }
     },
@@ -54,6 +58,15 @@ const ProjectForm = ({
     formik.touched.description && formik.errors.description
   );
 
+  const serverFieldErrors = {
+    title: Array.isArray(projectError)
+      ? projectError.find((msg) => msg.toLowerCase().includes("title"))
+      : null,
+    description: Array.isArray(projectError)
+      ? projectError.find((msg) => msg.toLowerCase().includes("description"))
+      : null,
+  };
+
   return (
     <div className="space-y-6 rounded-lg border bg-white p-6 shadow-sm">
       <div className="space-y-2 text-center">
@@ -62,8 +75,16 @@ const ProjectForm = ({
           Enter the project title and description
         </p>
         {projectError && (
-          <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-            {projectError}
+          <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 whitespace-pre-line">
+            {Array.isArray(projectError) ? (
+              <ul className="list-disc pl-5 space-y-1">
+                {projectError.map((err, i) => (
+                  <li key={i}>{err}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>{projectError}</p>
+            )}
           </div>
         )}
       </div>
@@ -81,9 +102,9 @@ const ProjectForm = ({
             type="text"
             {...formik.getFieldProps("title")}
             className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${
-              titleHasError
+              titleHasError || serverFieldErrors.title
                 ? "border-red-500 focus:ring-red-500"
-                : "border-input"
+                : "border-gray-300"
             }`}
             placeholder="New Website Development"
             disabled={formik.isSubmitting}
@@ -104,9 +125,9 @@ const ProjectForm = ({
             id="description"
             {...formik.getFieldProps("description")}
             className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${
-              descriptionHasError
+              descriptionHasError || serverFieldErrors.description
                 ? "border-red-500 focus:ring-red-500"
-                : "border-input"
+                : "border-gray-300"
             }`}
             placeholder="A Project to develop a new company website"
             rows={4}
@@ -118,12 +139,6 @@ const ProjectForm = ({
         </div>
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full inline-flex items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-        >
-          Create Project
-        </button>
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="submit"

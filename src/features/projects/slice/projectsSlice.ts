@@ -1,9 +1,10 @@
 import { createAppSlice } from "../../../app/createAppSlice";
 import type { CreateProjectDto, ProjectsSliceState } from "../types";
 import * as api from "../services/api";
-import { isAxiosError, type AxiosError } from "axios";
+import { type AxiosError } from "axios";
 import type { RootState } from "../../../app/store";
 import { createSelector } from "@reduxjs/toolkit/react";
+import { handleApiError } from "../../../lib/api/apiErrorHandler";
 
 const initialState: ProjectsSliceState = {
   projects: [],
@@ -40,13 +41,13 @@ export const projectsSlice = createAppSlice({
 
     createProject: create.asyncThunk(
       async (dto: CreateProjectDto) => {
-        return api.fetchCreateProject(dto).catch((err) => {
-          if (isAxiosError(err)) {
-            throw new Error(
-              err.response?.data?.message || "Internal Server Error"
-            );
-          }
-        });
+        try {
+          const response = await api.fetchCreateProject(dto);
+          return response;
+        } catch (err) {
+          const message = handleApiError(err);
+          throw new Error(JSON.stringify(message));
+        }
       },
       {
         pending: (state) => {
@@ -57,7 +58,13 @@ export const projectsSlice = createAppSlice({
           state.createProjectErrorMessage = "";
         },
         rejected: (state, action) => {
-          state.createProjectErrorMessage = action.error.message;
+          try {
+            const parsed = JSON.parse(action.error.message || "");
+            state.createProjectErrorMessage = parsed;
+          } catch {
+            state.createProjectErrorMessage =
+              action.error.message || "Error creating project";
+          }
         },
       }
     ),
