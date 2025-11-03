@@ -1,9 +1,12 @@
 import type { UserDetails } from "../types";
 import type { ChangeEvent, JSX } from "react";
+import { useState } from "react";
 import AvatarSelector from "./AvatarSelector";
+import ChangePasswordForm from "../components/ChangePasswordForm";
 
 interface Props {
   userData: UserDetails;
+  currentUser: UserDetails;
   handleChange: (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
@@ -13,15 +16,20 @@ interface Props {
 
 export default function UserForm({
   userData,
+  currentUser,
   handleChange,
   handleAvatarChange,
   handleSave,
 }: Props): JSX.Element {
-  return (
-    <div className="max-w-70 flex flex-col gap-5 items-center justify-center w-full">
-      {/* Avatar-Selector */}
-      <AvatarSelector userData={userData} onAvatarChange={handleAvatarChange} />
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
+  const canChangePassword =
+    currentUser.role === "ROLE_ADMIN" && currentUser.id !== userData.id;
+  const selfChange = currentUser.id === userData.id;
+
+  return (
+    <div className="flex flex-col gap-4 w-full">
+      <AvatarSelector userData={userData} onAvatarChange={handleAvatarChange} />
       <input
         name="displayName"
         value={userData.displayName || ""}
@@ -57,6 +65,26 @@ export default function UserForm({
       >
         Save
       </button>
+      {showChangePassword && (
+        <div className="mt-4">
+          {selfChange ? (
+            <ChangePasswordForm />
+          ) : canChangePassword && userData.id ? (
+            <ChangePasswordForm
+              isAdminChanging={true}
+              userId={String(userData.id)}
+            />
+          ) : null}
+        </div>
+      )}{" "}
+      {(selfChange || canChangePassword) && (
+        <button
+          onClick={() => setShowChangePassword((prev) => !prev)}
+          className="mt-4 w-full rounded bg-blue-600 text-white p-2 hover:bg-blue-500"
+        >
+          {showChangePassword ? "Cancel" : "Change Password"}
+        </button>
+      )}
     </div>
   );
 }
