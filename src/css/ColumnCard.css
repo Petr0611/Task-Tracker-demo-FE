@@ -323,3 +323,20 @@
 .column-card__drop-zone--compact.column-card__drop-zone--active {
     opacity: 1;
 }
+
+@media (max-width: 600px) {
+    .column-card {
+        padding: clamp(18px, 6vw, 28px);
+        gap: 1rem;
+    }
+
+    .column-card__actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .column-card__button {
+        width: 100%;
+        justify-content: center;
+    }
+}

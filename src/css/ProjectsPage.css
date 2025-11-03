@@ -174,3 +174,25 @@
         box-shadow: 0 20px 46px rgba(208, 186, 255, 0.35);
     }
 }
+
+@media (max-width: 640px) {
+    .projects-header {
+        text-align: center;
+        align-items: center;
+    }
+
+    .projects-create-button,
+    .projects-create-button--primary {
+        width: 100%;
+    }
+
+    .projects-card,
+    .projects-card--empty,
+    .projects-card--muted {
+        padding: clamp(18px, 6vw, 26px);
+    }
+
+    .projects-empty__subtitle {
+        font-size: 0.95rem;
+    }
+}

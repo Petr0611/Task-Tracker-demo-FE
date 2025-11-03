@@ -114,3 +114,19 @@
         gap: 1.5rem;
     }
 }
+
+@media (max-width: 600px) {
+    .project-tasks-list__title {
+        font-size: 1.35rem;
+    }
+
+    .project-tasks-list__alert {
+        font-size: 0.88rem;
+    }
+
+    .project-task-card__actions-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}

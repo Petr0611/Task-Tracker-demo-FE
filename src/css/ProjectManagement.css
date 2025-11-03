@@ -125,6 +125,25 @@
     animation: pulse 1.4s ease-in-out infinite;
 }
 
+@media (max-width: 600px) {
+    .project-actions {
+        padding: clamp(18px, 6vw, 26px);
+    }
+
+    .project-actions__section {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .project-actions__buttons {
+        width: 100%;
+    }
+
+    .project-actions__button {
+        width: 100%;
+    }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
