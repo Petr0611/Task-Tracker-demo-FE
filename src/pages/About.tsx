@@ -69,7 +69,7 @@ export default function About() {
             ToDoBeDo brings tasks, statuses, and discussions into one board so your team can see progress in real time. We are
             preparing for our public launch and looking for the first teams ready to grow with us.
           </p>
-          <Link to="/projects" className="about-action">
+          <Link to="/register" className="about-action">
             Register here for early access
           </Link>
         </header>
@@ -126,8 +126,8 @@ export default function About() {
           <p className="about-footer__note">
             Write to us, tell us about your current workflow, and get personal onboarding as soon as we open the doors.
           </p>
-          <a className="about-footer__link" href="mailto:team@10steel.io">
-            team@10steel.io
+          <a className="about-footer__link" href="">
+            ToDoBeDo@tdbd.com
           </a>
         </footer>
       </section>
