@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import axios, { AxiosError } from "axios";
+import "../../../css/Project.css";
 
 function InviteFormPage() {
   const { projectId } = useParams();
@@ -33,60 +34,69 @@ function InviteFormPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md border border-gray-200">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800">
-        Invite a collaborator
-      </h2>
+    <div className="project-panel project-panel--narrow">
+      <div className="project-panel__heading">
+        <h2 className="project-panel__title">Invite a collaborator</h2>
+        <p className="project-panel__subtitle">
+          Send an invitation to add a new teammate to this project.
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email:
+      <form onSubmit={handleSubmit} className="project-form">
+        <div className="project-field">
+          <label className="project-field__label" htmlFor="invite-email">
+            Email
           </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="user@example.com"
-          />
+           <div className="project-field__control">
+            <input
+              id="invite-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="project-field__input"
+              placeholder="user@example.com"
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Role:
+        <div className="project-field">
+          <label className="project-field__label" htmlFor="invite-role">
+            Role
           </label>
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <div className="project-field__control">
+            <select
+              id="invite-role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="project-field__select"
+            >
+              <option value="MEMBER">MEMBER</option>
+              <option value="VIEWER">VIEWER</option>
+              <option value="ADMIN">ADMIN</option>
+              <option value="OWNER">OWNER</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="project-actions">
+          <button
+            type="submit"
+            disabled={loading}
+            className="project-button project-button--primary"
           >
-            <option value="MEMBER">MEMBER</option>
-            <option value="VIEWER">VIEWER</option>
-            <option value="ADMIN">ADMIN</option>
-            <option value="OWNER">OWNER</option>
-          </select>
+            {loading ? "Sending..." : "Send invite"}
+          </button>
         </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full py-2 px-4 rounded-md text-white font-medium transition-colors ${
-            loading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          {loading ? "Sending..." : "Send"}
-        </button>
 
         {success && (
-          <p className="text-green-600 text-sm mt-2">
+          <p className="project-feedback project-feedback--success">
             Invite sent successfully ✅
           </p>
         )}
-        {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+        {error && (
+          <p className="project-feedback project-feedback--error">{error}</p>
+        )}
       </form>
     </div>
   );

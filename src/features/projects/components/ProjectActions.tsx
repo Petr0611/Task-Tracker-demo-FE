@@ -1,6 +1,7 @@
 import InviteButton from "../components/Invitation";
 import DeleteProjectButton from "./DeleteButton";
 import EditProjectButton from "./EditProjectButton";
+import "../../../css/ProjectManagement.css";
 
 type Role = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 
@@ -20,22 +21,24 @@ export default function ProjectActions({
   const canManage = isOwner || isAdmin;
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-gray-50 p-5 shadow-sm space-y-3 transition-opacity duration-500 animate-fadeIn">
-      <h2 className="text-lg font-semibold text-gray-800">
-        Project management
-      </h2>
+    <div className="project-actions">
+      <h2 className="project-actions__title">Project management</h2>
 
-      {isOwner && <DeleteProjectButton projectId={projectId} />}
+       {isOwner && (
+        <div className="project-actions__section">
+          <DeleteProjectButton projectId={projectId} />
+        </div>
+      )}
 
       {canManage && (
-        <div className="flex flex-wrap gap-3">
+        <div className="project-actions__buttons">
           <InviteButton projectId={projectId} />
           <EditProjectButton projectId={projectId} />
         </div>
       )}
 
       {(isMember || isViewer) && (
-        <p className="text-gray-600 italic">
+        <p className="project-actions__note">
           You only have view permissions for this project.
         </p>
       )}

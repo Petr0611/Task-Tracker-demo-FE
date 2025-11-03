@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import "../../../css/ProjectManagement.css";
 
 interface EditProjectButtonProps {
   projectId: string;
@@ -15,8 +16,9 @@ export default function EditProjectButton({
 
   return (
     <button
+      type="button"
       onClick={handleEdit}
-      className="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-md transition"
+      className="project-actions__button project-actions__button--neutral"
     >
       Edit project
     </button>
