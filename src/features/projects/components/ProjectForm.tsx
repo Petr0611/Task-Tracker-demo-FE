@@ -1,5 +1,4 @@
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import "../../../css/Project.css";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import {
@@ -7,21 +6,12 @@ import {
   getAllProjects,
   selectCreateProjectErrorMessage,
 } from "../slice/projectsSlice";
+import { projectValidationSchema } from "../validation/projectValidationSchema";
 
 interface ProjectFormProps {
   onCancel?: () => void;
   showCancelButton?: boolean;
 }
-
-const validationSchema = Yup.object({
-  title: Yup.string()
-    .min(2, "Title must be at least 2 characters")
-    .max(50, "Title must be less than 50 characters")
-    .required("Title is required"),
-  description: Yup.string()
-    .min(3, "Description must be at least 3 characters")
-    .required("Description is required"),
-});
 
 const ProjectForm = ({
   onCancel,
@@ -36,7 +26,8 @@ const ProjectForm = ({
       description: "",
     },
 
-    validationSchema,
+    validationSchema: projectValidationSchema,
+
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       try {
         const payload = {
