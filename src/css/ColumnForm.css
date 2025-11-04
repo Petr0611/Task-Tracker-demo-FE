@@ -157,3 +157,19 @@
     transform: translateY(-2px);
     background: rgba(243, 244, 255, 0.95);
 }
+
+@media (max-width: 600px) {
+    .column-form {
+        padding: clamp(18px, 7vw, 28px);
+        gap: 1.25rem;
+    }
+
+    .column-form__footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .column-form__button {
+        width: 100%;
+    }
+}

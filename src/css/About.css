@@ -267,24 +267,49 @@
     text-decoration: underline;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .about-page {
-        padding: clamp(28px, 8vw, 40px) clamp(16px, 7vw, 28px);
+        align-items: stretch;
+        padding: clamp(28px, 7vw, 52px) clamp(18px, 6vw, 44px);
     }
 
     .about-wrapper {
-        border-radius: 28px;
-        padding: clamp(28px, 8vw, 48px);
+        border-radius: 30px;
+        padding: clamp(28px, 7vw, 52px);
+        gap: clamp(32px, 6vw, 52px);
     }
 
     .about-section {
         border-radius: 26px;
+         padding: clamp(24px, 6vw, 36px) clamp(24px, 7vw, 40px);
+    }
+}
+
+@media (max-width: 768px) {
+    .about-header {
+        text-align: left;
+        align-items: flex-start;
+        gap: clamp(14px, 5vw, 24px);
+    }
+
+    .about-description {
+        text-align: left;
+    }
+
+    .about-action {
+        align-self: stretch;
+    }
+
+    .about-highlight-grid,
+    .about-flow-steps {
+        grid-template-columns: 1fr;
     }
 
     .about-timeline-card {
         align-items: flex-start;
         flex-direction: column;
         gap: 0.9rem;
+        padding: clamp(20px, 6vw, 30px);
     }
 
     .about-timeline-card__badge {
@@ -293,22 +318,84 @@
     }
 }
 
+@media (max-width: 600px) {
+    .about-wrapper {
+        padding: clamp(26px, 9vw, 40px);
+        border-radius: 24px;
+        box-shadow: 0 18px 44px rgba(155, 180, 255, 0.22);
+    }
+
+    .about-section {
+        gap: clamp(16px, 6vw, 26px);
+        border-radius: 22px;
+        box-shadow: 0 16px 36px rgba(163, 187, 255, 0.18);
+    }
+
+    .about-section__title {
+        text-align: left;
+    }
+
+    .about-section__subtitle {
+        text-align: left;
+    }
+
+    .about-highlight-card,
+    .about-flow-step,
+    .about-timeline-card {
+        text-align: left;
+    }
+
+    .about-footer {
+        width: 100%;
+        border-radius: 22px;
+    }
+}
+
 @media (max-width: 520px) {
     .about-wrapper {
         gap: 32px;
     }
 
+    .about-title {
+        font-size: clamp(1.8rem, 9vw, 2.4rem);
+    }
+
     .about-action {
         width: 100%;
+        padding: 0.85rem 1.4rem;
     }
 
     .about-section {
         padding: clamp(22px, 8vw, 32px);
     }
 
+    .about-highlight-card,
+    .about-flow-step {
+        padding: clamp(18px, 8vw, 28px);
+    }
+
     .about-timeline-card__badge {
         width: 40px;
         height: 40px;
         font-size: 1rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .about-wrapper,
+    .about-section,
+    .about-footer {
+        padding: clamp(18px, 9vw, 26px);
+    }
+
+    .about-highlight-card__title {
+        font-size: 1.1rem;
+    }
+
+    .about-highlight-card__text,
+    .about-flow-step__detail,
+    .about-timeline-card__text,
+    .about-footer__note {
+        font-size: 0.95rem;
     }
 }

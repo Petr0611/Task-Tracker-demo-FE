@@ -199,6 +199,35 @@
     color: #26306a;
 }
 
+@media (max-width: 640px) {
+    .project-section {
+        padding: clamp(20px, 7vw, 32px);
+    }
+
+    .project-section__header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .project-card__button {
+        padding: clamp(18px, 6vw, 26px);
+    }
+
+    .project-card__meta {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .project-card__group {
+        align-items: stretch;
+    }
+
+    .project-chip {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
 .project-panel__subtitle {
     margin: 0;
     font-size: 0.95rem;
