@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import "../../../css/ProjectManagement.css";
 
 interface DeleteProjectButtonProps {
   projectId: string;
@@ -15,10 +16,11 @@ export default function DeleteProjectButton({
 
   return (
     <button
+      type="button"
       onClick={handleDelete}
-      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition"
+      className="project-actions__button project-actions__button--danger"
     >
-      Delete Project
+      Delete project
     </button>
   );
 }

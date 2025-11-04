@@ -1,8 +1,10 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 import { getUserRole } from "../../../lib/api/projectApi";
 import AccessDenied from "./AccessDenied";
+
+import "../../../css/Project.css";
 
 type Role = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 
@@ -53,9 +55,7 @@ function EditProjectPage() {
 
   if (checkingAccess) {
     return (
-      <p className="text-gray-500 text-center mt-10 animate-pulse">
-        Checking access permissions...
-      </p>
+      <p className="project-backdrop-message">Checking access permissions...</p>
     );
   }
 
@@ -87,64 +87,86 @@ function EditProjectPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md border border-gray-200">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800">Edit project</h2>
+    <div className="project-panel project-panel--narrow">
+      <div className="project-panel__heading">
+        <h2 className="project-panel__title">Edit project</h2>
+        <p className="project-panel__subtitle">
+          Update the project name and description to keep your team aligned.
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Project title:
+      <form onSubmit={handleSubmit} className="project-form">
+        <div className="project-field">
+          <label className="project-field__label" htmlFor="edit-title">
+            Project title
           </label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <div className="project-field__control">
+            <input
+              id="edit-title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className="project-field__input"
+            />
+          </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Description:
+        <div className="project-field">
+          <label className="project-field__label" htmlFor="edit-description">
+            Description
           </label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <div className="project-field__control">
+            <textarea
+              id="edit-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              className="project-field__textarea"
+            />
+          </div>
         </div>
 
         {!success && (
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-2 px-4 rounded-md text-white font-medium transition-colors ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
-          >
-            {loading ? "Saving..." : "Save changes"}
-          </button>
+          <div className="project-actions">
+            <button
+              type="submit"
+              disabled={loading}
+              className="project-button project-button--primary"
+            >
+              {loading ? "Saving..." : "Save changes"}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="project-button project-button--ghost"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+          </div>
         )}
 
         {success && (
-          <p className="text-green-600 text-sm mt-2 font-medium animate-fadeIn">
+          <p className="project-feedback project-feedback--success">
             Changes saved ✅
           </p>
         )}
-        {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+        {error && (
+          <p className="project-feedback project-feedback--error">{error}</p>
+        )}
       </form>
 
-      {!success && (
-        <button
-          onClick={() => navigate(-1)}
-          className="mt-4 w-full py-2 px-4 rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 transition"
-        >
-          Cancel
-        </button>
+      {success && (
+        <div className="project-actions">
+          <button
+            type="button"
+            onClick={() => navigate("/projects")}
+            className="project-button project-button--secondary"
+          >
+            Back to projects
+          </button>
+        </div>
       )}
     </div>
   );

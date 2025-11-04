@@ -1,9 +1,11 @@
 import { useEffect, useMemo } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import clsx from "clsx";
 import type { Column } from "../../columns/types";
 import type { CreateTaskInput } from "../types";
 import { normalizeDueDate } from "../utils/formatDueDate";
+import "../../../css/TaskCard.css";
 
 interface TaskCreateFormProps {
     columns: Column[];
@@ -97,43 +99,48 @@ export default function TaskCreateForm({
     );
 
     return (
-        <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-            <h3 className="text-lg font-semibold">New task</h3>
-            <p className="text-sm text-gray-500">
-                Fill in the fields to add a task
-            </p>
+         <div className="task-create-card">
+            <div className="task-create-card__header">
+                <h3 className="task-create-card__title">New task</h3>
+                <p className="task-create-card__subtitle">
+                    Fill in the fields to add a task
+                </p>
+            </div>
 
             {error && (
-                <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                <div className="task-create-card__alert" role="alert">
                     {error}
                 </div>
             )}
 
-            <form onSubmit={formik.handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                    <label
-                        htmlFor="task-title"
-                        className="block text-sm font-medium text-gray-700"
-                    >
+            <form
+                onSubmit={formik.handleSubmit}
+                className={clsx("task-card__form", "task-create-card__form")}
+            >
+                <div className="task-card__field">
+                    <label htmlFor="task-title" className="task-card__label">
                         Title
                     </label>
                     <input
                         id="task-title"
                         type="text"
                         {...formik.getFieldProps("title")}
-                        className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${titleHasError ? "border-red-500 focus:ring-red-500" : "border-input"}`}
+                        className={clsx(
+                            "task-card__input",
+                            titleHasError && "task-card__input--error"
+                        )}
                         placeholder="For example, Design the landing page"
                         disabled={formik.isSubmitting || isSubmitting}
                     />
                     {titleHasError && (
-                        <p className="text-sm text-red-500">{formik.errors.title}</p>
+                        <p className="task-card__error">{formik.errors.title}</p>
                     )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="task-card__field">
                     <label
                         htmlFor="task-description"
-                        className="block text-sm font-medium text-gray-700"
+                        className="task-card__label"
                     >
                         Description
                     </label>
@@ -141,41 +148,49 @@ export default function TaskCreateForm({
                         id="task-description"
                         rows={3}
                         {...formik.getFieldProps("description")}
-                        className="w-full rounded-md border border-input px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
+                        className="task-card__textarea"
                         placeholder="Briefly describe what needs to be done"
                         disabled={formik.isSubmitting || isSubmitting}
                     />
                 </div>
-                <div className="space-y-2">
-                    <label
-                        htmlFor="task-due-date"
-                        className="block text-sm font-medium text-gray-700"
-                    >
+                <div className="task-card__field">
+                    <label htmlFor="task-due-date" className="task-card__label">
                         Due date
                     </label>
                     <input
                         id="task-due-date"
                         type="datetime-local"
                         {...formik.getFieldProps("dueDate")}
-                        className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${dueDateHasError ? "border-red-500 focus:ring-red-500" : "border-input"}`}
+                        className={clsx(
+                            "task-card__input",
+                            dueDateHasError && "task-card__input--error"
+                        )}
                         disabled={formik.isSubmitting || isSubmitting}
                     />
                     {dueDateHasError && (
-                        <p className="text-sm text-red-500">{formik.errors.dueDate}</p>
+                        <p className="task-card__error">{formik.errors.dueDate}</p>
                     )}
                 </div>
-                <div className="flex flex-wrap items-center gap-3">
+                <div className={clsx("task-card__actions-row", "task-create-card__actions")}>
                     <button
                         type="submit"
-                        className="inline-flex w-full items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
+                        className={clsx(
+                            "task-card__button",
+                            "task-card__button--primary"
+                        )}
                         disabled={formik.isSubmitting || isSubmitting}
                     >
-                        {formik.isSubmitting || isSubmitting ? "Creating..." : "Create task"}
+                        {formik.isSubmitting || isSubmitting
+                            ? "Creating..."
+                            : "Create task"}
                     </button>
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="inline-flex w-full items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 md:w-auto"
+                        className={clsx(
+                            "task-card__button",
+                            "task-card__button--outline"
+                        )}
                         disabled={formik.isSubmitting || isSubmitting}
                     >
                         Cancel

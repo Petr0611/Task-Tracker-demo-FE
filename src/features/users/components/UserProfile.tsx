@@ -6,16 +6,15 @@ import UserDisplay from "../../users/components/UserDisplay";
 import UserForm from "./UserForm";
 
 export default function UserProfile(): JSX.Element {
-  const { id } = useParams<{ id?: string }>(); // 👈 holt ID aus URL, z.B. /users/:id
+  const { id } = useParams<{ id?: string }>();
   const [userData, setUserData] = useState<UserDetails | null>(null);
   const [currentUser, setCurrentUser] = useState<UserDetails | null>(null);
   const [isEdit, setIsEdit] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 1️⃣ Lade aktuellen eingeloggten Benutzer
   useEffect(() => {
-    const fetchCurrentUser = async () => {
+    const fetchCurrentUser = async (): Promise<void> => {
       try {
         const res = await axiosInstance.get<UserDetails>("/users/me", {
           withCredentials: true,
@@ -29,33 +28,44 @@ export default function UserProfile(): JSX.Element {
     fetchCurrentUser();
   }, []);
 
-  // 2️⃣ Lade angezeigtes Profil
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchCurrentUser = async (): Promise<void> => {
+      try {
+        const res = await axiosInstance.get<UserDetails>("/users/me", {
+          withCredentials: true,
+        });
+        setCurrentUser(res.data);
+      } catch (err) {
+        console.error("Error fetching current user:", err);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
+
+  useEffect(() => {
+    const fetchUser = async (): Promise<void> => {
       try {
         setLoading(true);
         setError(null);
 
-        // wenn URL ID vorhanden ist → fremdes Profil
-        // sonst → eigenes Profil
         const url = id ? `/users/${id}` : "/users/me";
-
         const res = await axiosInstance.get<UserDetails>(url, {
           withCredentials: true,
         });
         setUserData(res.data);
-      } catch (err: unknown) {
+      } catch (err) {
         console.error("Error fetching user:", err);
+        setError("Failed to load user data.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchUser();
-  }, [id]); // 👈 neu: reagiert auf Änderung der URL
+  }, [id]);
 
-  // Logout
-  const handleLogout = async () => {
+  const handleLogout = async (): Promise<void> => {
     try {
       await axiosInstance.post("/auth/logout", {}, { withCredentials: true });
       setUserData(null);
@@ -66,17 +76,18 @@ export default function UserProfile(): JSX.Element {
     }
   };
 
-  // Textarea / Input ändern
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  ): void => {
     if (!userData) return;
     const { name, value } = e.target;
     setUserData({ ...userData, [name]: value });
   };
 
-  // Avatar ändern
-  const handleAvatarChange = async (fileOrUrl: string | File | null) => {
+  // Avatar-Upload
+  const handleAvatarChange = async (
+    fileOrUrl: string | File | null
+  ): Promise<void> => {
     if (!userData) return;
 
     try {
@@ -99,21 +110,29 @@ export default function UserProfile(): JSX.Element {
     }
   };
 
-  // Speichern
-  const handleSave = async () => {
+  // Save
+  const handleSave = async (): Promise<void> => {
     if (!userData) return;
     try {
       const url = id ? `/users/update/${id}` : "/users/update";
-      const res = await axiosInstance.put<UserDetails>(url, userData, {
+      const response = await axiosInstance.put<UserDetails>(url, userData, {
         withCredentials: true,
       });
 
-      setUserData(res.data);
+      const updatedUser = response.data;
+      setUserData(updatedUser);
       setIsEdit(false);
 
-      window.dispatchEvent(
-        new CustomEvent("avatarUpdated", { detail: res.data.avatarUrl })
-      );
+      if (currentUser && updatedUser.email === currentUser.email) {
+        window.dispatchEvent(
+          new CustomEvent("avatarUpdated", {
+            detail: {
+              avatarUrl: updatedUser.avatarUrl,
+              email: updatedUser.email,
+            },
+          })
+        );
+      }
 
       alert("Profile successfully updated!");
     } catch (err) {
@@ -122,14 +141,13 @@ export default function UserProfile(): JSX.Element {
     }
   };
 
+  // Loading / Error Handling
   if (loading) return <p>Loading user...</p>;
   if (error) return <p className="text-red-600">{error}</p>;
-  if (!userData) return <p>No user found.</p>;
+  if (!userData || !currentUser) return <p>No user found!</p>;
 
-  // check rights
-  const isAdmin = currentUser?.role === "ROLE_ADMIN";
-
-  const isOwnProfile = currentUser?.email === userData.email;
+  const isAdmin = currentUser.role === "ROLE_ADMIN";
+  const isOwnProfile = currentUser.email === userData.email;
   const canEdit = isOwnProfile || isAdmin;
 
   return (
@@ -144,6 +162,7 @@ export default function UserProfile(): JSX.Element {
       ) : (
         <UserForm
           userData={userData}
+          currentUser={currentUser}
           handleChange={handleChange}
           handleAvatarChange={handleAvatarChange}
           handleSave={handleSave}
