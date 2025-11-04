@@ -19,7 +19,7 @@ const validationSchema = Yup.object({
     .test("title-validation", function (value) {
       if (!value) return true;
 
-      const onlyLatin = /^[A-Za-z0-9,.%:?&!$;*() \-]+$/.test(value);
+      const onlyLatin = /^[A-Za-z0-9,.%:?&!$;*() -]+$/.test(value);
       if (!onlyLatin) {
         return this.createError({
           message: "Title must contain only Latin characters (A–Z, a–z)",
@@ -53,7 +53,7 @@ const validationSchema = Yup.object({
     .test("description-validation", function (value) {
       if (!value) return true;
 
-      const onlyLatin = /^[A-Za-z0-9,.%:?&!$;*() \-]+$/.test(value);
+      const onlyLatin = /^[A-Za-z0-9,.%:?&!$;*() -]+$/.test(value);
       if (!onlyLatin) {
         return this.createError({
           message: "Description must contain only Latin characters (A–Z, a–z)",
