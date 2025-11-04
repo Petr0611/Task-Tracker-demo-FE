@@ -4,6 +4,7 @@ import axiosInstance from "../../../lib/axiosInstance";
 import type { UserDetails } from "../types";
 import UserDisplay from "../../users/components/UserDisplay";
 import UserForm from "./UserForm";
+import "../../../css/Profile.css";
 
 export default function UserProfile(): JSX.Element {
   const { id } = useParams<{ id?: string }>();
@@ -151,7 +152,7 @@ export default function UserProfile(): JSX.Element {
   const canEdit = isOwnProfile || isAdmin;
 
   return (
-    <div className="mx-auto max-w-sm space-y-6 p-6 rounded-lg border bg-white shadow-sm mt-10 flex flex-col items-center justify-center">
+    <div className="profile-page">
       {!isEdit ? (
         <UserDisplay
           userData={userData}
