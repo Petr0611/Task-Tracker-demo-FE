@@ -15,12 +15,72 @@ interface ProjectFormProps {
 
 const validationSchema = Yup.object({
   title: Yup.string()
-    .min(2, "Title must be at least 2 characters")
-    .max(50, "Title must be less than 50 characters")
-    .required("Title is required"),
+    .required("Title is required")
+    .test("title-validation", function (value) {
+      if (!value) return true;
+
+      const onlyLatin = /^[A-Za-z0-9,.%:?&!$;*() \-]+$/.test(value);
+      if (!onlyLatin) {
+        return this.createError({
+          message: "Title must contain only Latin characters (A–Z, a–z)",
+        });
+      }
+
+      if (value.length < 3) {
+        return this.createError({
+          message: "Title must be at least 3 characters long",
+        });
+      }
+
+      if (value.length > 150) {
+        return this.createError({
+          message: "Title must be less than 150 characters",
+        });
+      }
+
+      const startsWithCapital = /^[A-Z]/.test(value);
+      if (!startsWithCapital) {
+        return this.createError({
+          message: "Title must start with a capital English letter (A–Z)",
+        });
+      }
+
+      return true;
+    }),
+
   description: Yup.string()
-    .min(3, "Description must be at least 3 characters")
-    .required("Description is required"),
+    .required("Description is required")
+    .test("description-validation", function (value) {
+      if (!value) return true;
+
+      const onlyLatin = /^[A-Za-z0-9,.%:?&!$;*() \-]+$/.test(value);
+      if (!onlyLatin) {
+        return this.createError({
+          message: "Description must contain only Latin characters (A–Z, a–z)",
+        });
+      }
+
+      if (value.length < 3) {
+        return this.createError({
+          message: "Description must be at least 3 characters long",
+        });
+      }
+
+      if (value.length > 500) {
+        return this.createError({
+          message: "Description must be less than 500 characters",
+        });
+      }
+
+      const startsWithCapital = /^[A-Z]/.test(value);
+      if (!startsWithCapital) {
+        return this.createError({
+          message: "Description must start with a capital English letter (A–Z)",
+        });
+      }
+
+      return true;
+    }),
 });
 
 const ProjectForm = ({
