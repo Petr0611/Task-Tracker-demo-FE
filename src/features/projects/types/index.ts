@@ -11,6 +11,9 @@ export interface ProjectInvitation {
   email: string;
   collaboratorStatus: "PENDING" | "ACTIVE";
   role: "OWNER" | "MEMBER" | "VIEWER" | "ADMIN";
+  userId?: string; // добавляем опционально, если приглашённый уже зарегистрирован
+  avatarUrl?: string; // если хочешь показывать аватар приглашённого
+  name?: string; // если хочешь показывать имя вместо email
 }
 
 export interface Project {
