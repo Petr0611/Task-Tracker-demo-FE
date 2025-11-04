@@ -16,6 +16,7 @@ import avatar13 from "../../../assets/avatars/avatar13.webp";
 import uploadIcon from "../../../assets/ui/upload_icon.webp";
 import resetIcon from "../../../assets/ui/reset_icon.webp";
 import axiosInstance from "../../../lib/axiosInstance";
+import "../../../css/Profile.css";
 
 interface AvatarSelectorProps {
   userData: UserDetails;
@@ -106,17 +107,14 @@ export default function AvatarSelector({
         onClick={() => setIsOpen(!isOpen)}
       >
         {displayAvatar ? (
-          <img
-            src={displayAvatar}
-            alt="User avatar"
-            className="w-32 h-32 m-10 rounded-full object-cover border-2 border-gray-200 transition-transform duration-200 hover:scale-115"
-          />
+          <img src={displayAvatar} alt="User avatar" className="avatar-icon" />
         ) : (
-          <div className="w-32 h-32 m-10 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-semibold text-gray-700 border-2 border-gray-200 transition-transform duration-200 hover:scale-115">
+          <div className="avatar-icon">
             {userData.displayName
               ? userData.displayName
+                  .trim()
                   .toUpperCase()
-                  .split(" ")
+                  .split(/\s+/)
                   .map((n) => n[0])
                   .slice(0, 2)
                   .join("")

@@ -1,5 +1,6 @@
 import { type JSX } from "react";
 import type { UserDetails } from "../types";
+import "../../../css/Profile.css";
 
 interface UserDisplayProps {
   userData: UserDetails;
@@ -15,55 +16,81 @@ export default function UserDisplay({
   onLogout,
 }: UserDisplayProps): JSX.Element {
   return (
-    <div className="flex flex-col gap-2 items-center justify-center">
-      {userData.avatarUrl ? (
-        <img
-          src={userData.avatarUrl}
-          alt="Avatar"
-          className="w-32 h-32 m-10 rounded-full object-cover border-2 border-gray-200"
-        />
-      ) : (
-        <div className="w-32 h-32 m-10 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-semibold text-gray-700 border-2 border-gray-200">
-          {userData.displayName
-            ? userData.displayName
-                .toUpperCase()
-                .split(" ")
-                .map((n) => n[0])
-                .slice(0, 2)
-                .join("")
-            : userData.email[0].toUpperCase()}
+    <div className="profile-wrapper">
+      <header className="profile-header">
+        <div className="profile-label">User Profile</div>
+        <h1 id="login-title" className="profile-title">
+          Hey There!
+        </h1>
+        <div className="profile-subtitle">
+          There are some user details in the overview
         </div>
-      )}
+      </header>
+      <div className="icon-field">
+        {userData.avatarUrl ? (
+          <img
+            src={userData.avatarUrl}
+            alt="Avatar"
+            className="avatar-icon no-hover"
+          />
+        ) : (
+          <div className="avatar-icon no-hover">
+            {userData.displayName
+              ? userData.displayName
+                  .trim()
+                  .toUpperCase()
+                  .split(/\s+/)
+                  .map((n) => n[0])
+                  .slice(0, 2)
+                  .join("")
+              : userData.email[0].toUpperCase()}
+          </div>
+        )}
+      </div>
 
-      <div className="flex flex-col items-start gap-2">
-        <p>
-          <strong>Name:</strong> {userData.displayName}
-        </p>
-        <p>
-          <strong>Email:</strong> {userData.email}
-        </p>
-        <p>
-          <strong>Department:</strong> {userData.department || "—"}
-        </p>
-        <p>
-          <strong>Position:</strong> {userData.position || "—"}
-        </p>
-        {userData.bio && <p className="mt-5">{userData.bio}</p>}
+      <div className="profile-form">
+        {userData.displayName && (
+          <div className="profile-field">
+            <div className="profile-field-label">Name:</div>
+            <div className="profile-details">{userData.displayName || "-"}</div>
+          </div>
+        )}
+
+        <div className="profile-field">
+          <div className="profile-field-label">Email:</div>
+          <div className="profile-details">{userData.email}</div>
+        </div>
+
+        {userData.department && (
+          <div className="profile-field">
+            <div className="profile-field-label">Department:</div>
+            <div className="profile-details">{userData.department || "—"}</div>
+          </div>
+        )}
+        {userData.position && (
+          <div className="profile-field">
+            <div className="profile-field-label">Position:</div>
+            <div className="profile-details">{userData.position || "—"}</div>
+          </div>
+        )}
+        {userData.bio && (
+          <div className="profile-field">
+            <div className="profile-field-label">Bio:</div>
+            <div className="profile-details">{userData.bio || "—"}</div>
+          </div>
+        )}
       </div>
 
       {canEdit && (
         <>
-          <button
-            onClick={onEdit}
-            className="mt-6 w-full rounded bg-black text-white p-2 hover:bg-gray-800"
-          >
+          <button onClick={onEdit} className="profile-button">
             Edit
           </button>
 
           {onLogout && (
             <button
               onClick={onLogout}
-              className="mt-4 w-full rounded bg-black text-white p-2 hover:bg-gray-800"
+              className="profile-button profile-button--primary"
             >
               Logout
             </button>

@@ -3,6 +3,7 @@ import { Formik, Form, Field, ErrorMessage, type FormikHelpers } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import axiosInstance from "../../../lib/axiosInstance";
+import "../../../css/Profile.css";
 
 interface AdminChangePasswordProps {
   isAdminChanging: true;
@@ -80,10 +81,8 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = (props) => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-4 border rounded shadow bg-white">
-      <h2 className="text-xl font-semibold mb-4 text-center">
-        Change Password
-      </h2>
+    <div className="profile-form">
+      <h2 className="profile-title">Change Password</h2>
 
       <Formik
         initialValues={initialValues}
@@ -94,14 +93,15 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = (props) => {
           <Form className="space-y-4">
             {!isAdminChanging && (
               <div>
-                <label htmlFor="oldPassword" className="block mb-1">
+                <label htmlFor="oldPassword" className="profile-field-label">
                   Current Password
                 </label>
                 <Field
                   type="password"
                   id="oldPassword"
                   name="oldPassword"
-                  className="w-full border rounded p-2"
+                  className="profile-input"
+                  placeholder="Enter your old password"
                 />
                 <ErrorMessage
                   name="oldPassword"
@@ -112,14 +112,15 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = (props) => {
             )}
 
             <div>
-              <label htmlFor="newPassword" className="block mb-1">
+              <label htmlFor="newPassword" className="profile-field-label">
                 New Password
               </label>
               <Field
                 type="password"
                 id="newPassword"
                 name="newPassword"
-                className="w-full border rounded p-2"
+                className="profile-input"
+                placeholder="Enter your new password"
               />
               <ErrorMessage
                 name="newPassword"
@@ -129,14 +130,15 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = (props) => {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block mb-1">
+              <label htmlFor="confirmPassword" className="profile-field-label">
                 Confirm New Password
               </label>
               <Field
                 type="password"
                 id="confirmPassword"
                 name="confirmPassword"
-                className="w-full border rounded p-2"
+                className="profile-input"
+                placeholder="Confirm your new password"
               />
               <ErrorMessage
                 name="confirmPassword"
@@ -152,7 +154,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = (props) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full mt-2 rounded bg-green-600 text-white p-2 hover:bg-green-500 disabled:opacity-50 transition"
+              className="profile-button"
             >
               {isSubmitting ? "Changing..." : "Confirm"}
             </button>
