@@ -14,8 +14,13 @@ interface ProjectFormProps {
 }
 
 const validationSchema = Yup.object({
-  title: Yup.string().required("Title is required"),
-  description: Yup.string().required("Description is required"),
+  title: Yup.string()
+    .min(2, "Title must be at least 2 characters")
+    .max(50, "Title must be less than 50 characters")
+    .required("Title is required"),
+  description: Yup.string()
+    .min(3, "Description must be at least 3 characters")
+    .required("Description is required"),
 });
 
 const ProjectForm = ({
@@ -44,7 +49,6 @@ const ProjectForm = ({
         resetForm();
       } catch (error) {
         console.error(error);
-      } finally {
         setSubmitting(false);
       }
     },
@@ -55,6 +59,15 @@ const ProjectForm = ({
     formik.touched.description && formik.errors.description
   );
 
+  const serverFieldErrors = {
+    title: Array.isArray(projectError)
+      ? projectError.find((msg) => msg.toLowerCase().includes("title"))
+      : null,
+    description: Array.isArray(projectError)
+      ? projectError.find((msg) => msg.toLowerCase().includes("description"))
+      : null,
+  };
+
   return (
     <div className="project-panel project-panel--narrow">
       <div className="project-panel__heading">
@@ -63,7 +76,17 @@ const ProjectForm = ({
           Enter the project title and description
         </p>
         {projectError && (
-          <div className="project-panel__notice">{projectError}</div>
+          <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 whitespace-pre-line">
+            {Array.isArray(projectError) ? (
+              <ul className="list-disc pl-5 space-y-1">
+                {projectError.map((err, i) => (
+                  <li key={i}>{err}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>{projectError}</p>
+            )}
+          </div>
         )}
       </div>
 
@@ -72,45 +95,46 @@ const ProjectForm = ({
           <label htmlFor="title" className="project-field__label">
             Title
           </label>
-          <div className="project-field__control">
-            <input
-              id="title"
-              type="text"
-              {...formik.getFieldProps("title")}
-              className={`project-field__input ${
-                titleHasError ? "project-field__input--error" : ""
-              }`}
-              placeholder="New Website Development"
-              disabled={formik.isSubmitting}
-            />
-            {titleHasError && (
-              <p className="project-field__error">{formik.errors.title}</p>
-            )}
-          </div>
+          <input
+            id="title"
+            type="text"
+            {...formik.getFieldProps("title")}
+            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${
+              titleHasError || serverFieldErrors.title
+                ? "border-red-500 focus:ring-red-500"
+                : "border-gray-300"
+            }`}
+            placeholder="New Website Development"
+            disabled={formik.isSubmitting}
+          />
+          {titleHasError && (
+            <p className="text-sm text-red-500">{formik.errors.title}</p>
+          )}
         </div>
 
         <div className="project-field">
           <label htmlFor="description" className="project-field__label">
             Description
           </label>
-          <div className="project-field__control">
-            <textarea
-              id="description"
-              {...formik.getFieldProps("description")}
-              className={`project-field__textarea ${
-                descriptionHasError ? "project-field__textarea--error" : ""
-              }`}
-              placeholder="A Project to develop a new company website"
-              rows={4}
-              disabled={formik.isSubmitting}
-            />
-            {descriptionHasError && (
-              <p className="project-field__error">{formik.errors.description}</p>
-            )}
-          </div>
+          <textarea
+            id="description"
+            {...formik.getFieldProps("description")}
+            className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring ${
+              descriptionHasError || serverFieldErrors.description
+                ? "border-red-500 focus:ring-red-500"
+                : "border-gray-300"
+            }`}
+            placeholder="A Project to develop a new company website"
+            rows={4}
+            disabled={formik.isSubmitting}
+          />
+          {descriptionHasError && (
+            <p className="text-sm text-red-500">{formik.errors.description}</p>
+          )}
         </div>
 
-        <div className="project-actions">
+        {/* Submit Button */}
+        <div className="flex flex-wrap items-center gap-3">
           <button
             type="submit"
             className="project-button project-button--primary"
