@@ -1,5 +1,4 @@
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import "../../../css/Project.css";
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import {
@@ -7,81 +6,12 @@ import {
   getAllProjects,
   selectCreateProjectErrorMessage,
 } from "../slice/projectsSlice";
+import { projectValidationSchema } from "../validation/projectValidationSchema";
 
 interface ProjectFormProps {
   onCancel?: () => void;
   showCancelButton?: boolean;
 }
-
-const validationSchema = Yup.object({
-  title: Yup.string()
-    .required("Title is required")
-    .test("title-validation", function (value) {
-      if (!value) return true;
-
-      const onlyLatin = /^[A-Za-z0-9,.%:?&!$;*() -]+$/.test(value);
-      if (!onlyLatin) {
-        return this.createError({
-          message: "Title must contain only Latin characters (A–Z, a–z)",
-        });
-      }
-
-      if (value.length < 3) {
-        return this.createError({
-          message: "Title must be at least 3 characters long",
-        });
-      }
-
-      if (value.length > 150) {
-        return this.createError({
-          message: "Title must be less than 150 characters",
-        });
-      }
-
-      const startsWithCapital = /^[A-Z]/.test(value);
-      if (!startsWithCapital) {
-        return this.createError({
-          message: "Title must start with a capital English letter (A–Z)",
-        });
-      }
-
-      return true;
-    }),
-
-  description: Yup.string()
-    .required("Description is required")
-    .test("description-validation", function (value) {
-      if (!value) return true;
-
-      const onlyLatin = /^[A-Za-z0-9,.%:?&!$;*() -]+$/.test(value);
-      if (!onlyLatin) {
-        return this.createError({
-          message: "Description must contain only Latin characters (A–Z, a–z)",
-        });
-      }
-
-      if (value.length < 3) {
-        return this.createError({
-          message: "Description must be at least 3 characters long",
-        });
-      }
-
-      if (value.length > 500) {
-        return this.createError({
-          message: "Description must be less than 500 characters",
-        });
-      }
-
-      const startsWithCapital = /^[A-Z]/.test(value);
-      if (!startsWithCapital) {
-        return this.createError({
-          message: "Description must start with a capital English letter (A–Z)",
-        });
-      }
-
-      return true;
-    }),
-});
 
 const ProjectForm = ({
   onCancel,
@@ -96,7 +26,8 @@ const ProjectForm = ({
       description: "",
     },
 
-    validationSchema,
+    validationSchema: projectValidationSchema,
+
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       try {
         const payload = {
