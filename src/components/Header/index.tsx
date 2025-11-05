@@ -1,4 +1,4 @@
-import { Link, useLocation  } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/images/logo_s.webp";
 import { useEffect, useState, useRef } from "react";
 import type { UserDetails } from "../../features/users/types";
@@ -6,6 +6,8 @@ import axiosInstance from "../../lib/axiosInstance";
 import { useAppSelector } from "../../app/hooks";
 import { selectIsAuthenticated } from "../../features/auth/slice/authSlice";
 import clsx from "clsx";
+import axios from "axios";
+import { useCallback } from "react";
 
 export default function Header() {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -23,16 +25,24 @@ export default function Header() {
     userRef.current = user;
   }, [user]);
 
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async (): Promise<void> => {
     try {
       const res = await axiosInstance.get<UserDetails>("/users/me", {
         withCredentials: true,
       });
       setUser(res.data);
-    } catch {
-      setUser(null);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 401) {
+          console.warn("Session expired — logging out user");
+          setUser(null);
+          window.dispatchEvent(new Event("userLoggedOut"));
+        }
+      } else {
+        console.error("Unexpected error while fetching user:", err);
+      }
     }
-  };
+  }, []);
 
   useEffect(() => {
     const handleAvatarUpdate = (e: CustomEvent) => {
@@ -67,7 +77,7 @@ export default function Header() {
       window.removeEventListener("userLoggedIn", handleLogin);
       window.removeEventListener("userLoggedOut", handleLogout);
     };
-  }, []);
+  }, [fetchUser]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -75,12 +85,16 @@ export default function Header() {
     } else {
       setUser(null);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, fetchUser]);
 
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
-
+  useEffect(() => {
+    const handleLogout = () => setUser(null);
+    window.addEventListener("userLoggedOut", handleLogout);
+    return () => window.removeEventListener("userLoggedOut", handleLogout);
+  }, []);
   useEffect(() => {
     if (!isMenuOpen) {
       document.body.style.removeProperty("overflow");
@@ -115,6 +129,13 @@ export default function Header() {
     };
   }, [isMenuOpen]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchUser();
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [fetchUser]);
+
   const navClassName = clsx(
     "md:relative md:mt-0 md:flex md:w-auto md:flex-row md:items-center md:gap-6 md:rounded-none md:border-0 md:bg-transparent md:p-0 md:text-gray-900 md:shadow-none md:backdrop-blur-none",
     isMenuOpen
@@ -143,7 +164,7 @@ export default function Header() {
             aria-controls="primary-navigation"
             ref={toggleButtonRef}
           >
-           <span className="sr-only">Toggle navigation</span>
+            <span className="sr-only">Toggle navigation</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -188,7 +209,7 @@ export default function Header() {
                 </Link>
               </div>
 
-          {user ? (
+              {user ? (
                 <Link
                   to="/profile"
                   className="flex items-center gap-3 rounded-2xl bg-white/80 p-4 text-base font-semibold text-emerald-900 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 md:rounded-full md:bg-transparent md:p-0 md:text-sm md:font-medium md:text-gray-900 md:hover:bg-transparent"
@@ -197,18 +218,19 @@ export default function Header() {
                     <img
                       src={user.avatarUrl}
                       alt="User avatar"
-                      className="h-14 w-14 rounded-full border-2 border-white object-cover shadow-md transition-transform duration-200 hover:scale-105 md:h-12 md:w-12"
+                      className="h-14 w-14 rounded-full object-cover shadow-lg transition-transform duration-200 hover:scale-105 md:h-12 md:w-12"
                     />
                   ) : (
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-white bg-emerald-100 text-base font-bold text-emerald-900 transition-transform duration-200 hover:scale-105 md:h-12 md:w-12">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#e5e7eb] bg-[rgb(86,108,171)] text-base font-bold text-[#e5e7eb] transition-transform duration-200 hover:scale-105 md:h-12 md:w-12">
                       {user.displayName
                         ? user.displayName
+                            .trim()
                             .toUpperCase()
-                            .split(" ")
+                            .split(/\s+/)
                             .map((n) => n[0])
                             .slice(0, 2)
                             .join("")
-                        : user?.email?.[0]?.toUpperCase() ?? "?"}
+                        : user.email[0].toUpperCase()}
                     </div>
                   )}
                   <div className="flex flex-col">
@@ -217,7 +239,7 @@ export default function Header() {
                   </div>
                 </Link>
               ) : (
-                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
                   <Link
                     to="/register"
                     className="rounded-full border border-emerald-200/80 px-4 py-2 text-center text-sm font-semibold text-emerald-800 transition-colors hover:border-emerald-400 hover:bg-white hover:text-emerald-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60"
@@ -232,7 +254,7 @@ export default function Header() {
                   </Link>
                 </div>
               )}
-             </div>
+            </div>
 
             {isMenuOpen ? (
               <p className="mt-10 max-w-xs text-sm text-emerald-800/80 md:hidden">

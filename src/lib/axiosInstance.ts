@@ -21,6 +21,16 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      window.dispatchEvent(new Event("userLoggedOut"));
+    }
+    return Promise.reject(error);
+  }
+);
+
 // interface FailedRequest {
 //   resolve: (value?: unknown) => void;
 //   reject: (error: unknown) => void;

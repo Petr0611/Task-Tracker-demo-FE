@@ -82,8 +82,9 @@ export default function CurrentUserDetails(): JSX.Element {
             <div className="w-32 h-32 m-10 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-semibold text-gray-700 border-2 border-gray-200">
               {userData.displayName
                 ? userData.displayName
+                    .trim()
                     .toUpperCase()
-                    .split(" ")
+                    .split(/\s+/)
                     .map((n) => n[0])
                     .slice(0, 2)
                     .join("")
