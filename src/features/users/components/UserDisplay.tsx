@@ -7,6 +7,8 @@ interface UserDisplayProps {
   canEdit: boolean;
   onEdit: () => void;
   onLogout?: () => void;
+  message?: string;
+  messageType?: "success" | "error";
 }
 
 export default function UserDisplay({
@@ -14,6 +16,8 @@ export default function UserDisplay({
   canEdit,
   onEdit,
   onLogout,
+  message,
+  messageType,
 }: UserDisplayProps): JSX.Element {
   return (
     <div className="profile-wrapper">
@@ -83,6 +87,19 @@ export default function UserDisplay({
 
       {canEdit && (
         <>
+          <div className="profile-status--success">
+            {message && (
+              <div
+                className={`profile-message ${
+                  messageType === "success"
+                    ? "profile-message--success"
+                    : "profile-message--error"
+                }`}
+              >
+                {message}
+              </div>
+            )}
+          </div>
           <button onClick={onEdit} className="profile-button">
             Edit
           </button>

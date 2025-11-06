@@ -68,6 +68,9 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = (props) => {
       }
 
       setMessage("Password changed successfully!");
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
       resetForm();
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -106,7 +109,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = (props) => {
                 <ErrorMessage
                   name="oldPassword"
                   component="div"
-                  className="text-red-500 text-sm mt-1"
+                  className="profile-status--error"
                 />
               </div>
             )}
@@ -125,7 +128,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = (props) => {
               <ErrorMessage
                 name="newPassword"
                 component="div"
-                className="text-red-500 text-sm mt-1"
+                className="profile-status--error"
               />
             </div>
 
@@ -143,12 +146,12 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = (props) => {
               <ErrorMessage
                 name="confirmPassword"
                 component="div"
-                className="text-red-500 text-sm mt-1"
+                className="profile-status--error"
               />
             </div>
 
             {message && (
-              <div className="text-center text-sm text-gray-700">{message}</div>
+              <div className="profile-status--success">{message}</div>
             )}
 
             <button

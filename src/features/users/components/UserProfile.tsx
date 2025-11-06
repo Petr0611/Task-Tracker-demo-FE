@@ -13,6 +13,10 @@ export default function UserProfile(): JSX.Element {
   const [isEdit, setIsEdit] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [messageType, setMessageType] = useState<"success" | "error" | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchCurrentUser = async (): Promise<void> => {
@@ -62,7 +66,6 @@ export default function UserProfile(): JSX.Element {
         setLoading(false);
       }
     };
-
     fetchUser();
   }, [id]);
 
@@ -134,11 +137,15 @@ export default function UserProfile(): JSX.Element {
           })
         );
       }
-
-      alert("Profile successfully updated!");
-    } catch (err) {
-      console.error("Save failed:", err);
-      alert("Error while saving!");
+      setMessage("Profile updated successfully!");
+      setMessageType("success");
+      setTimeout(() => {
+        setMessage(null);
+        setMessageType(null);
+      }, 5000);
+    } catch {
+      setMessage("Something went wrong while saving.");
+      setMessageType("error");
     }
   };
 
@@ -159,6 +166,8 @@ export default function UserProfile(): JSX.Element {
           canEdit={canEdit}
           onEdit={() => setIsEdit(true)}
           onLogout={isOwnProfile ? handleLogout : undefined}
+          message={message ?? undefined}
+          messageType={messageType ?? undefined}
         />
       ) : (
         <UserForm
