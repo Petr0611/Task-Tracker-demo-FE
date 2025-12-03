@@ -1,78 +1,28 @@
-## 🚀 React + TypeScript + Vite
+# Task Tracker Demo — Frontend
 
-Перед началом не забудьте выполнить установку зависимостей:
+This repository showcases my frontend development skills using **React**, **TypeScript**, **Redux**, and **Tailwind CSS**.  
+It is part of a fullstack demo project. You can find the backend here:  
+👉 [Task-Tracker-demo-BE](https://github.com/Petr0611/Task-Tracker-demo-BE)
 
-```bash
-npm install
-```
+## 🔧 Tech Stack
+- React + TypeScript
+- Redux Toolkit
+- Tailwind CSS
+- Vite
+- Docker
+- GitHub Actions (CI/CD)
 
-### 🎨 Стилизация с Tailwind CSS
+## ✨ Features
+- Responsive UI with reusable components
+- Integration with REST API (Spring Boot backend)
+- Role-based access and error handling
+- CI/CD pipeline for automated builds
 
-Проект уже настроен с использованием **Tailwind CSS**.
-Рекомендуем потратить немного времени на изучение его синтаксиса, чтобы легко и эффективно стилизовать интерфейс.
+## 📁 Structure
+- `src/` → Components, pages, Redux slices
+- `.github/workflows/` → CI/CD configuration
+- `public/` → Static assets
 
-* Документация: [https://tailwindcss.com/docs](https://tailwindcss.com/docs)
-
----
-
-### 📡 Работа с API через Axios
-
-Для отправки запросов используется **Axios**.
-Глобальная конфигурация уже настроена и находится в папке:
-
-```
-/src/lib/axiosInstance.ts
-```
-
-✅ Поддержка cookie-based аутентификации .
-
----
-
-### ⚠️ Обработка ошибок
-
-Пример обработки серверных ошибок можно найти в **authSlice** (`/features/auth/authSlice.ts`).
-
----
-
-### ✅ Редирект после успешных запросов
-
-Форма регистрации демонстрирует, как выполнять **редирект** после успешного действия:
-
-
----
-
-### 🗂️ Структура проекта
-
-#### 📁 `/pages`
-
-Содержит **страницы приложения**, соответствующие маршрутам (routes).
-
-#### 📁 `/components`
-
-Хранятся **переиспользуемые UI-компоненты** и общие визуальные блоки, не относящиеся напрямую к конкретным фичам.
-
-#### 📁 `/features`
-
-Каждая фича (feature) — это **логически изолированная область приложения**:
-
-```
-features/
-  auth/         # Аутентификация
-  projects/     # Проекты
-  tasks/        # Таски
-```
-
-Внутри каждой фичи:
-
-| Папка       | Назначение                          |
-| ----------- | ----------------------------------- |
-| `slice.ts`  | Redux slice + бизнес-логика         |
-| `services/` | API-запросы, связанные с этой фичей |
-| `types.ts`  | Локальные типы для данной фичи      |
-
-#### 📁 `/types`
-
-Глобальные типы, общие для всего приложения (например, `User`, `Tokens`, `ApiError` и т.д.).
-
----
-
+## 🎯 Purpose
+This demo repository was created to showcase my frontend architecture, coding style, and ability to deliver production-ready interfaces.  
+It is intended for clients and recruiters to evaluate my skills.
